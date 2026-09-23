@@ -669,7 +669,7 @@ export default function KnowledgeBaseSection({ onNavigate, onNuggetComplete, com
     <section className="max-w-5xl mx-auto w-full">
       <div className="mb-10 text-center sm:text-left">
         <h2 className="text-3xl font-bold text-slate-900 mb-3 tracking-tight">Die Wissens-Base</h2>
-        <ModuleMeta time="Doppelstunde 1" mode="Einzelarbeit" goal="Fachwissen aufbauen & überprüfen" />
+        <ModuleMeta time="Doppelstunde 5 (Modul 3)" mode="Einzelarbeit (eigenes Tempo)" goal="Fachwissen aufbauen & überprüfen" />
         
         <div className="mt-6 bg-blue-50/50 border border-blue-200 p-6 rounded-2xl text-left">
           <div className="flex items-start space-x-4">

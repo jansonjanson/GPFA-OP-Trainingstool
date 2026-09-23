@@ -1,5 +1,5 @@
-export type Section = 'intro' | 'wissen' | 'videos' | 'auftrag' | 'simulator' | 'checkin';
-export const sectionsOrder: Section[] = ['intro', 'wissen', 'videos', 'auftrag', 'simulator', 'checkin'];
+export type Section = 'wissen' | 'videos' | 'auftrag' | 'simulator' | 'checkin' | 'intro';
+export const sectionsOrder: Section[] = ['wissen', 'videos', 'auftrag', 'simulator', 'checkin'];
 
 export interface GameState {
   consentMissing?: boolean;

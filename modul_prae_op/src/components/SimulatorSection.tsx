@@ -123,7 +123,7 @@ export default function SimulatorSection({ onNavigate, onAchievement }: Props) {
 
           <div className="w-full text-left max-w-xl mx-auto relative z-10">
             <ModuleMeta 
-              time="Doppelstunde 3 & 4" 
+              time="Doppelstunde 6 (Modul 3)" 
               mode="Einzel- oder Partnerarbeit + Plenum" 
               goal="Simulation & Auswertung" 
             />
@@ -133,7 +133,7 @@ export default function SimulatorSection({ onNavigate, onAchievement }: Props) {
 
           <div className="text-lg text-slate-600 mb-10 max-w-xl mx-auto leading-relaxed space-y-4 relative z-10 mt-4 text-left">
             <p>Haben Sie Ihre Kitteltaschenkarte griffbereit? Gut. Jetzt wird es ernst.</p>
-            <p>Sie übernehmen die Frühschicht. Frau Meinhardt (58) ist für eine Gallen-OP um 08:30 Uhr geplant. Sie ist nervös und stellt viele Fragen.</p>
+            <p>Sie übernehmen die Frühschicht. Frau Meinhardt (67) ist für eine Gallen-OP um 08:30 Uhr geplant. Sie ist nervös und stellt viele Fragen.</p>
             <p className="font-medium text-slate-800 bg-slate-50 p-4 rounded-xl border border-slate-200">Ihre Aufgabe: Wenden Sie Ihr Wissen und Ihre selbstgeschriebene Checkliste an, um Frau Meinhardt sicher bis in die OP-Schleuse zu bringen.</p>
             <p className="text-sm bg-gradient-to-br from-amber-50 to-yellow-50 text-amber-800 p-4 rounded-xl border border-amber-100/60 font-medium shadow-sm">
               Tipp: Wenn Sie nicht weiterwissen, können Sie 2x den Praxisanleitungs-Joker (oben rechts) nutzen!
@@ -156,7 +156,7 @@ export default function SimulatorSection({ onNavigate, onAchievement }: Props) {
                 <h1 className="font-semibold text-base sm:text-lg flex items-center space-x-2">
                   <span>Prä-OP Check</span>
                 </h1>
-                <p className="text-xs sm:text-sm text-slate-400 mt-0.5">Frau Meinhardt (58) | Cholezystektomie</p>
+                <p className="text-xs sm:text-sm text-slate-400 mt-0.5">Frau Meinhardt (67) | Cholezystektomie</p>
               </div>
               
               <button
@@ -433,7 +433,7 @@ export default function SimulatorSection({ onNavigate, onAchievement }: Props) {
                         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
                           <h4 className="text-xs uppercase font-bold text-slate-400 mb-2">Patientendaten</h4>
                           <p className="text-sm"><span className="font-semibold">Name:</span> Carola Meinhardt</p>
-                          <p className="text-sm"><span className="font-semibold">Alter:</span> 58 Jahre</p>
+                          <p className="text-sm"><span className="font-semibold">Alter:</span> 67 Jahre</p>
                           <p className="text-sm"><span className="font-semibold">Größe / Gewicht:</span> 165 cm / 75 kg</p>
                           <p className="text-sm text-rose-600"><span className="font-semibold">Allergien:</span> Pflasterallergie, Penicillin</p>
                         </div>

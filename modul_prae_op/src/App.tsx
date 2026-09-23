@@ -2,14 +2,13 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { HeartPulse, Lock, Unlock, X, Activity, ChevronUp, Clock, Users, Gamepad2, MessageCircle, Trophy } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Section, sectionsOrder } from './types';
-import IntroSection from './components/IntroSection';
 import KnowledgeBaseSection from './components/KnowledgeBaseSection';
 import MediaSection from './components/MediaSection';
 import TaskSection from './components/TaskSection';
 import SimulatorSection from './components/SimulatorSection';
 import CheckInSection from './components/CheckInSection';
-import FloatingAI from './components/FloatingAI';
 import { playSound } from './utils/audio';
+import { unlockAchievement } from '../../src/utils/gamification';
 
 const slideVariants = {
   enter: (direction: number) => ({
@@ -29,24 +28,37 @@ const slideVariants = {
 };
 
 export default function App() {
-  const [[activeSection, direction], setPage] = useState<[Section, number]>(['intro', 0]);
-  const [completedNuggets, setCompletedNuggets] = useState<Record<number, boolean>>({});
+  const [[activeSection, direction], setPage] = useState<[Section, number]>(['wissen', 0]);
+  const [completedNuggets, setCompletedNuggets] = useState<Record<number, boolean>>(() => {
+    try {
+      const raw = localStorage.getItem('gpfa_m3_unlocked_nuggets');
+      return raw ? JSON.parse(raw) : {};
+    } catch {
+      return {};
+    }
+  });
   const [showAchievement, setShowAchievement] = useState<{title: string, desc: string} | null>(null);
   
-  const [showWelcomeModal, setShowWelcomeModal] = useState(true);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [showAdminModal, setShowAdminModal] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
   
+  const isFreeNavGlobal = () => {
+    try {
+      return localStorage.getItem('gpfa_free_navigation_mode') === 'true';
+    } catch {
+      return false;
+    }
+  };
+
   const isWissenCompleted = Object.values(completedNuggets).filter(Boolean).length >= 7;
-  const canNavigateFreely = isWissenCompleted || isAdmin;
+  const canNavigateFreely = isWissenCompleted || isAdmin || isFreeNavGlobal();
 
   // Calculate total progress percentage
   const progressPercentage = Math.min(100, Math.max(0, 
-    (activeSection !== 'intro' ? 10 : 5) + 
     (Object.values(completedNuggets).filter(Boolean).length * 10) +
-    (isWissenCompleted ? 40 : 0) // rough approximation
+    (isWissenCompleted ? 30 : 0)
   ));
 
   const navigateTo = (newSection: Section) => {
@@ -69,6 +81,9 @@ export default function App() {
       if (prev && prev.title === title) return prev;
       return {title, desc};
     });
+    if (title.toLowerCase().includes('simulator') || desc.toLowerCase().includes('simulator')) {
+      unlockAchievement('modul3_simulation');
+    }
   }, []);
 
   const handleNuggetComplete = (index: number) => {
@@ -77,11 +92,18 @@ export default function App() {
 
     setCompletedNuggets(prev => {
       const next = { ...prev, [index]: true };
+      try {
+        localStorage.setItem('gpfa_m3_unlocked_nuggets', JSON.stringify(next));
+      } catch (e) {
+        // ignore
+      }
+
       const newlyCompleted = Object.values(next).filter(Boolean).length >= 7;
       const previouslyCompleted = Object.values(prev).filter(Boolean).length >= 7;
       
       if (newlyCompleted && !previouslyCompleted) {
         shouldPlayUnlock = true;
+        unlockAchievement('modul3_nuggets');
       } else if (!prev[index]) {
         shouldPlayPop = true;
       }
@@ -137,11 +159,11 @@ export default function App() {
   };
 
   const navItems: { id: Section; label: string; locked?: boolean }[] = [
-    { id: 'intro', label: '1. Übersicht' },
-    { id: 'wissen', label: '2. Wissens-Base' },
-    { id: 'videos', label: '3. OP-Schleuse & OP-Saal', locked: !canNavigateFreely },
-    { id: 'auftrag', label: '4. Arbeitsauftrag', locked: !canNavigateFreely },
-    { id: 'simulator', label: '5. OP-Simulator', locked: !canNavigateFreely },
+    { id: 'wissen', label: '1. Wissens-Base (Nuggets)' },
+    { id: 'videos', label: '2. OP-Schleuse & OP-Saal', locked: !canNavigateFreely },
+    { id: 'auftrag', label: '3. Arbeitsauftrag (Kittelkarte)', locked: !canNavigateFreely },
+    { id: 'simulator', label: '4. OP-Simulator', locked: !canNavigateFreely },
+    { id: 'checkin', label: '5. Lernerfolg', locked: !canNavigateFreely },
   ];
 
   return (
@@ -218,7 +240,6 @@ export default function App() {
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className="w-full flex-grow flex flex-col"
           >
-            {activeSection === 'intro' && <IntroSection onNavigate={navigateTo} />}
             {activeSection === 'wissen' && <KnowledgeBaseSection onNavigate={navigateTo} onNuggetComplete={handleNuggetComplete} completedNuggets={completedNuggets} onAchievement={handleAchievement} />}
             {activeSection === 'videos' && <MediaSection onNavigate={navigateTo} />}
             {activeSection === 'auftrag' && <TaskSection onNavigate={navigateTo} />}
@@ -227,8 +248,6 @@ export default function App() {
           </motion.div>
         </AnimatePresence>
       </main>
-
-      <FloatingAI onOpenAI={() => handleAchievement("Praxisanleitung eilt zur Hilfe", "KI-Helfer aktiviert!")} />
 
       <AnimatePresence>
         {showAchievement && (
@@ -269,102 +288,6 @@ export default function App() {
           >
             <ChevronUp className="w-6 h-6" />
           </motion.button>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {showWelcomeModal && (
-          <div className="fixed inset-0 z-[100] flex items-start sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4 pt-12 sm:pt-4">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col overflow-hidden"
-            >
-              <div className="bg-gradient-to-r from-blue-600 to-indigo-700 p-5 sm:p-8 text-white relative flex-shrink-0">
-                <button 
-                  onClick={() => setShowWelcomeModal(false)}
-                  className="absolute top-4 right-4 text-white/70 hover:text-white transition-colors"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-                <div className="flex items-center space-x-3 mb-2">
-                  <div className="bg-white/20 p-2 rounded-lg">
-                    <Activity className="w-8 h-8" />
-                  </div>
-                  <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Willkommen zum Prä-OP Navigator!</h2>
-                </div>
-              </div>
-              
-              <div className="p-6 sm:p-8 overflow-y-auto">
-                <div className="text-slate-700 space-y-4 leading-relaxed text-sm sm:text-base">
-                  <p>
-                    Die sichere Vorbereitung eines Menschen auf eine Operation ist eine der verantwortungsvollsten Aufgaben in der Pflege. Jeder Handgriff muss sitzen, und kleine Fehler können hier große Auswirkungen auf die Patientensicherheit haben.
-                  </p>
-                  <p>
-                    Auf dieser Lernwebsite erarbeiten Sie sich das nötige Fachwissen nicht nur theoretisch, sondern wenden es direkt praktisch an.
-                  </p>
-                  
-                  <h3 className="text-lg font-bold text-slate-900 mt-6 mb-3">Unser Fahrplan (Insgesamt 4 Doppelstunden à 90 Min.):</h3>
-                  
-                  <div className="space-y-4">
-                    <div className="flex gap-4">
-                      <div className="flex-shrink-0 mt-0.5 bg-blue-100 text-blue-600 p-1.5 rounded-lg">
-                        <Clock className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <strong className="text-slate-900 block mb-0.5">DS 1 | Die Basis (Einzelarbeit):</strong>
-                        <span className="text-slate-600">Sie arbeiten sich in Ihrem eigenen Tempo durch die Module 1 bis 3. Hier frischen Sie Ihr Wissen auf und überprüfen es direkt mit kleinen interaktiven Quizzes.</span>
-                      </div>
-                    </div>
-                    
-                    <div className="flex gap-4">
-                      <div className="flex-shrink-0 mt-0.5 bg-emerald-100 text-emerald-600 p-1.5 rounded-lg">
-                        <Users className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <strong className="text-slate-900 block mb-0.5">DS 2 | Das Werkzeug (Gruppenarbeit):</strong>
-                        <span className="text-slate-600">In Modul 4 erstellen Sie gemeinsam im Team eine 'Kitteltaschenkarte' – einen lückenlosen Ablaufplan für die Praxis.</span>
-                      </div>
-                    </div>
-                    
-                    <div className="flex gap-4">
-                      <div className="flex-shrink-0 mt-0.5 bg-indigo-100 text-indigo-600 p-1.5 rounded-lg">
-                        <Gamepad2 className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <strong className="text-slate-900 block mb-0.5">DS 3 | Der Ernstfall (Einzel- oder Partnerarbeit):</strong>
-                        <span className="text-slate-600">In Modul 5 betreten Sie den OP-Simulator. Hier müssen Sie Ihr neues Werkzeug nutzen, um unsere Patientin Frau Meinhardt sicher in den OP zu bringen.</span>
-                      </div>
-                    </div>
-                    
-                    <div className="flex gap-4">
-                      <div className="flex-shrink-0 mt-0.5 bg-amber-100 text-amber-600 p-1.5 rounded-lg">
-                        <MessageCircle className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <strong className="text-slate-900 block mb-0.5">DS 4 | Evaluation & Expertise (Plenum):</strong>
-                        <span className="text-slate-600">Wir werten Ihre Erfahrungen aus dem Simulator gemeinsam aus, vergleichen Ihre Ablaufpläne mit einer Musterlösung und klären offene Fragen für den perfekten Transfer in die Praxis.</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <p className="mt-6 font-medium text-slate-800">
-                    Schließen Sie nun dieses Fenster, um mit Modul 1 zu starten. Viel Erfolg!
-                  </p>
-                </div>
-              </div>
-              
-              <div className="p-6 bg-slate-50 border-t border-slate-100 flex justify-end">
-                <button 
-                  onClick={() => setShowWelcomeModal(false)}
-                  className="w-full sm:w-auto px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-all shadow-sm active:scale-95"
-                >
-                  Verstanden – Kurs starten!
-                </button>
-              </div>
-            </motion.div>
-          </div>
         )}
       </AnimatePresence>
 

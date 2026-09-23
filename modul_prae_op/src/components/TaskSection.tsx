@@ -13,7 +13,7 @@ export default function TaskSection({ onNavigate }: Props) {
       <div className="mb-10 text-center sm:text-left">
         <h2 className="text-3xl font-bold text-slate-900 mb-3 tracking-tight">Der Arbeitsauftrag</h2>
         <ModuleMeta 
-          time="Doppelstunde 2" 
+          time="Doppelstunde 5 & 6 (Modul 3)" 
           mode="Gruppenarbeit (3-4 Personen)" 
           goal="Transfer in die Praxis (SOP Erstellung)" 
         />

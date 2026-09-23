@@ -13,9 +13,12 @@ import { ISBARPuzzle } from './components/ISBARPuzzle';
 import { KnowledgeBase } from './components/KnowledgeBase';
 import { PatientRecord } from './components/PatientRecord';
 import { TutorialOverlay, TutorialStep } from './components/TutorialOverlay';
-import { MapPin, Clock, ChevronRight, CheckSquare, Square, Stethoscope, BookOpen, FileText, RotateCcw, Lock, HelpCircle } from 'lucide-react';
+import { DS7PostOpCurriculumView } from './components/DS7PostOpCurriculumView';
+import { MapPin, Clock, ChevronRight, CheckSquare, Square, Stethoscope, BookOpen, FileText, RotateCcw, Lock, HelpCircle, Activity, Sparkles } from 'lucide-react';
+import { unlockAchievement as unlockGlobalAchievement } from '../../src/utils/gamification';
 
 type AppState = 'dashboard' | 'playing';
+type ModuleViewMode = 'curriculum' | 'simulation';
 
 
 const tutorialSteps: TutorialStep[] = [
@@ -52,6 +55,7 @@ const tutorialSteps: TutorialStep[] = [
 ];
 
 export default function App() {
+  const [moduleViewMode, setModuleViewMode] = useState<ModuleViewMode>('curriculum');
   const [appState, setAppState] = useState<AppState>('dashboard');
   const [gameStats, setGameStats] = useState<GameStats | null>(null);
   const [savedRuns, setSavedRuns] = useState<SavedRun[]>([]);
@@ -198,6 +202,9 @@ export default function App() {
       if (score === 100 && !finalUnlocks.includes('textbook')) {
         unlockAchievement('textbook');
         finalUnlocks.push('textbook');
+      }
+      if (currentSceneId === 'end' && score >= 40) {
+        unlockGlobalAchievement('modul4_simulation');
       }
       saveStats(score, categories, finalUnlocks, energy, history);
     }
@@ -396,9 +403,74 @@ export default function App() {
     return Math.min(100, Math.round((currentStep / totalScenes) * 100));
   };
 
+  if (moduleViewMode === 'curriculum') {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
+        {/* Modul 4 Sub-Navigation Bar */}
+        <div className="bg-slate-950 text-white px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between border-b border-slate-800 text-xs gap-3">
+          <div className="flex items-center space-x-2">
+            <span className="font-extrabold text-emerald-400 uppercase tracking-wider text-[11px] bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-800/60">
+              Modul 4: Post-OP Pflege
+            </span>
+            <span className="text-slate-500 hidden sm:inline">•</span>
+            <span className="text-slate-300 font-medium hidden sm:inline">2 × 90 Min. (DS 7 & DS 8)</span>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => setModuleViewMode('curriculum')}
+              className="px-3 py-1.5 bg-emerald-600 text-white font-bold rounded-xl shadow-sm text-xs transition-all cursor-pointer"
+            >
+              DS 7: Theorie, Medien & 19 Quizzes
+            </button>
+            <button
+              onClick={() => {
+                setModuleViewMode('simulation');
+                setAppState('playing');
+              }}
+              className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold rounded-xl transition-all text-xs cursor-pointer"
+            >
+              DS 8: Klinischer Simulator
+            </button>
+            <button
+              onClick={() => setShowPatientRecord(true)}
+              className="px-2.5 py-1.5 bg-sky-950 text-sky-300 hover:bg-sky-900 border border-sky-800/60 rounded-xl flex items-center gap-1.5 font-bold transition-all text-xs cursor-pointer"
+            >
+              <FileText className="w-3.5 h-3.5 text-sky-400" />
+              <span>Akte: C. Meinhardt (67 J.)</span>
+            </button>
+          </div>
+        </div>
+
+        <DS7PostOpCurriculumView
+          onStartSimulation={() => {
+            setModuleViewMode('simulation');
+            setAppState('playing');
+          }}
+          onOpenPatientRecord={() => setShowPatientRecord(true)}
+        />
+
+        <PatientRecord isOpen={showPatientRecord} onClose={() => setShowPatientRecord(false)} />
+      </div>
+    );
+  }
+
   if (appState === 'dashboard') {
     return (
-      <Dashboard stats={gameStats} savedRuns={savedRuns} onStart={startSimulation} onReset={handleHardReset} />
+      <div className="relative">
+        <div className="bg-slate-900 text-white px-4 py-2.5 flex items-center justify-between border-b border-slate-800 text-xs">
+          <button
+            onClick={() => setModuleViewMode('curriculum')}
+            className="flex items-center space-x-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-xl transition-all cursor-pointer"
+          >
+            <ChevronRight className="w-4 h-4 rotate-180" />
+            <span>Zurück zu DS 7: Theorie & Quizzes</span>
+          </button>
+          <span className="text-slate-400 text-xs">DS 8: OP-Simulation Dashboard</span>
+        </div>
+        <Dashboard stats={gameStats} savedRuns={savedRuns} onStart={startSimulation} onReset={handleHardReset} />
+        <PatientRecord isOpen={showPatientRecord} onClose={() => setShowPatientRecord(false)} />
+      </div>
     );
   }
 
@@ -420,12 +492,23 @@ export default function App() {
       
       <div className="flex-grow flex flex-col relative h-screen overflow-hidden">
         <header className="bg-slate-800 py-2 px-4 flex justify-between items-center shadow-md z-40 relative shrink-0">
-          <div className="flex items-center gap-2 text-sm font-bold text-amber-400">
-            <MapPin className="w-4 h-4" />
-            <span className="hidden sm:inline">{currentScene.location}</span>
-            <span className="text-slate-600 mx-1 hidden sm:inline">|</span>
-            <Clock className="w-4 h-4" />
-            <span>{currentScene.time}</span>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setModuleViewMode('curriculum')}
+              className="flex items-center space-x-1 bg-emerald-700 hover:bg-emerald-600 text-white font-bold px-2.5 py-1 rounded-lg text-xs transition-colors cursor-pointer shadow-sm"
+              title="Zurück zu DS 7 (Theorie & Quizzes)"
+            >
+              <ChevronRight className="w-3.5 h-3.5 rotate-180" />
+              <span className="hidden sm:inline">Zu DS 7 (Theorie)</span>
+              <span className="sm:hidden">DS 7</span>
+            </button>
+            <div className="flex items-center gap-2 text-sm font-bold text-amber-400">
+              <MapPin className="w-4 h-4" />
+              <span className="hidden sm:inline">{currentScene.location}</span>
+              <span className="text-slate-600 mx-1 hidden sm:inline">|</span>
+              <Clock className="w-4 h-4" />
+              <span>{currentScene.time}</span>
+            </div>
           </div>
           <div id="tour-tools" className="flex items-center gap-2 p-1 -m-1 rounded-xl">
             {adminMode && (

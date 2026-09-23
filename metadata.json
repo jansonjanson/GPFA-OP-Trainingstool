@@ -1,0 +1,8 @@
+{
+  "name": "GPFA OP-Trainingstool",
+  "description": "Interaktives E-Learning-Hub zur prä- und postoperativen Pflege mit Simulationslabor, ISBAR-Übergabe und Vitaldatenüberwachung.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

@@ -12,7 +12,7 @@ export default function CheckInSection({ onNavigate }: Props) {
     <section className="max-w-4xl mx-auto w-full">
       <div className="mb-10 text-center sm:text-left">
         <h2 className="text-3xl font-bold text-slate-900 mb-3 tracking-tight">Check-In & Hinweise</h2>
-        <ModuleMeta time="Doppelstunde 4" mode="Gruppenarbeit / Plenum" goal="Theorie, Checklisten und Simulation verknüpfen" />
+        <ModuleMeta time="Doppelstunde 6 (Modul 3 Abschluss)" mode="Gruppenarbeit / Plenum" goal="Theorie, Checklisten und Simulation verknüpfen" />
       </div>
 
       <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden mb-8 relative">
@@ -26,10 +26,10 @@ export default function CheckInSection({ onNavigate }: Props) {
             <div className="relative z-10">
               <h3 className="text-xl font-bold text-indigo-900 mb-3 flex items-center">
                 <Info className="w-6 h-6 mr-2 text-indigo-600" />
-                Check-In für DS 4 (Doppelstunde 4)
+                Check-In für DS 6 (Doppelstunde 6)
               </h3>
               <p className="text-indigo-800 leading-relaxed mb-4 text-lg">
-                In der 4. Doppelstunde werden wir alle Puzzleteile zusammenführen:
+                In der 6. Doppelstunde werden alle Puzzleteile der präoperativen Vorbereitung zusammengeführt:
               </p>
               <ul className="space-y-3 text-indigo-900 font-medium text-lg">
                 <li className="flex items-start">
@@ -90,6 +90,21 @@ export default function CheckInSection({ onNavigate }: Props) {
                   <p className="text-sm text-slate-600">Nehmen Sie Ihre SOP mit in die Simulation und überprüfen Sie diese.</p>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* Next Module Teaser */}
+          <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-md">
+                Ausblick: Curriculum DS 7 & 8
+              </span>
+              <h4 className="text-base font-bold text-emerald-950 mt-1">
+                Nächster Schritt: Modul 4 – Post-OP Pflege & Aufwachraum
+              </h4>
+              <p className="text-xs text-emerald-800 mt-0.5">
+                Nach erfolgreichem Schleusentransfer erwacht Frau Meinhardt im Aufwachraum. Dort beginnt die postoperative Überwachung!
+              </p>
             </div>
           </div>
 
