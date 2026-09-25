@@ -178,15 +178,15 @@ export const quiz2PremedCloze = {
   intro: 'Vervollständigen Sie die Fachinformationen zur medikamentösen Prämedikation vor der Operation:',
   parts: [
     { text: 'Um Patienten die Angst zu nehmen (Anxiolyse), wird oft eine medikamentöse Prämedikation verabreicht. Hierfür werden meist Medikamente aus der Gruppe der ' },
-    { key: 'stoffgruppe', correct: 'Benzodiazepine', options: ['Benzodiazepine', 'Neuroleptika', 'Barbiturate'] },
+    { key: 'stoffgruppe', correct: 'Benzodiazepine', options: ['Barbiturate', 'Benzodiazepine', 'Neuroleptika'] },
     { text: ' eingesetzt. Typische Wirkstoffe sind Midazolam, Lorazepam, ' },
-    { key: 'wirkstoff', correct: 'Diazepam', options: ['Diazepam', 'Morphin', 'Paracetamol'] },
+    { key: 'wirkstoff', correct: 'Diazepam', options: ['Morphin', 'Paracetamol', 'Diazepam'] },
     { text: ' oder Oxazepam. Diese Medikamente wirken nicht nur angstlösend, sondern oft auch beruhigend (sedativ), schlaffördernd und ' },
-    { key: 'wirkung', correct: 'muskelentspannend', options: ['muskelentspannend', 'blutdrucksteigernd', 'atemantreibend'] },
+    { key: 'wirkung', correct: 'muskelentspannend', options: ['blutdrucksteigernd', 'muskelentspannend', 'atemantreibend'] },
     { text: '. Damit das Medikament optimal wirkt, sollte es ca. ' },
-    { key: 'zeitpunkt', correct: '45 Minuten', options: ['45 Minuten', '5 Minuten', '4 Stunden'] },
+    { key: 'zeitpunkt', correct: '45 Minuten', options: ['5 Minuten', '45 Minuten', '4 Stunden'] },
     { text: ' vor dem Eingriff verabreicht werden. Besondere Vorsicht ist jedoch bei der Gabe an ältere Menschen und Kinder geboten, da hier die Gefahr eines ' },
-    { key: 'risiko', correct: 'Delirs', options: ['Delirs', 'Komas', 'Schocks'] },
+    { key: 'risiko', correct: 'Delirs', options: ['Komas', 'Delirs', 'Schocks'] },
     { text: ' (paradoxe Erregung) besteht.' }
   ]
 };

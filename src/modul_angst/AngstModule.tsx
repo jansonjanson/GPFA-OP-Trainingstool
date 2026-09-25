@@ -26,7 +26,10 @@ interface Props {
 export const AngstModule: React.FC<Props> = ({ onBackToHub, onGoToModulPraeOp }) => {
   const [activeTab, setActiveTab] = useState<DSLevel>('ds1');
   const [unlockedNuggets, setUnlockedNuggets] = useState<string[]>(() => {
-    return getLocal<string[]>(StorageKeys.MODUL2_NUGGETS, ['ds1_quiz1']);
+    return getLocal<string[]>(StorageKeys.MODUL2_NUGGETS, []);
+  });
+  const [completedQuizzes, setCompletedQuizzes] = useState<string[]>(() => {
+    return getLocal<string[]>(StorageKeys.MODUL2_QUIZZES, []);
   });
 
   const handleUnlockNugget = (quizId: string) => {
@@ -34,7 +37,18 @@ export const AngstModule: React.FC<Props> = ({ onBackToHub, onGoToModulPraeOp })
       const next = [...unlockedNuggets, quizId];
       setUnlockedNuggets(next);
       setLocal(StorageKeys.MODUL2_NUGGETS, next);
-      if (next.length >= 6) {
+    }
+  };
+
+  const handleCompleteQuiz = (quizId: string) => {
+    if (!completedQuizzes.includes(quizId)) {
+      const next = [...completedQuizzes, quizId];
+      setCompletedQuizzes(next);
+      setLocal(StorageKeys.MODUL2_QUIZZES, next);
+
+      // Trigger achievement ONLY when all DS 3 quizzes (quiz 1 to 5) are completed
+      const allDS3Quizzes = ['ds1_quiz1', 'ds1_quiz2', 'ds1_quiz3', 'ds1_quiz4', 'ds1_quiz5'];
+      if (allDS3Quizzes.every(id => next.includes(id))) {
         unlockAchievement('modul2_theorie');
       }
     }
@@ -106,7 +120,9 @@ export const AngstModule: React.FC<Props> = ({ onBackToHub, onGoToModulPraeOp })
       {activeTab === 'ds1' && (
         <DS1View
           unlockedNuggets={unlockedNuggets}
+          completedQuizzes={completedQuizzes}
           onUnlockNugget={handleUnlockNugget}
+          onCompleteQuiz={handleCompleteQuiz}
           onGoToDS2={() => setActiveTab('ds2')}
         />
       )}
@@ -115,6 +131,7 @@ export const AngstModule: React.FC<Props> = ({ onBackToHub, onGoToModulPraeOp })
         <DS2View
           unlockedNuggets={unlockedNuggets}
           onUnlockNugget={handleUnlockNugget}
+          onCompleteQuiz={handleCompleteQuiz}
           onStartSimulation={() => setActiveTab('simulation')}
         />
       )}

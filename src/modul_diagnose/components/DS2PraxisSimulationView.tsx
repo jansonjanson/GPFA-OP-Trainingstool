@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   Stethoscope, 
   User, 
@@ -40,6 +40,16 @@ export const DS2PraxisSimulationView: React.FC<Props> = ({
   const [showUltrasoundModal, setShowUltrasoundModal] = useState<boolean>(false);
 
   const currentStep = anamneseSteps[currentStepIndex];
+
+  const shuffledChoices = useMemo(() => {
+    if (!currentStep) return [];
+    const list = [...currentStep.choices];
+    for (let i = list.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [list[i], list[j]] = [list[j], list[i]];
+    }
+    return list;
+  }, [currentStep?.id]);
 
   const handleSelectChoice = (choice: AnamneseChoice) => {
     if (choice.category === 'optimal') {
@@ -130,12 +140,14 @@ export const DS2PraxisSimulationView: React.FC<Props> = ({
               Erstkontakt Praxis
             </span>
           </div>
-          <div className="text-xs space-y-1 text-slate-700">
+          <div className="text-xs space-y-1.5 text-slate-700">
             <p><strong>Name:</strong> Carola Meinhardt</p>
-            <p><strong>Alter:</strong> 67 Jahre (Risikofaktor &gt; 40 „Forty“)</p>
-            <p><strong>Größe / Gewicht:</strong> 165 cm / 75 kg (BMI ~ 27,5 kg/m² „Fat“)</p>
-            <p><strong>Anamnese:</strong> 2 Kinder („Fertile“), Mutter hatte Gallensteine („Family“)</p>
-            <p><strong>Allergien:</strong> Pflasterallergie, Penicillin</p>
+            <p><strong>Alter:</strong> 67 Jahre</p>
+            <p><strong>Körpermaße:</strong> 165 cm / 76 kg (BMI ~ 27,9 kg/m²)</p>
+            <p><strong>Familienanamnese:</strong> Mutter litt unter Gallensteinen (Cholezystektomie mit 58 J.)</p>
+            <p><strong>Gynäkologische Anamnese:</strong> 2 Kinder (Spontangeburten), Menopause mit 51 J.</p>
+            <p><strong>Phänotyp:</strong> Heller kaukasischer Hauttyp (blond, blaue Augen)</p>
+            <p><strong>Allergien / Unverträglichkeiten:</strong> Penicillin, Pflasterallergie (Kolophonium)</p>
           </div>
         </div>
 
@@ -230,7 +242,7 @@ export const DS2PraxisSimulationView: React.FC<Props> = ({
           {/* Choices Options */}
           {!lastFeedback ? (
             <div className="space-y-3">
-              {currentStep.choices.map(choice => (
+              {shuffledChoices.map(choice => (
                 <button
                   key={choice.id}
                   onClick={() => handleSelectChoice(choice)}

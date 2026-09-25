@@ -102,6 +102,8 @@ export const StorageKeys = {
   MODUL4_NUGGETS: 'gpfa_m4_unlocked_nuggets',
   MODUL4_QUIZZES: 'gpfa_m4_completed_quizzes',
   ACTIVE_MODULE: 'gpfa_last_active_module',
+  ADMIN_UNLOCKED: 'gpfa_admin_unlocked',
+  TUTORIAL_SEEN: 'gpfa_hud_tutorial_seen',
 };
 
 export function getLocal<T>(key: string, defaultValue: T): T {
@@ -120,6 +122,83 @@ export function setLocal<T>(key: string, value: T): void {
     localStorage.setItem(key, JSON.stringify(value));
   } catch (e) {
     console.warn(`[storage] Could not write ${key}`, e);
+  }
+}
+
+// Check if admin mode is active
+export function isAdminUnlocked(): boolean {
+  return getLocal<boolean>(StorageKeys.ADMIN_UNLOCKED, false);
+}
+
+// Check if free navigation is enabled
+export function isFreeNavigationMode(): boolean {
+  return getLocal<boolean>(StorageKeys.FREE_NAV_MODE, false) || isAdminUnlocked();
+}
+
+// Module Progression Logic
+// Modul 1: always open
+// Modul 2: unlocked if Modul 1 simulation completed
+// Modul 3: unlocked if Modul 2 simulation completed
+// Modul 4: unlocked if Modul 3 simulation completed
+export function isModuleUnlocked(moduleNum: 1 | 2 | 3 | 4): boolean {
+  if (moduleNum === 1) return true;
+  if (isFreeNavigationMode()) return true;
+
+  if (moduleNum === 2) {
+    return isAchievementUnlocked('modul1_simulation');
+  }
+  if (moduleNum === 3) {
+    return isAchievementUnlocked('modul2_simulation');
+  }
+  if (moduleNum === 4) {
+    return isAchievementUnlocked('modul3_simulation');
+  }
+  return false;
+}
+
+// Admin unlock with password "Janson"
+export const ADMIN_PASSWORD = 'Janson';
+
+export function unlockAllWithAdminPassword(password: string): boolean {
+  if (password.trim() !== ADMIN_PASSWORD) {
+    return false;
+  }
+
+  // Set flags
+  setLocal(StorageKeys.ADMIN_UNLOCKED, true);
+  setLocal(StorageKeys.FREE_NAV_MODE, true);
+
+  // Unlock all achievements
+  const allIds = ALL_ACHIEVEMENTS.map(a => a.id);
+  setLocal(StorageKeys.UNLOCKED_ACHIEVEMENTS, allIds);
+
+  // Unlock all nuggets
+  setLocal(StorageKeys.MODUL1_NUGGETS, [
+    'nugget_6f', 'nugget_symptome', 'nugget_ausscheidung', 'nugget_redflags',
+    'nugget_handeln', 'nugget_anatomie', 'nugget_therapie'
+  ]);
+  setLocal(StorageKeys.MODUL2_NUGGETS, [
+    'ds1_quiz1', 'ds1_quiz2', 'ds1_quiz3', 'ds2_quiz1', 'ds2_quiz2', 'ds2_quiz3'
+  ]);
+  setLocal(StorageKeys.MODUL3_NUGGETS, [
+    'praeop_nugget_basics', 'praeop_nugget_standard', 'praeop_nugget_safety', 'praeop_nugget_simulation'
+  ]);
+  setLocal(StorageKeys.MODUL4_NUGGETS, Array.from({ length: 19 }, (_, i) => `station-${i + 1}`));
+
+  return true;
+}
+
+// Reset all training progress completely
+export function resetEntireTrainingProgress(): void {
+  try {
+    Object.values(StorageKeys).forEach(k => {
+      localStorage.removeItem(k);
+    });
+    // Also remove any custom keys
+    localStorage.removeItem('gpfa_m4_completed_quizzes');
+    localStorage.removeItem('gpfa_m3_completed_quizzes');
+  } catch (e) {
+    console.error('Error resetting progress:', e);
   }
 }
 

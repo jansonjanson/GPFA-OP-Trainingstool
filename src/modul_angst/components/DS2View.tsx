@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   BriefcaseMedical, 
   FileText, 
@@ -12,7 +12,10 @@ import {
   Layers,
   HelpCircle,
   Play,
-  RotateCcw
+  RotateCcw,
+  ArrowDown,
+  BookOpen,
+  Award
 } from 'lucide-react';
 import { 
   ds2Fachtext, 
@@ -25,22 +28,54 @@ import {
 import { Notfallkoffer } from './Notfallkoffer';
 import { playSound } from '../utils/audio';
 
+function fisherYatesShuffle<T>(array: T[]): T[] {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
 interface Props {
   unlockedNuggets: string[];
   onUnlockNugget: (quizId: string) => void;
+  onCompleteQuiz?: (quizId: string) => void;
   onStartSimulation: () => void;
 }
 
-export const DS2View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onStartSimulation }) => {
+export const DS2View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onCompleteQuiz, onStartSimulation }) => {
+  // Step confirmation tracking
+  const [step1Completed, setStep1Completed] = useState<boolean>(() => {
+    return unlockedNuggets.includes('ds2_step1_text');
+  });
+  const [step2Completed, setStep2Completed] = useState<boolean>(() => {
+    return unlockedNuggets.includes('ds2_step2_koffer');
+  });
+
   // Quiz 1: Communication Scale (Do vs Don't)
   const [q1Index, setQ1Index] = useState<number>(0);
   const [q1Feedback, setQ1Feedback] = useState<{ isCorrect: boolean; text: string } | null>(null);
 
-  // Quiz 2: Premedication Cloze
+  // Quiz 2: Premedication Cloze with shuffled options
+  const [q2Seed, setQ2Seed] = useState<number>(1);
+  const shuffledQ2Options = useMemo(() => {
+    const res: Record<string, string[]> = {};
+    quiz2PremedCloze.parts.forEach(part => {
+      if (part.key && part.options) {
+        res[part.key] = fisherYatesShuffle([...part.options]);
+      }
+    });
+    return res;
+  }, [q2Seed]);
   const [q2Selections, setQ2Selections] = useState<Record<string, string>>({});
   const [q2Feedback, setQ2Feedback] = useState<{ isCorrect: boolean; text: string } | null>(null);
 
-  // Quiz 3: Distraction Matching
+  // Quiz 3: Distraction Matching with shuffled right-hand terms
+  const [q3Seed, setQ3Seed] = useState<number>(1);
+  const shuffledQ3Terms = useMemo(() => {
+    return fisherYatesShuffle(quiz3DistractionMatching.map(p => p.term));
+  }, [q3Seed]);
   const [q3SelectedScenario, setQ3SelectedScenario] = useState<string | null>(null);
   const [q3MatchedPairs, setQ3MatchedPairs] = useState<Record<string, string>>({});
   const [q3Feedback, setQ3Feedback] = useState<{ isCorrect: boolean; text: string } | null>(null);
@@ -71,6 +106,7 @@ export const DS2View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onSt
 
     if (q1Index === quiz1CommunicationItems.length - 1 && isCorrect) {
       onUnlockNugget('ds2_quiz1');
+      onCompleteQuiz?.('ds2_quiz1');
       playSound('unlock');
     }
   };
@@ -100,6 +136,7 @@ export const DS2View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onSt
         text: 'Sehr gut! Sie beherrschen die Indikationen, Substanzklassen, das 45-Minuten-Zeitfenster und die Risiken (Delir bei Älteren) der medikamentösen Prämedikation.'
       });
       onUnlockNugget('ds2_quiz2');
+      onCompleteQuiz?.('ds2_quiz2');
     } else {
       playSound('error');
       setQ2Feedback({
@@ -125,6 +162,7 @@ export const DS2View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onSt
 
       if (Object.keys(updated).length === quiz3DistractionMatching.length) {
         onUnlockNugget('ds2_quiz3');
+        onCompleteQuiz?.('ds2_quiz3');
         playSound('unlock');
       }
     } else {
@@ -154,6 +192,7 @@ export const DS2View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onSt
 
     if (q4Index === quiz4MatrixItems.length - 1 && isCorrect) {
       onUnlockNugget('ds2_quiz4');
+      onCompleteQuiz?.('ds2_quiz4');
       playSound('unlock');
     }
   };
@@ -187,6 +226,7 @@ export const DS2View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onSt
         text: 'Großartig! Sie haben alle 3 kritischen Fehler aufgedeckt: Kirschkernkissen birgt Hygienerisiken & Verbrennungsgefahr; panische Begleitpersonen verstärken die Angst; und kühle Routine zerstört Vertrauen. Nur die Bezugspflege ist korrekt!'
       });
       onUnlockNugget('ds2_quiz5');
+      onCompleteQuiz?.('ds2_quiz5');
     } else {
       playSound('error');
       setQ5Feedback({
@@ -205,6 +245,7 @@ export const DS2View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onSt
   const handleResetQ2 = () => {
     setQ2Selections({});
     setQ2Feedback(null);
+    setQ2Seed(prev => prev + 1);
     playSound('pop');
   };
 
@@ -212,6 +253,7 @@ export const DS2View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onSt
     setQ3SelectedScenario(null);
     setQ3MatchedPairs({});
     setQ3Feedback(null);
+    setQ3Seed(prev => prev + 1);
     playSound('pop');
   };
 
@@ -239,61 +281,147 @@ export const DS2View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onSt
             <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">
               Pflegerische Praxis, Notfallkoffer & Akut-Interventionen
             </h2>
-            <p className="text-slate-600 text-sm mt-1 max-w-3xl">
-              <strong>Lernziel (PFA-Niveau):</strong> Realistische pflegerische Deeskalation, beruhigende Kommunikation, thermische Entlastung, zielgerichtete Ablenkung und sichere Prämedikation anwenden.
+            <p className="text-slate-600 text-xs sm:text-sm mt-1 max-w-3xl leading-relaxed">
+              Erarbeiten Sie deeskalierende Kommunikation, thermische Entlastung, gezielte Ablenkung und evidenzbasierte Prämedikation vor der Cholezystektomie.
             </p>
           </div>
           <button
             onClick={onStartSimulation}
-            className="px-5 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl hover:from-blue-700 hover:to-indigo-700 transition-all flex items-center space-x-2 flex-shrink-0"
+            className="px-5 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center space-x-2 flex-shrink-0 cursor-pointer"
           >
             <Play className="w-5 h-5 fill-current" />
             <span>Zur Frau Meinhardt Simulation</span>
           </button>
         </div>
 
-        {/* CNE Fachtext Banner */}
-        <div className="mt-6 bg-slate-50 border border-slate-200 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-start space-x-3">
-            <div className="p-3 bg-blue-100 text-blue-700 rounded-xl flex-shrink-0">
-              <FileText className="w-6 h-6" />
-            </div>
-            <div>
-              <span className="text-[11px] font-bold text-blue-600 uppercase tracking-wider">
-                {ds2Fachtext.source}
-              </span>
-              <h4 className="text-base font-bold text-slate-900">
-                {ds2Fachtext.title}
-              </h4>
-              <p className="text-xs text-slate-600 mt-0.5">
-                {ds2Fachtext.description}
-              </p>
-            </div>
+        {/* SCHRITT 1: CNE Fachtext Banner */}
+        <div className="mt-6">
+          <div className="bg-rose-50/80 border border-rose-200 rounded-2xl p-4 mb-4">
+            <span className="text-[11px] font-extrabold uppercase tracking-wider text-rose-700 bg-rose-100 px-2 py-0.5 rounded-md">
+              Arbeitsauftrag 1: CNE-Fachtext vollständig durcharbeiten
+            </span>
+            <p className="text-xs sm:text-sm text-slate-700 mt-1 leading-relaxed">
+              Lesen Sie den CNE-Fachtext „Angst vor Operationen“ aufmerksam durch, um evidenzbasierte Deeskalationsmethoden und Risiken der medikamentösen Prämedikation zu verstehen.
+            </p>
           </div>
-          <a
-            href={ds2Fachtext.url}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center space-x-2 px-4 py-2 bg-white border border-slate-300 hover:border-blue-500 hover:text-blue-600 text-slate-700 rounded-xl text-xs font-semibold transition-colors flex-shrink-0 shadow-sm"
-          >
-            <span>Fachtext öffnen</span>
-            <ExternalLink className="w-3.5 h-3.5" />
-          </a>
+
+          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-start space-x-3">
+              <div className="p-3 bg-blue-100 text-blue-700 rounded-xl flex-shrink-0">
+                <FileText className="w-6 h-6" />
+              </div>
+              <div>
+                <span className="text-[11px] font-bold text-blue-600 uppercase tracking-wider">
+                  {ds2Fachtext.source}
+                </span>
+                <h4 className="text-base font-bold text-slate-900">
+                  {ds2Fachtext.title}
+                </h4>
+                <p className="text-xs text-slate-600 mt-0.5">
+                  {ds2Fachtext.description}
+                </p>
+              </div>
+            </div>
+            <a
+              href={ds2Fachtext.url}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center space-x-2 px-4 py-2 bg-white border border-slate-300 hover:border-blue-500 hover:text-blue-600 text-slate-700 rounded-xl text-xs font-semibold transition-colors flex-shrink-0 shadow-sm cursor-pointer"
+            >
+              <span>Fachtext öffnen</span>
+              <ExternalLink className="w-3.5 h-3.5" />
+            </a>
+          </div>
+
+          {/* Schritt 1 Bestätigungs-Button mit Pulsieren */}
+          <div className="mt-4 p-4 rounded-2xl bg-white border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
+            <div className="text-xs text-slate-600">
+              <span className="font-bold text-slate-900 block">Pfad-Führung:</span>
+              Bestätigen Sie das Durcharbeiten des Fachtextes, um strukturiert zum Notfallkoffer zu gelangen.
+            </div>
+            <button
+              onClick={() => {
+                setStep1Completed(true);
+                onUnlockNugget('ds2_step1_text');
+                playSound('success');
+              }}
+              className={`px-5 py-3 rounded-xl font-extrabold text-xs sm:text-sm shadow-md transition-all flex items-center space-x-2 cursor-pointer ${
+                step1Completed
+                  ? 'bg-emerald-600 text-white'
+                  : 'bg-amber-500 hover:bg-amber-600 text-slate-950 ring-4 ring-amber-300 animate-pulse'
+              }`}
+            >
+              {step1Completed ? <CheckCircle2 className="w-4 h-4 text-white" /> : <BookOpen className="w-4 h-4" />}
+              <span>{step1Completed ? 'Schritt 1 gesichert: CNE-Fachtext durchgearbeitet' : 'Schritt 1 bestätigen: Fachtext gelesen'}</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* DIGITALER NOTFALLKOFFER SECTION */}
-      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm">
-        <Notfallkoffer standalone={true} />
+      {/* Pfeil-Leitung zwischen Schritt 1 und Schritt 2 */}
+      <div className="flex flex-col items-center justify-center py-4">
+        <div className="h-6 w-0.5 bg-rose-300"></div>
+        <div className="px-3.5 py-1 rounded-full bg-rose-100 text-rose-800 text-[11px] font-bold border border-rose-200 shadow-xs flex items-center space-x-1.5 my-1">
+          <span>Nächster Schritt: Digitalen Notfallkoffer erkunden</span>
+          <ArrowDown className="w-3.5 h-3.5 text-rose-600" />
+        </div>
+        <div className="h-6 w-0.5 bg-rose-300"></div>
       </div>
 
-      {/* QUIZZES TITLE */}
+      {/* SCHRITT 2: DIGITALER NOTFALLKOFFER SECTION */}
+      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4">
+        <div className="bg-amber-50/80 border border-amber-200 rounded-2xl p-4">
+          <span className="text-[11px] font-extrabold uppercase tracking-wider text-amber-800 bg-amber-100 px-2 py-0.5 rounded-md">
+            Arbeitsauftrag 2: Die 5 Evidenz-Schubladen verinnerlichen
+          </span>
+          <p className="text-xs sm:text-sm text-slate-700 mt-1 leading-relaxed">
+            Öffnen und prüfen Sie alle 5 Evidenz-Schubladen des digitalen Notfallkoffers (Kommunikation, Wärmedecke, Ablenkung, Prämedikation, ISBAR-Übergabe).
+          </p>
+        </div>
+
+        <Notfallkoffer standalone={true} />
+
+        {/* Schritt 2 Bestätigungs-Button mit Pulsieren */}
+        <div className="mt-6 p-4 rounded-2xl bg-white border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
+          <div className="text-xs text-slate-600">
+            <span className="font-bold text-slate-900 block">Pfad-Führung:</span>
+            Bestätigen Sie das Verinnerlichen des Notfallkoffers, um strukturiert zu den Praxis-Quizzes zu gelangen.
+          </div>
+          <button
+            onClick={() => {
+              setStep2Completed(true);
+              onUnlockNugget('ds2_step2_koffer');
+              playSound('success');
+            }}
+            className={`px-5 py-3 rounded-xl font-extrabold text-xs sm:text-sm shadow-md transition-all flex items-center space-x-2 cursor-pointer ${
+              step2Completed
+                ? 'bg-emerald-600 text-white'
+                : 'bg-amber-500 hover:bg-amber-600 text-slate-950 ring-4 ring-amber-300 animate-pulse'
+            }`}
+          >
+            {step2Completed ? <CheckCircle2 className="w-4 h-4 text-white" /> : <BriefcaseMedical className="w-4 h-4" />}
+            <span>{step2Completed ? 'Schritt 2 gesichert: Notfallkoffer verinnerlicht' : 'Schritt 2 bestätigen: Notfallkoffer beherrscht'}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Pfeil-Leitung zwischen Schritt 2 und Schritt 3 */}
+      <div className="flex flex-col items-center justify-center py-4">
+        <div className="h-6 w-0.5 bg-rose-300"></div>
+        <div className="px-3.5 py-1 rounded-full bg-rose-100 text-rose-800 text-[11px] font-bold border border-rose-200 shadow-xs flex items-center space-x-1.5 my-1">
+          <span>Weiter zu Schritt 3: Quizzes bearbeiten</span>
+          <ArrowDown className="w-3.5 h-3.5 text-rose-600" />
+        </div>
+        <div className="h-6 w-0.5 bg-rose-300"></div>
+      </div>
+
+      {/* SCHRITT 3: QUIZZES TITLE */}
       <div className="text-center">
         <span className="text-xs font-bold uppercase tracking-wider text-rose-600 bg-rose-50 px-4 py-1.5 rounded-full border border-rose-200">
-          Praxis-Sicherung & Kompetenztraining
+          Schritt 3: Praxis-Sicherung & Kompetenztraining
         </span>
         <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2">
-          5 Praxis-Quizzes für die Doppelstunde 2
+          5 Praxis-Quizzes für die Doppelstunde 4
         </h3>
         <p className="text-slate-600 text-sm max-w-2xl mx-auto mt-1">
           Trainieren Sie die richtigen pflegerischen Worte, erkennen Sie Gefahren im Patientenzimmer und bereiten Sie sich optimal auf die Cholezystektomie-Simulation vor.
@@ -451,7 +579,7 @@ export const DS2View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onSt
                   }`}
                 >
                   <option value="">[ Auswählen ]</option>
-                  {part.options!.map((opt) => (
+                  {(shuffledQ2Options[part.key] || part.options!).map((opt) => (
                     <option key={opt} value={opt}>
                       {opt}
                     </option>
@@ -552,17 +680,12 @@ export const DS2View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onSt
             })}
           </div>
 
-          {/* Right Methods */}
+          {/* Right Methods (Shuffled) */}
           <div className="space-y-3">
             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
               Ablenkungs- & Entspannungsmethoden
             </span>
-            {[
-              'Spaziergang über Station / Park',
-              'Medien (Podcast / Radio / Lesen)',
-              'PMR nach Jacobson anleiten',
-              'Kontakt zu Angehörigen herstellen'
-            ].map((term) => {
+            {shuffledQ3Terms.map((term) => {
               const isUsed = Object.values(q3MatchedPairs).includes(term);
 
               return (
@@ -582,7 +705,7 @@ export const DS2View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onSt
                   {isUsed ? (
                     <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                   ) : (
-                    <ArrowRight className="w-4 h-4 opacity-40" />
+                    <ArrowRight className="w-3.5 h-3.5 opacity-40" />
                   )}
                 </button>
               );
@@ -770,11 +893,21 @@ export const DS2View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onSt
         )}
       </div>
 
-      {/* Launch Simulation Banner */}
+      {/* Pfeil-Leitung zu Schritt 4: Simulation */}
+      <div className="flex flex-col items-center justify-center py-4">
+        <div className="h-6 w-0.5 bg-rose-300"></div>
+        <div className="px-3.5 py-1 rounded-full bg-rose-100 text-rose-800 text-[11px] font-bold border border-rose-200 shadow-xs flex items-center space-x-1.5 my-1">
+          <span>Weiter zu Schritt 4: Interaktive Praxis-Simulation</span>
+          <ArrowDown className="w-3.5 h-3.5 text-rose-600" />
+        </div>
+        <div className="h-6 w-0.5 bg-rose-300"></div>
+      </div>
+
+      {/* SCHRITT 4: Launch Simulation Banner */}
       <div className="bg-gradient-to-r from-blue-700 via-indigo-700 to-slate-900 rounded-3xl p-8 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl">
         <div>
           <span className="text-xs uppercase font-bold tracking-wider text-cyan-300 block mb-1">
-            Praxistest & Verzweigtes Szenario
+            Schritt 4: Praxistest & Verzweigtes Szenario
           </span>
           <h3 className="text-2xl font-bold">
             Die Simulation: Frau Meinhardts Ängste vor OP
@@ -785,7 +918,7 @@ export const DS2View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onSt
         </div>
         <button
           onClick={onStartSimulation}
-          className="px-6 py-3.5 bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-extrabold rounded-2xl shadow-lg transition-all flex items-center space-x-2 flex-shrink-0"
+          className="px-6 py-3.5 bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-extrabold rounded-2xl shadow-lg transition-all flex items-center space-x-2 flex-shrink-0 cursor-pointer"
         >
           <Play className="w-5 h-5 fill-current" />
           <span>Simulation jetzt starten</span>

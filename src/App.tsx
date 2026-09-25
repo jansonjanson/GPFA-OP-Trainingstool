@@ -1,559 +1,670 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  HeartPulse, 
   Stethoscope, 
-  BookOpen, 
-  Sparkles, 
+  HeartHandshake, 
+  ShieldCheck, 
+  Activity, 
   Layers, 
+  Info, 
+  Bot, 
+  Trophy, 
+  Lock, 
+  Unlock, 
+  RotateCcw, 
+  Menu, 
+  X, 
+  Sparkles, 
   ChevronRight, 
-  Activity,
-  ShieldCheck,
-  CheckCircle2,
-  Clock,
   Award,
-  HeartHandshake,
-  FileSearch,
-  AlertCircle,
-  Compass,
-  Trophy,
-  Play
+  HelpCircle,
+  User,
+  GraduationCap,
+  ArrowUp
 } from 'lucide-react';
 import { DiagnoseModule } from './modul_diagnose/DiagnoseModule';
 import { AngstModule } from './modul_angst/AngstModule';
 import PraeOpModule from '../modul_prae_op/src/App';
 import PostOpModule from '../modul_post_op/src/App';
-import { CurriculumStartNavigatorModal } from './components/CurriculumStartNavigatorModal';
+import { TrainingLandingPage } from './components/TrainingLandingPage';
+import { CurriculumInfoModal } from './components/CurriculumInfoModal';
+import { TrainingTutorialOverlay } from './components/TrainingTutorialOverlay';
+import { AdminUnlockModal } from './components/AdminUnlockModal';
+import { ResetConfirmModal } from './components/ResetConfirmModal';
 import { GlobalFloatingAI } from './components/GlobalFloatingAI';
 import { AchievementsModal } from './components/AchievementsModal';
 import { GlobalAchievementToast } from './components/GlobalAchievementToast';
-import { getLocal, setLocal, StorageKeys, ALL_ACHIEVEMENTS } from './utils/gamification';
+import { 
+  getLocal, 
+  setLocal, 
+  StorageKeys, 
+  isModuleUnlocked, 
+  isAdminUnlocked,
+  getUnlockedAchievementsCount,
+  resetEntireTrainingProgress
+} from './utils/gamification';
 
 type ModuleType = 'hub' | 'diagnose' | 'angst' | 'prae_op' | 'post_op';
 
 export default function App() {
-  const [activeModule, setActiveModule] = useState<ModuleType>('hub');
-  const [isStartModalOpen, setIsStartModalOpen] = useState(false);
-  const [isAchievementsOpen, setIsAchievementsOpen] = useState(false);
-  const [unlockedCount, setUnlockedCount] = useState<number>(() => {
-    return getLocal<string[]>(StorageKeys.UNLOCKED_ACHIEVEMENTS, []).length;
-  });
-  const [isFreeNav, setIsFreeNav] = useState<boolean>(() => {
-    return getLocal<boolean>(StorageKeys.FREE_NAV_MODE, false);
+  const [activeModule, setActiveModule] = useState<ModuleType>(() => {
+    return getLocal<ModuleType>(StorageKeys.ACTIVE_MODULE, 'hub');
   });
 
-  // Keep unlocked count in sync
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
+  const [isTutorialOpen, setIsTutorialOpen] = useState(false);
+  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+  const [isAchievementsOpen, setIsAchievementsOpen] = useState(false);
+  const [isAiOpen, setIsAiOpen] = useState(false);
+
+  // Sync achievements counter & progression
+  const [achievementsStats, setAchievementsStats] = useState(() => getUnlockedAchievementsCount());
+  const [isAdmin, setIsAdmin] = useState(() => isAdminUnlocked());
+
+  // First-run lifecycle
   useEffect(() => {
-    const checkAchievements = () => {
-      const ids = getLocal<string[]>(StorageKeys.UNLOCKED_ACHIEVEMENTS, []);
-      setUnlockedCount(ids.length);
+    const tutorialSeen = getLocal<boolean>(StorageKeys.TUTORIAL_SEEN, false);
+
+    // Initial visit: Only open the tutorial as start! The info box opens exclusively on user click.
+    if (!tutorialSeen) {
+      setIsInfoModalOpen(false);
+      setIsTutorialOpen(true);
+    }
+  }, []);
+
+  // Track achievements changes
+  useEffect(() => {
+    const updateStats = () => {
+      setAchievementsStats(getUnlockedAchievementsCount());
+      setIsAdmin(isAdminUnlocked());
     };
-    window.addEventListener('storage', checkAchievements);
-    const interval = setInterval(checkAchievements, 2000);
+
+    window.addEventListener('storage', updateStats);
+    const interval = setInterval(updateStats, 2000);
     return () => {
-      window.removeEventListener('storage', checkAchievements);
+      window.removeEventListener('storage', updateStats);
       clearInterval(interval);
     };
   }, []);
 
-  const handleToggleFreeNav = (enabled: boolean) => {
-    setIsFreeNav(enabled);
-    setLocal(StorageKeys.FREE_NAV_MODE, enabled);
+  // Per-module scroll positions tracking
+  const scrollPositions = React.useRef<Record<string, number>>({});
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  // Monitor scroll for Scroll-to-Top button
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 200);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const handleSelectModule = (module: ModuleType) => {
+    // Save current scroll position for previous module
+    scrollPositions.current[activeModule] = window.scrollY;
+
+    setActiveModule(module);
+    setLocal(StorageKeys.ACTIVE_MODULE, module);
+    setMobileMenuOpen(false);
+
+    // If target module has a recorded position, restore it; otherwise start at the very top (0)
+    const targetPos = typeof scrollPositions.current[module] === 'number' ? scrollPositions.current[module] : 0;
+    window.scrollTo({ top: targetPos, behavior: 'auto' });
+    setTimeout(() => {
+      window.scrollTo({ top: targetPos, behavior: 'auto' });
+    }, 40);
   };
 
-  const handleResetAllProgress = () => {
-    localStorage.clear();
-    setUnlockedCount(0);
-    setIsFreeNav(false);
+  const handleScrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleOpenInfoModal = () => {
+    setIsTutorialOpen(false);
+    setIsInfoModalOpen(true);
+  };
+
+  const handleCloseInfoModal = () => {
+    setIsInfoModalOpen(false);
+  };
+
+  const handleOpenTutorial = () => {
+    setIsInfoModalOpen(false);
+    setIsTutorialOpen(true);
+  };
+
+  const handleCompleteTutorial = () => {
+    setLocal(StorageKeys.TUTORIAL_SEEN, true);
+    setLocal(StorageKeys.WELCOME_SEEN, true);
+    setIsTutorialOpen(false);
+    setIsInfoModalOpen(false);
+    // Explicitly navigate to the landing page (Übersicht & Curriculum)
+    setActiveModule('hub');
+    setLocal(StorageKeys.ACTIVE_MODULE, 'hub');
+  };
+
+  const handleCloseTutorial = () => {
+    setLocal(StorageKeys.TUTORIAL_SEEN, true);
+    setLocal(StorageKeys.WELCOME_SEEN, true);
+    setIsTutorialOpen(false);
+    setIsInfoModalOpen(false);
+    setActiveModule('hub');
+    setLocal(StorageKeys.ACTIVE_MODULE, 'hub');
+  };
+
+  const handleAdminUnlocked = () => {
+    setIsAdmin(true);
+    setAchievementsStats(getUnlockedAchievementsCount());
+  };
+
+  const handleConfirmReset = () => {
+    resetEntireTrainingProgress();
+    setIsAdmin(false);
+    setAchievementsStats(getUnlockedAchievementsCount());
+    setActiveModule('hub');
+    setLocal(StorageKeys.ACTIVE_MODULE, 'hub');
     window.location.reload();
   };
 
-  return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 selection:bg-teal-200">
-      {/* Top Global Trainingstool Switcher Bar */}
-      <header className="sticky top-0 z-[60] bg-slate-900 text-white border-b border-slate-800 shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <button 
-              onClick={() => setActiveModule('hub')}
-              className="flex items-center space-x-2.5 hover:opacity-90 transition-opacity focus:outline-none"
-              title="Zurück zur Übersicht"
-            >
-              <div className="bg-gradient-to-tr from-teal-500 via-indigo-500 to-rose-500 p-1.5 rounded-lg shadow-sm">
-                <HeartPulse className="w-5 h-5 text-white" />
-              </div>
-              <div className="flex flex-col text-left">
-                <span className="font-bold text-sm sm:text-base tracking-tight leading-none text-white">
-                  GPFA OP-Trainingstool
-                </span>
-                <span className="text-[10px] text-slate-400 font-medium tracking-wide leading-tight hidden sm:block">
-                  Generalistische Pflegeausbildung • DS 1 bis 8
-                </span>
-              </div>
-            </button>
+  const m1Unlocked = isModuleUnlocked(1);
+  const m2Unlocked = isModuleUnlocked(2);
+  const m3Unlocked = isModuleUnlocked(3);
+  const m4Unlocked = isModuleUnlocked(4);
 
-            <span className="hidden xl:inline-flex text-xs px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 font-medium border border-slate-700">
-              {activeModule === 'hub' && 'Curriculum-Übersicht (DS 1–8)'}
-              {activeModule === 'diagnose' && 'Modul 1: Diagnose & Beobachtung (DS 1 & 2)'}
-              {activeModule === 'angst' && 'Modul 2: Angst vor OP (DS 3 & 4)'}
-              {activeModule === 'prae_op' && 'Modul 3: Prä-OP (DS 5 & 6)'}
-              {activeModule === 'post_op' && 'Modul 4: Post-OP (DS 7 & 8)'}
+  return (
+    <div className="min-h-screen flex flex-col lg:flex-row bg-slate-50 text-slate-900 selection:bg-indigo-200">
+      {/* MOBILE TOP BAR */}
+      <header className="lg:hidden sticky top-0 z-40 bg-white/95 backdrop-blur-md text-slate-900 px-4 py-3 flex items-center justify-between border-b border-indigo-100 shadow-xs">
+        <div className="flex items-center space-x-2.5">
+          <button
+            onClick={() => setMobileMenuOpen(true)}
+            className="p-2 rounded-xl bg-indigo-50 text-indigo-900 hover:bg-indigo-100 transition-colors"
+            aria-label="Navigation öffnen"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+          <div>
+            <h1 className="font-extrabold text-sm tracking-tight text-slate-900 leading-tight">
+              LE 3.4 OP-Trainingstool
+            </h1>
+            <span className="text-[10px] text-indigo-700 font-bold block leading-none">
+              J. Rosenow M. A.
             </span>
           </div>
+        </div>
 
-          {/* Module Switcher Buttons & Global Tools */}
-          <div className="flex items-center space-x-2">
-            <nav className="flex items-center space-x-1 sm:space-x-1.5 overflow-x-auto py-1">
-              <button
-                onClick={() => setActiveModule('hub')}
-                className={`px-2.5 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center space-x-1 ${
-                  activeModule === 'hub'
-                    ? 'bg-slate-800 text-white shadow-inner border border-slate-700'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
-                }`}
-              >
-                <Layers className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Übersicht</span>
-              </button>
-
-              {/* Modul 1: Diagnose */}
-              <button
-                onClick={() => setActiveModule('diagnose')}
-                className={`px-2.5 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center space-x-1 ${
-                  activeModule === 'diagnose'
-                    ? 'bg-teal-600 text-white shadow-md'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
-                }`}
-              >
-                <Stethoscope className="w-3.5 h-3.5 text-teal-400" />
-                <span>Modul 1: Diagnose</span>
-              </button>
-
-              {/* Modul 2: Angst vor OP */}
-              <button
-                onClick={() => setActiveModule('angst')}
-                className={`px-2.5 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center space-x-1 ${
-                  activeModule === 'angst'
-                    ? 'bg-rose-600 text-white shadow-md'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
-                }`}
-              >
-                <HeartHandshake className="w-3.5 h-3.5 text-rose-400" />
-                <span>Modul 2: Angst</span>
-              </button>
-
-              {/* Modul 3: Prä-OP */}
-              <button
-                onClick={() => setActiveModule('prae_op')}
-                className={`px-2.5 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center space-x-1 ${
-                  activeModule === 'prae_op'
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
-                }`}
-              >
-                <CheckCircle2 className="w-3.5 h-3.5 text-blue-400" />
-                <span>Modul 3: Prä-OP</span>
-              </button>
-
-              {/* Modul 4: Post-OP */}
-              <button
-                onClick={() => setActiveModule('post_op')}
-                className={`px-2.5 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center space-x-1 ${
-                  activeModule === 'post_op'
-                    ? 'bg-emerald-600 text-white shadow-md'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
-                }`}
-              >
-                <Activity className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Modul 4: Post-OP</span>
-              </button>
-            </nav>
-
-            <div className="h-5 w-px bg-slate-800 hidden md:block" />
-
-            {/* Quick Actions: Roadmap & Achievements */}
-            <div className="flex items-center space-x-1.5">
-              <button
-                onClick={() => setIsStartModalOpen(true)}
-                className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600/90 hover:bg-indigo-600 text-white transition-all flex items-center space-x-1.5 shadow-sm active:scale-95 border border-indigo-500/50"
-                title="Curriculum-Roadmap & Video-Intro über alle 8 Doppelstunden öffnen"
-              >
-                <Compass className="w-3.5 h-3.5 text-indigo-200" />
-                <span className="hidden lg:inline">Roadmap (DS 1–8)</span>
-              </button>
-
-              <button
-                onClick={() => setIsAchievementsOpen(true)}
-                className="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-400/30 transition-all flex items-center space-x-1.5 active:scale-95"
-                title="Erfolge & Freies Skippen öffnen"
-              >
-                <Trophy className="w-3.5 h-3.5 text-amber-400" />
-                <span className="font-mono text-xs">{unlockedCount}/{ALL_ACHIEVEMENTS.length}</span>
-              </button>
-            </div>
-          </div>
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={handleOpenInfoModal}
+            className="p-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all flex items-center space-x-1 shadow-sm"
+            title="Info & Curriculum"
+          >
+            <Info className="w-4 h-4" />
+            <span className="text-[11px] hidden sm:inline">Info</span>
+          </button>
         </div>
       </header>
 
-      {/* Module Content */}
-      <main className="flex-1 flex flex-col">
-        {activeModule === 'hub' && (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-            {/* Hero Section */}
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-teal-950 to-slate-900 text-white p-8 sm:p-12 mb-10 shadow-xl border border-slate-800">
-              <div className="relative z-10 max-w-3xl">
-                <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/30 text-xs font-semibold uppercase tracking-wider mb-4">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Klinisches Simulations- & E-Learning Portal • 4 Module</span>
-                </div>
-                <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight mb-4">
-                  GPFA OP-Trainingstool
-                </h1>
-                <p className="text-slate-300 text-base sm:text-lg leading-relaxed mb-8">
-                  Vollständiger Patientinnen-Pfad für Frau Carola Meinhardt (67 J.) durch das Curriculum (PFA-Niveau).
-                  Von der Erstvorstellung in der Hausarztpraxis (Gallenkolik) über die präoperative Angstbewältigung 
-                  bis zur Vorbereitung im OP-Saal und der postoperativen Aufwachraum-Überwachung.
-                </p>
-                <div className="flex flex-wrap gap-3">
-                  <button
-                    onClick={() => setIsStartModalOpen(true)}
-                    className="inline-flex items-center space-x-2 px-5 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold transition-all shadow-lg hover:shadow-indigo-600/30 active:scale-95 text-sm border border-indigo-400/40"
-                  >
-                    <Compass className="w-4 h-4 text-indigo-200" />
-                    <span>Curriculum-Roadmap & Video-Intro öffnen (DS 1–8)</span>
-                    <Play className="w-3.5 h-3.5 fill-current ml-1" />
-                  </button>
-                  <button
-                    onClick={() => setActiveModule('diagnose')}
-                    className="inline-flex items-center space-x-2 px-4 py-3 rounded-xl bg-teal-600/90 hover:bg-teal-500 text-white font-semibold transition-all shadow-md active:scale-95 text-sm"
-                  >
-                    <span>Modul 1: Diagnose</span>
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => setActiveModule('angst')}
-                    className="inline-flex items-center space-x-2 px-4 py-3 rounded-xl bg-rose-600/90 hover:bg-rose-500 text-white font-semibold transition-all shadow-md active:scale-95 text-sm"
-                  >
-                    <span>Modul 2: Angst</span>
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => setActiveModule('prae_op')}
-                    className="inline-flex items-center space-x-2 px-4 py-3 rounded-xl bg-blue-600/90 hover:bg-blue-500 text-white font-semibold transition-all shadow-md active:scale-95 text-sm"
-                  >
-                    <span>Modul 3: Prä-OP</span>
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => setActiveModule('post_op')}
-                    className="inline-flex items-center space-x-2 px-4 py-3 rounded-xl bg-emerald-600/90 hover:bg-emerald-500 text-white font-semibold transition-all shadow-md active:scale-95 text-sm"
-                  >
-                    <span>Modul 4: Post-OP</span>
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
+      {/* MOBILE BACKDROP */}
+      {mobileMenuOpen && (
+        <div 
+          onClick={() => setMobileMenuOpen(false)}
+          className="fixed inset-0 z-50 bg-slate-950/50 backdrop-blur-xs lg:hidden transition-opacity"
+        />
+      )}
 
-              {/* Decorative background glow */}
-              <div className="absolute right-0 top-0 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
-              <div className="absolute right-1/4 bottom-0 w-80 h-80 bg-rose-500/10 rounded-full blur-3xl pointer-events-none" />
-            </div>
+      {/* LEFT SIDEBAR NAVIGATION (Modern, Bright, Frosted-Glass Violet/Slate Theme) */}
+      <aside className={`
+        fixed top-0 bottom-0 left-0 z-50 w-72 sm:w-80 bg-white/95 lg:bg-slate-50/95 backdrop-blur-xl text-slate-800 flex flex-col border-r border-indigo-100 shadow-xl transition-transform duration-300 ease-in-out
+        ${(mobileMenuOpen || isTutorialOpen) ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      `}>
+        {/* Sidebar Header: Branding */}
+        <div id="hud-header" className="p-5 border-b border-indigo-100/80 relative flex-shrink-0 bg-gradient-to-b from-indigo-50/70 via-white to-transparent">
+          <div className="flex items-center justify-between">
+            <span className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-900 font-bold text-[10px] border border-indigo-200">
+              <Sparkles className="w-3 h-3 text-indigo-600" />
+              <span>Generalistische Pflegeausbildung</span>
+            </span>
 
-            {/* 4 Modules Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-              {/* Card 1: Modul 1 Diagnose & Beobachtung (Gallensteine) */}
-              <div className="bg-white rounded-3xl p-7 border-2 border-teal-100 hover:border-teal-300 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-teal-100 text-teal-800">
-                      Modul 1 (Neu integriert)
-                    </span>
-                    <span className="flex items-center text-xs text-slate-500 font-medium">
-                      <Clock className="w-3.5 h-3.5 mr-1" /> 2 × 90 Min. (DS 1 & 2 / ehem. DS 3 & 4)
-                    </span>
-                  </div>
-                  <h2 className="text-2xl font-bold text-slate-900 mb-2">
-                    Diagnose & Beobachtung (Gallensteine)
-                  </h2>
-                  <p className="text-slate-600 text-sm mb-6 leading-relaxed">
-                    Symptome beobachten, Red Flags erkennen und weiterleiten. Behandelt Cholezystolithiasis, 6-F-Regel, 
-                    Symptom-Körper (Head-Zonen), Ausscheidungs-Labor (dunkler Urin, heller Stuhl), 7 Quizzes mit Sofort-Feedback, 
-                    Learning Nuggets und die hausärztliche Anamnese-Simulation zur Feststellung der OP-Indikation.
-                  </p>
-
-                  <div className="space-y-2 mb-6 text-xs text-slate-700">
-                    <div className="flex items-center space-x-2">
-                      <CheckCircle2 className="w-4 h-4 text-teal-600 flex-shrink-0" />
-                      <span>DS 1: Videos, 6-F-Regel, Symptom-Körper, Triage & Lückentexte</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <CheckCircle2 className="w-4 h-4 text-teal-600 flex-shrink-0" />
-                      <span>DS 2: Hausarzt-Simulation mit Frau Meinhardt & Sonographie</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <CheckCircle2 className="w-4 h-4 text-teal-600 flex-shrink-0" />
-                      <span>PFA-Lernziel: Beobachtung & Erkennung lebensbedrohlicher Warnsignale</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <CheckCircle2 className="w-4 h-4 text-teal-600 flex-shrink-0" />
-                      <span>Endergebnis: OP-Indikation zur laparoskopischen Cholezystektomie</span>
-                    </div>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => setActiveModule('diagnose')}
-                  className="w-full mt-4 py-3 px-4 rounded-xl bg-teal-600 text-white hover:bg-teal-500 font-semibold text-sm transition-colors flex items-center justify-center space-x-2 shadow-sm"
-                >
-                  <span>Modul 1 starten: Diagnose & Beobachtung</span>
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Card 2: Modul 2 Angst vor der OP */}
-              <div className="bg-white rounded-3xl p-7 border-2 border-rose-100 hover:border-rose-300 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-rose-100 text-rose-700">
-                      Modul 2
-                    </span>
-                    <span className="flex items-center text-xs text-slate-500 font-medium">
-                      <Clock className="w-3.5 h-3.5 mr-1" /> 2 × 90 Min. (DS 3 & 4)
-                    </span>
-                  </div>
-                  <h2 className="text-2xl font-bold text-slate-900 mb-2">
-                    Angst vor der OP
-                  </h2>
-                  <p className="text-slate-600 text-sm mb-6 leading-relaxed">
-                    Nach Erhalt der OP-Indikation brechen bei Frau Meinhardt Ängste auf. 
-                    Behandelt Angst vs. Furcht, Neurobiologie, 10 Quizzes, freischaltbare Foliensätze, 
-                    digitalen Notfallkoffer und die verzweigte Stationssimulation zur OP-Vorbereitung.
-                  </p>
-
-                  <div className="space-y-2 mb-6 text-xs text-slate-700">
-                    <div className="flex items-center space-x-2">
-                      <CheckCircle2 className="w-4 h-4 text-rose-600 flex-shrink-0" />
-                      <span>DS 3: Neurobiologie, vegetative Kaskade & 4 Entstehungsformen</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <CheckCircle2 className="w-4 h-4 text-rose-600 flex-shrink-0" />
-                      <span>DS 4: Digitaler Notfallkoffer (Kommunikation, Wärme, PMR, Midazolam)</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <CheckCircle2 className="w-4 h-4 text-rose-600 flex-shrink-0" />
-                      <span>Branched Simulation Frau Meinhardt vor Cholezystektomie</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <CheckCircle2 className="w-4 h-4 text-rose-600 flex-shrink-0" />
-                      <span>Learning Nuggets mit visuell aufbereiteten Lehrfolien</span>
-                    </div>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => setActiveModule('angst')}
-                  className="w-full mt-4 py-3 px-4 rounded-xl bg-rose-600 text-white hover:bg-rose-500 font-semibold text-sm transition-colors flex items-center justify-center space-x-2 shadow-sm"
-                >
-                  <span>Modul 2 starten: Angst vor der OP</span>
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Card 3: Modul 3 Prä-OP Navigator */}
-              <div className="bg-white rounded-3xl p-7 border border-slate-200 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-blue-100 text-blue-700">
-                      Modul 3
-                    </span>
-                    <span className="flex items-center text-xs text-slate-500 font-medium">
-                      <Clock className="w-3.5 h-3.5 mr-1" /> 2 × 90 Min. (DS 5 & 6)
-                    </span>
-                  </div>
-                  <h2 className="text-2xl font-bold text-slate-900 mb-2">
-                    Prä-OP Navigator
-                  </h2>
-                  <p className="text-slate-600 text-sm mb-6 leading-relaxed">
-                    Umfassendes E-Learning zur Vorbereitung der Patientin auf den OP-Tag. 
-                    Behandelt Nüchternheitsgebote, Checklisten, Schmuck- und Zahnteilprothesen-Regeln 
-                    sowie den reibungslosen Ablauf in der OP-Schleuse und im OP-Saal.
-                  </p>
-
-                  <div className="space-y-2 mb-6 text-xs text-slate-700">
-                    <div className="flex items-center space-x-2">
-                      <CheckCircle2 className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                      <span>7 interaktive Lern-Nuggets in der Wissens-Base</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <CheckCircle2 className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                      <span>Virtueller 3D-Rundgang & Videos (OP-Schleuse & Saal)</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <CheckCircle2 className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                      <span>Praktischer Arbeitsauftrag & OP-Simulator</span>
-                    </div>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => setActiveModule('prae_op')}
-                  className="w-full mt-4 py-3 px-4 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white font-semibold text-sm transition-colors flex items-center justify-center space-x-2"
-                >
-                  <span>Modul 3: Prä-OP Navigator öffnen</span>
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Card 4: Modul 4 Post-OP Pflege */}
-              <div className="bg-white rounded-3xl p-7 border border-slate-200 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-emerald-100 text-emerald-700">
-                      Modul 4 • Partnerarbeit
-                    </span>
-                    <span className="flex items-center text-xs text-slate-500 font-medium">
-                      <Clock className="w-3.5 h-3.5 mr-1" /> 2 × 90 Min. (DS 7 & 8)
-                    </span>
-                  </div>
-                  <h2 className="text-2xl font-bold text-slate-900 mb-2">
-                    Post-OP Pflege & AWR
-                  </h2>
-                  <p className="text-slate-600 text-sm mb-6 leading-relaxed">
-                    DS 7: Partner-/Gruppenarbeit mit 3 Lehrvideos (DIAKOVERE Aufwachraum, Abholung, Stationsmaßnahmen), 
-                    Fachtexten (I Care) und 19-teiligem Quiz-Parcours mit Learning Nuggets. 
-                    DS 8: Interaktive klinische OP-Simulation mit Vitalmonitor und ISBAR-Übergabe.
-                  </p>
-
-                  <div className="space-y-2 mb-6 text-xs text-slate-700">
-                    <div className="flex items-center space-x-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                      <span>DS 7: 19 interaktive Quiz-Stationen & freischaltbare Learning Nuggets</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Activity className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                      <span>DS 8: Vitalmonitor (HF, RR, SpO2, Temp, NRS) & Notfallmanagement</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Award className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                      <span>ISBAR-Übergabe, DMS-Kontrolle & Schmerzmanagement (PCA)</span>
-                    </div>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => setActiveModule('post_op')}
-                  className="w-full mt-4 py-3 px-4 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white font-semibold text-sm transition-colors flex items-center justify-center space-x-2"
-                >
-                  <span>Modul 4: Post-OP Pflege öffnen</span>
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-
-            {/* Curriculum Competencies Overview DS 1-8 */}
-            <div className="bg-slate-100 rounded-3xl p-6 sm:p-8 border border-slate-200">
-              <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center space-x-2">
-                <BookOpen className="w-5 h-5 text-teal-700" />
-                <span>Curriculum-Chronologie der Doppelstunden (DS 1 bis DS 8)</span>
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-6 text-sm text-slate-600">
-                <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-                  <span className="text-[11px] font-bold text-teal-700 block uppercase mb-1">
-                    DS 1 & 2 • Modul 1
-                  </span>
-                  <h4 className="font-bold text-slate-800 mb-1">Diagnose & Beobachtung</h4>
-                  <p className="text-xs leading-relaxed">
-                    Gallensteine erkennen, Red Flags (Charcot-Trias, Cholestase) deuten, Anamnese bei Frau Meinhardt erheben und OP-Indikation begründen.
-                  </p>
-                </div>
-
-                <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-                  <span className="text-[11px] font-bold text-rose-700 block uppercase mb-1">
-                    DS 3 & 4 • Modul 2
-                  </span>
-                  <h4 className="font-bold text-slate-800 mb-1">Angst vor der OP</h4>
-                  <p className="text-xs leading-relaxed">
-                    Vegetative Symptome, Deeskalation, Notfallkoffer (Kommunikation, Wärme, PMR, Prämedikation) und Cholezystektomie-Vorbereitungs-Simulation.
-                  </p>
-                </div>
-
-                <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-                  <span className="text-[11px] font-bold text-blue-700 block uppercase mb-1">
-                    DS 5 & 6 • Modul 3
-                  </span>
-                  <h4 className="font-bold text-slate-800 mb-1">Prä-OP Navigator</h4>
-                  <p className="text-xs leading-relaxed">
-                    Nüchternheitsgebote, Patientenidentifikation, Vorbereitungskoffer, Schleusentransfer und interaktiver OP-Saal-Rundgang.
-                  </p>
-                </div>
-
-                <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-                  <span className="text-[11px] font-bold text-emerald-700 block uppercase mb-1">
-                    DS 7 & 8 • Modul 4
-                  </span>
-                  <h4 className="font-bold text-slate-800 mb-1">Post-OP Adventure</h4>
-                  <p className="text-xs leading-relaxed">
-                    Überwachung im AWR, Vitalzeichen-Monitoring, Nachblutungen, PONV-Management und strukturierte ISBAR-Übergabe an Ärzte.
-                  </p>
-                </div>
-              </div>
-            </div>
+            <button
+              onClick={() => setMobileMenuOpen(false)}
+              className="lg:hidden text-slate-400 hover:text-slate-700 p-1 rounded-lg"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
-        )}
 
-        {/* Modul 1: Diagnose & Beobachtung */}
-        {activeModule === 'diagnose' && (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
-            <DiagnoseModule 
-              onGoToModulAngst={() => setActiveModule('angst')}
-              onBackToHub={() => setActiveModule('hub')} 
+          <button
+            onClick={() => handleSelectModule('hub')}
+            className="text-left w-full group mt-3 block focus:outline-none cursor-pointer"
+          >
+            <h2 className="text-xl font-black tracking-tight text-slate-900 group-hover:text-indigo-600 transition-colors">
+              LE 3.4 OP-Trainingstool
+            </h2>
+            <p className="text-xs font-bold text-indigo-700 tracking-wide mt-0.5">
+              J. Rosenow M. A.
+            </p>
+            <p className="text-[11px] text-slate-500 mt-1 leading-snug">
+              Perioperative Pflegefachassistenz • DS 1–8
+            </p>
+          </button>
+        </div>
+
+        {/* Scrollable Navigation Body */}
+        <div className="flex-1 overflow-y-auto px-3.5 py-4 space-y-6 scrollbar-thin scrollbar-thumb-indigo-100">
+          {/* Main Module Progression Area */}
+          <div id="hud-nav-modules" className="space-y-1.5">
+            <span className="px-3 text-[10px] font-extrabold uppercase tracking-wider text-indigo-950/60 block mb-2">
+              Lernmodule (DS 1 bis 8)
+            </span>
+
+            {/* Hub / Overview Button */}
+            <button
+              onClick={() => handleSelectModule('hub')}
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
+                activeModule === 'hub'
+                  ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-md shadow-indigo-500/25'
+                  : 'text-slate-700 hover:text-indigo-950 hover:bg-indigo-50/80'
+              }`}
+            >
+              <div className="flex items-center space-x-2.5">
+                <Layers className={`w-4 h-4 ${activeModule === 'hub' ? 'text-white' : 'text-indigo-600'}`} />
+                <span>Übersicht & Curriculum</span>
+              </div>
+              <span className={`text-[10px] px-2 py-0.5 rounded-md font-semibold ${
+                activeModule === 'hub' ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-900'
+              }`}>
+                DS 1–8
+              </span>
+            </button>
+
+            {/* Modul 1: Diagnose & Beobachtung */}
+            <button
+              onClick={() => handleSelectModule('diagnose')}
+              className={`w-full flex items-center justify-between px-3.5 py-3 rounded-2xl text-xs transition-all text-left cursor-pointer ${
+                activeModule === 'diagnose'
+                  ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-md shadow-indigo-500/25 font-bold'
+                  : 'text-slate-700 hover:text-indigo-950 hover:bg-indigo-50/80'
+              }`}
+            >
+              <div className="flex items-start space-x-2.5">
+                <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                  activeModule === 'diagnose' ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-700'
+                }`}>
+                  <Stethoscope className="w-4 h-4" />
+                </div>
+                <div>
+                  <span className="font-bold block leading-tight">Modul 1: Diagnose</span>
+                  <span className={`text-[10px] block mt-0.5 ${
+                    activeModule === 'diagnose' ? 'text-indigo-100' : 'text-slate-500'
+                  }`}>
+                    DS 1 & DS 2 • Beobachtung
+                  </span>
+                </div>
+              </div>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${
+                activeModule === 'diagnose' 
+                  ? 'bg-white/20 text-white border-white/30' 
+                  : 'text-emerald-700 bg-emerald-50 border-emerald-200'
+              }`}>
+                Aktiv
+              </span>
+            </button>
+
+            {/* Modul 2: Angst vor der OP */}
+            <button
+              disabled={!m2Unlocked}
+              onClick={() => m2Unlocked && handleSelectModule('angst')}
+              className={`w-full flex items-center justify-between px-3.5 py-3 rounded-2xl text-xs transition-all text-left ${
+                !m2Unlocked
+                  ? 'text-slate-400 cursor-not-allowed opacity-60 bg-slate-100/50'
+                  : activeModule === 'angst'
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/25 font-bold'
+                  : 'text-slate-700 hover:text-blue-950 hover:bg-blue-50/80 cursor-pointer'
+              }`}
+            >
+              <div className="flex items-start space-x-2.5">
+                <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                  !m2Unlocked 
+                    ? 'bg-slate-200 text-slate-500' 
+                    : activeModule === 'angst' 
+                    ? 'bg-white/20 text-white' 
+                    : 'bg-blue-100 text-blue-700'
+                }`}>
+                  <HeartHandshake className="w-4 h-4" />
+                </div>
+                <div>
+                  <span className="font-bold block leading-tight">Modul 2: Angst vor OP</span>
+                  <span className={`text-[10px] block mt-0.5 ${
+                    activeModule === 'angst' ? 'text-blue-100' : 'text-slate-500'
+                  }`}>
+                    DS 3 & DS 4 • Psychosozial
+                  </span>
+                </div>
+              </div>
+              {m2Unlocked ? (
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${
+                  activeModule === 'angst'
+                    ? 'bg-white/20 text-white border-white/30'
+                    : 'text-emerald-700 bg-emerald-50 border-emerald-200'
+                }`}>
+                  Offen
+                </span>
+              ) : (
+                <Lock className="w-3.5 h-3.5 text-slate-400" />
+              )}
+            </button>
+
+            {/* Modul 3: Prä-OP Vorbereitung */}
+            <button
+              disabled={!m3Unlocked}
+              onClick={() => m3Unlocked && handleSelectModule('prae_op')}
+              className={`w-full flex items-center justify-between px-3.5 py-3 rounded-2xl text-xs transition-all text-left ${
+                !m3Unlocked
+                  ? 'text-slate-400 cursor-not-allowed opacity-60 bg-slate-100/50'
+                  : activeModule === 'prae_op'
+                  ? 'bg-gradient-to-r from-teal-600 to-cyan-600 text-white shadow-md shadow-teal-500/25 font-bold'
+                  : 'text-slate-700 hover:text-teal-950 hover:bg-teal-50/80 cursor-pointer'
+              }`}
+            >
+              <div className="flex items-start space-x-2.5">
+                <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                  !m3Unlocked 
+                    ? 'bg-slate-200 text-slate-500' 
+                    : activeModule === 'prae_op' 
+                    ? 'bg-white/20 text-white' 
+                    : 'bg-teal-100 text-teal-700'
+                }`}>
+                  <ShieldCheck className="w-4 h-4" />
+                </div>
+                <div>
+                  <span className="font-bold block leading-tight">Modul 3: Prä-OP</span>
+                  <span className={`text-[10px] block mt-0.5 ${
+                    activeModule === 'prae_op' ? 'text-teal-100' : 'text-slate-500'
+                  }`}>
+                    DS 5 & DS 6 • Vorbereitung
+                  </span>
+                </div>
+              </div>
+              {m3Unlocked ? (
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${
+                  activeModule === 'prae_op'
+                    ? 'bg-white/20 text-white border-white/30'
+                    : 'text-emerald-700 bg-emerald-50 border-emerald-200'
+                }`}>
+                  Offen
+                </span>
+              ) : (
+                <Lock className="w-3.5 h-3.5 text-slate-400" />
+              )}
+            </button>
+
+            {/* Modul 4: Post-OP & AWR */}
+            <button
+              disabled={!m4Unlocked}
+              onClick={() => m4Unlocked && handleSelectModule('post_op')}
+              className={`w-full flex items-center justify-between px-3.5 py-3 rounded-2xl text-xs transition-all text-left ${
+                !m4Unlocked
+                  ? 'text-slate-400 cursor-not-allowed opacity-60 bg-slate-100/50'
+                  : activeModule === 'post_op'
+                  ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-500/25 font-bold'
+                  : 'text-slate-700 hover:text-emerald-950 hover:bg-emerald-50/80 cursor-pointer'
+              }`}
+            >
+              <div className="flex items-start space-x-2.5">
+                <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                  !m4Unlocked 
+                    ? 'bg-slate-200 text-slate-500' 
+                    : activeModule === 'post_op' 
+                    ? 'bg-white/20 text-white' 
+                    : 'bg-emerald-100 text-emerald-700'
+                }`}>
+                  <Activity className="w-4 h-4" />
+                </div>
+                <div>
+                  <span className="font-bold block leading-tight">Modul 4: Post-OP</span>
+                  <span className={`text-[10px] block mt-0.5 ${
+                    activeModule === 'post_op' ? 'text-emerald-100' : 'text-slate-500'
+                  }`}>
+                    DS 7 & DS 8 • Aufwachraum
+                  </span>
+                </div>
+              </div>
+              {m4Unlocked ? (
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${
+                  activeModule === 'post_op'
+                    ? 'bg-white/20 text-white border-white/30'
+                    : 'text-emerald-700 bg-emerald-50 border-emerald-200'
+                }`}>
+                  Offen
+                </span>
+              ) : (
+                <Lock className="w-3.5 h-3.5 text-slate-400" />
+              )}
+            </button>
+          </div>
+
+          {/* Assistant & Information Tools Area */}
+          <div className="space-y-1.5 pt-2 border-t border-indigo-100/80">
+            <span className="px-3 text-[10px] font-extrabold uppercase tracking-wider text-indigo-950/60 block mb-2">
+              Didaktik & Assistenz
+            </span>
+
+            {/* Info Button: Curriculum Roadmap & Tutorial launcher */}
+            <button
+              id="hud-info-btn"
+              onClick={handleOpenInfoModal}
+              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs font-semibold text-slate-700 hover:text-indigo-950 hover:bg-indigo-50/80 transition-all cursor-pointer group"
+              title="Curriculum-Infotafel & Video öffnen"
+            >
+              <div className="flex items-center space-x-2.5">
+                <div className="w-7 h-7 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center group-hover:scale-105 transition-transform">
+                  <Info className="w-4 h-4" />
+                </div>
+                <div className="text-left">
+                  <span className="font-bold block leading-tight text-slate-900">Info & Curriculum</span>
+                  <span className="text-[10px] text-slate-500 block">
+                    Infotafel DS 1–8 & Tutorial
+                  </span>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
+            </button>
+
+            {/* KI-Helfer Button (Exclusively in Sidebar) */}
+            <button
+              id="hud-ai-helper"
+              onClick={() => setIsAiOpen(prev => !prev)}
+              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs font-semibold bg-violet-50/80 hover:bg-violet-100/90 border border-violet-200/80 text-violet-950 transition-all cursor-pointer group"
+              title="Virtuelle Praxisanleitung / KI-Helfer öffnen"
+            >
+              <div className="flex items-center space-x-2.5">
+                <div className="w-7 h-7 rounded-lg bg-violet-600 text-white flex items-center justify-center group-hover:scale-105 transition-transform shadow-xs">
+                  <Bot className="w-4 h-4" />
+                </div>
+                <div className="text-left">
+                  <span className="font-extrabold block leading-tight text-violet-950">KI-Helfer</span>
+                  <span className="text-[10px] text-violet-700 block font-medium">
+                    Virtuelle Praxisanleitung
+                  </span>
+                </div>
+              </div>
+              <span className="text-[10px] bg-violet-200 text-violet-900 border border-violet-300 px-2 py-0.5 rounded-md font-bold">
+                Online
+              </span>
+            </button>
+
+            {/* Achievements & Nuggets Counter */}
+            <button
+              id="hud-achievements-btn"
+              onClick={() => setIsAchievementsOpen(true)}
+              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs font-semibold text-slate-700 hover:text-amber-950 hover:bg-amber-50/80 transition-all cursor-pointer group"
+              title="Erfolge & Learning Nuggets einsehen"
+            >
+              <div className="flex items-center space-x-2.5">
+                <div className="w-7 h-7 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center group-hover:scale-105 transition-transform">
+                  <Trophy className="w-4 h-4" />
+                </div>
+                <div className="text-left">
+                  <span className="font-bold block leading-tight text-slate-900">Erfolge & Nuggets</span>
+                  <span className="text-[10px] text-slate-500 block">
+                    {achievementsStats.unlocked} von {achievementsStats.total} freigespielt
+                  </span>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
+            </button>
+          </div>
+        </div>
+
+        {/* Sidebar Footer: Admin & Reset Area */}
+        <div id="hud-admin-reset" className="p-3.5 border-t border-indigo-100/80 bg-white/90 space-y-2 flex-shrink-0">
+          <div className="flex items-center space-x-2">
+            {/* Admin Lock Button */}
+            <button
+              onClick={() => setIsAdminModalOpen(true)}
+              className={`flex-1 flex items-center justify-center space-x-2 px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                isAdmin
+                  ? 'bg-emerald-50 border border-emerald-300 text-emerald-800'
+                  : 'bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 hover:text-slate-900'
+              }`}
+              title="Admin-Bereich: Alle Inhalte freischalten"
+            >
+              {isAdmin ? <Unlock className="w-3.5 h-3.5 text-emerald-600" /> : <Lock className="w-3.5 h-3.5 text-amber-600" />}
+              <span>{isAdmin ? 'Admin aktiv' : 'Admin'}</span>
+            </button>
+
+            {/* Reset Tool Button (2-step confirmation) */}
+            <button
+              onClick={() => setIsResetModalOpen(true)}
+              className="p-2 bg-slate-100 hover:bg-rose-50 border border-slate-200 hover:border-rose-300 text-slate-500 hover:text-rose-700 rounded-xl transition-colors cursor-pointer"
+              title="Trainingsstand vollständig zurücksetzen (2 Bestätigungsschritte)"
+            >
+              <RotateCcw className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      {/* MAIN CONTENT AREA */}
+      <main className="flex-1 lg:pl-80 min-h-screen flex flex-col">
+        {/* Top desktop breadcrumb bar */}
+        <div className="hidden lg:flex items-center justify-between h-14 px-8 bg-white border-b border-slate-200/80 sticky top-0 z-30 shadow-xs">
+          <div className="flex items-center space-x-2 text-xs font-semibold text-slate-500">
+            <span className="text-slate-900 font-bold">LE 3.4 OP-Trainingstool</span>
+            <span>/</span>
+            <span className="text-indigo-600">
+              {activeModule === 'hub' && 'Übersicht & Curriculum (DS 1–8)'}
+              {activeModule === 'diagnose' && 'Modul 1: Diagnose & Beobachtung (DS 1 & DS 2)'}
+              {activeModule === 'angst' && 'Modul 2: Angst vor der OP (DS 3 & DS 4)'}
+              {activeModule === 'prae_op' && 'Modul 3: Präoperative Vorbereitung (DS 5 & DS 6)'}
+              {activeModule === 'post_op' && 'Modul 4: Postoperative Pflege & AWR (DS 7 & DS 8)'}
+            </span>
+          </div>
+
+          <div className="flex items-center space-x-3 text-xs">
+            <span className="text-slate-500">
+              Fallbeispiel: <strong>Frau Carola Meinhardt</strong>
+            </span>
+            <button
+              onClick={handleOpenTutorial}
+              className="inline-flex items-center space-x-1.5 px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-semibold transition-colors"
+              title="UI-Tutorial starten"
+            >
+              <HelpCircle className="w-3.5 h-3.5 text-amber-600" />
+              <span>Tutorial</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Dynamic Module Rendering */}
+        <div className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+          {activeModule === 'hub' && (
+            <TrainingLandingPage
+              onSelectModule={handleSelectModule}
+              onOpenInfo={handleOpenInfoModal}
+              onOpenTutorial={handleOpenTutorial}
+              onOpenAiHelper={() => setIsAiOpen(true)}
             />
-          </div>
-        )}
+          )}
 
-        {/* Modul 2: Angst vor OP */}
-        {activeModule === 'angst' && (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
-            <AngstModule 
-              onBackToHub={() => setActiveModule('hub')} 
-              onGoToModulPraeOp={() => setActiveModule('prae_op')}
+          {activeModule === 'diagnose' && (
+            <DiagnoseModule
+              onGoToModulAngst={() => handleSelectModule('angst')}
+              onBackToHub={() => handleSelectModule('hub')}
             />
-          </div>
-        )}
+          )}
 
-        {/* Modul 3: Prä-OP (ehemaliges Modul 1 / Modul 3) */}
-        {activeModule === 'prae_op' && (
-          <div className="relative">
-            <PraeOpModule />
-          </div>
-        )}
+          {activeModule === 'angst' && (
+            <AngstModule
+              onBackToHub={() => handleSelectModule('hub')}
+              onGoToModulPraeOp={() => handleSelectModule('prae_op')}
+            />
+          )}
 
-        {/* Modul 4: Post-OP (ehemaliges Modul 2 / Modul 4) */}
-        {activeModule === 'post_op' && (
-          <div className="relative">
-            <PostOpModule />
-          </div>
-        )}
+          {activeModule === 'prae_op' && (
+            <div className="relative">
+              <PraeOpModule />
+            </div>
+          )}
+
+          {activeModule === 'post_op' && (
+            <div className="relative">
+              <PostOpModule />
+            </div>
+          )}
+        </div>
       </main>
 
-      {/* Global Curriculum Modals & Assistants */}
-      <CurriculumStartNavigatorModal
-        isOpen={isStartModalOpen}
-        onClose={() => setIsStartModalOpen(false)}
+      {/* MODALS & OVERLAYS */}
+
+      {/* Curriculum Info Modal (Infotafel DS 1–8) - opens ONLY on button click */}
+      <CurriculumInfoModal
+        isOpen={isInfoModalOpen}
+        onClose={handleCloseInfoModal}
         onStartModule={(mod) => {
-          setActiveModule(mod);
-          setIsStartModalOpen(false);
+          setIsInfoModalOpen(false);
+          handleSelectModule(mod);
         }}
+        onStartTutorial={handleOpenTutorial}
       />
 
+      {/* Interactive HUD / UI Tutorial Overlay - starts on first run, redirects to landing page on finish */}
+      <TrainingTutorialOverlay
+        isOpen={isTutorialOpen}
+        onClose={handleCloseTutorial}
+        onComplete={handleCompleteTutorial}
+      />
+
+      {/* Admin Unlock Modal (PW: "Janson") */}
+      <AdminUnlockModal
+        isOpen={isAdminModalOpen}
+        onClose={() => setIsAdminModalOpen(false)}
+        onAdminUnlocked={handleAdminUnlocked}
+      />
+
+      {/* Reset Confirmation Modal (2 steps) */}
+      <ResetConfirmModal
+        isOpen={isResetModalOpen}
+        onClose={() => setIsResetModalOpen(false)}
+        onConfirmReset={handleConfirmReset}
+      />
+
+      {/* Achievements Modal */}
       <AchievementsModal
         isOpen={isAchievementsOpen}
         onClose={() => setIsAchievementsOpen(false)}
-        isFreeNav={isFreeNav}
-        onToggleFreeNav={handleToggleFreeNav}
-        onResetAllProgress={handleResetAllProgress}
+        isFreeNav={isAdmin}
+        onToggleFreeNav={() => {}}
+        onResetAllProgress={handleConfirmReset}
       />
 
+      {/* Floating KI-Praxisanleitung */}
       <GlobalFloatingAI
+        isOpenControlled={isAiOpen}
+        onToggleControlled={() => setIsAiOpen(!isAiOpen)}
         currentModuleTitle={
           activeModule === 'diagnose'
             ? 'Modul 1: Diagnose & Beobachtung (DS 1 & 2)'
@@ -567,6 +678,20 @@ export default function App() {
         }
       />
 
+      {/* Floating Scroll to Top Button */}
+      {showScrollTop && (
+        <button
+          onClick={handleScrollToTop}
+          aria-label="An den Seitenanfang springen"
+          title="An den Seitenanfang springen"
+          className="fixed bottom-6 right-20 z-40 p-3 bg-white/95 hover:bg-white text-indigo-700 hover:text-indigo-900 rounded-2xl shadow-xl border border-indigo-100 hover:border-indigo-300 transition-all duration-300 flex items-center space-x-1.5 backdrop-blur-md cursor-pointer group active:scale-95 animate-in fade-in slide-in-from-bottom-3"
+        >
+          <ArrowUp className="w-4 h-4 group-hover:-translate-y-0.5 transition-transform" />
+          <span className="text-xs font-bold hidden sm:inline">Nach oben</span>
+        </button>
+      )}
+
+      {/* Toast notifications on achievement unlock */}
       <GlobalAchievementToast />
     </div>
   );

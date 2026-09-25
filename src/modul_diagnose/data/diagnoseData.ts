@@ -5,33 +5,36 @@ export const diagnoseMedia = {
     title: 'Gallensteine & Gallenkolik: Entstehung & Ursachen',
     url: 'https://www.youtube.com/embed/DD8ZivE-VAc',
     externalUrl: 'https://youtu.be/DD8ZivE-VAc?si=urime4Ot79TqSp4V',
-    description: 'Kompakte Veranschaulichung der Pathophysiologie: Wie Cholesterinkristalle entstehen und die Gallenwege verlegen.'
+    duration: 'ca. 13:30 Min.',
+    speaker: 'Dr. Weigl',
+    description: 'Kompakte Veranschaulichung der Pathophysiologie: Wie Cholesterinkristalle entstehen, Gallengänge verlegen und krampfartige Koliken auslösen.'
   },
   sourceGesundBund: {
-    title: 'Gallensteine: Ursachen und Behandlung',
+    title: 'Fachartikel der Bundesregierung (gesund.bund.de)',
     url: 'https://gesund.bund.de/gallensteine',
-    source: 'gesund.bund.de (Bundesministerium für Gesundheit)',
-    description: 'Evidenzbasierte Leitlinieninformationen zu Symptomen, Häufigkeit, Risikofaktoren und Indikationen zur Cholezystektomie.'
+    source: 'gesund.bund.de • Offizielles Gesundheitsportal',
+    description: 'Gleiche Kerninhalte wie das Lehrvideo zur Wiederholung und dauerhaften Ergebnissicherung: Risikofaktoren, Symptomatik und OP-Indikation.'
   },
   videoSurgerySim: {
-    title: 'OP-Simulation: Laparoskopische Cholezystektomie',
-    url: 'https://www.youtube-nocookie.com/embed/xNdtvBmrvCQ',
-    externalUrl: 'https://youtu.be/xNdtvBmrvCQ?si=atRkzw5y_n6UWJki',
-    description: 'Eindrucksvolle 3D-Simulation des minimal-invasiven Eingriffs (Schlüsselloch-OP) zur operativen Entfernung der Gallenblase.'
+    title: 'OP-Dokumentation: Laparoskopische Cholezystektomie (lap. CE)',
+    url: 'https://youtu.be/hueATDhHfLg?si=-4l67NOoye-Ub1-Q',
+    externalUrl: 'https://youtu.be/hueATDhHfLg?si=-4l67NOoye-Ub1-Q',
+    duration: 'ca. 15:00 Min.',
+    description: 'Exemplarischer filmischer Ablauf einer laparoskopischen Cholezystektomie (minimal-invasive 4-Trokar-Technik).'
   }
 };
 
 export const cholezystoOverview = {
-  definition: 'Eine Cholezystolithiasis bezeichnet das Vorhandensein von Gallensteinen (Konkrementen) in der Gallenblase. Sind auch die Gallengänge betroffen, spricht man von Choledocholithiasis.',
+  definition: 'Eine Cholezystolithiasis bezeichnet das Vorhandensein von Gallensteinen in der Gallenblase. Sind auch die Gallengänge verlegt, spricht man von Choledocholithiasis.',
   symptoms: [
-    'Plötzliche, krampfartige Schmerzen im rechten Oberbauch (Gallenkolik)',
-    'Schmerzausstrahlung in die rechte Schulter und das rechte Schulterblatt',
-    'Übelkeit, Erbrechen, Völlegefühl und Meteorismus (Blähungen)',
-    'Gelbfärbung von Skleren und Haut (Ikterus) bei Abflussbehinderung des Bilirubins',
-    'Dunkler Bierharn (Urin) und heller, entfärbter Lehmstuhl'
+    'Plötzliche, krampfartige und stechende Schmerzen im rechten Oberbauch (Gallenkolik, 15–60 Min.)',
+    'Reflektorische Schmerzausstrahlung in den Rücken und die rechte Schulter (N. phrenicus)',
+    'Vegetative Begleitsymptome: Übelkeit, reflektorisches Erbrechen, Völlegefühl und Meteorismus',
+    'Gelbfärbung von Skleren und Haut (Ikterus) bei Verstopfung des Gallengangs (Bilirubinstau)',
+    'Dunkler Bierbraunurin und heller, entfärbter Lehmstuhl (Acholie)'
   ],
   riskFactorsTitle: 'Die 6-F-Regel der Risikofaktoren',
-  treatment: 'Bei akuter Kolik: Sofortige Nahrungskarenz (Nulldiät), Spasmolytika und Analgetika. Bei wiederholten Beschwerden: Elektive laparoskopische Cholezystektomie.'
+  treatment: 'Bei akuter Kolik: Absolute Nahrungskarenz (Nulldiät), Analgetika (NSAR) und Spasmolytika. Bei rezidivierenden Koliken oder Komplikationen: Laparoskopische Cholezystektomie.'
 };
 
 export const sixFItems: SixFItem[] = [
@@ -45,31 +48,31 @@ export const sixFItems: SixFItem[] = [
     id: 'f_female',
     term: 'Female',
     germanDescription: 'Weibliches Geschlecht',
-    explanation: 'Frauen sind 2- bis 3-mal häufiger betroffen als Männer. Östrogene steigern die Cholesterinsekretion und verringern die Gallensalzkonzentration.'
+    explanation: 'Frauen sind 2- bis 3-mal häufiger betroffen als Männer. Östrogene steigern die Cholesterinsekretion und senken die Gallensalzkonzentration.'
   },
   {
     id: 'f_fertile',
     term: 'Fertile',
     germanDescription: 'Fruchtbar / Schwangerschaft',
-    explanation: 'Mehrere Schwangerschaften und hohe Progesteronspiegel senken die Beweglichkeit (Motilität) der Gallenblasenwand und begünstigen den Gallestau.'
+    explanation: 'Schwangerschaften und hohe Progesteronspiegel senken die Motilität der Gallenblasenwand und begünstigen das Eindicken der Galle.'
   },
   {
     id: 'f_forty',
     term: 'Forty',
-    germanDescription: 'Alter über 40 Jahre',
-    explanation: 'Mit zunehmendem Alter steigt die Lithogenität (Neigung zur Steinbildung) der Galle kontinuierlich an.'
+    germanDescription: 'Alter ab dem 40. Lebensjahr',
+    explanation: 'Mit zunehmendem Alter steigt die Neigung zur Steinbildung (Lithogenität) der Galle kontinuierlich an. Forty steht für den Altersfaktor ab 40 Jahren.'
   },
   {
     id: 'f_fair',
     term: 'Fair',
-    germanDescription: 'Hellhäutiger Hauttyp',
-    explanation: 'Epidemiologische Studien belegen ein gehäuftes Auftreten von Cholesterinsteinen bei Menschen mit mitteleuropäisch-kaukasischem Phänotyp.'
+    germanDescription: 'Hellhäutiger Phänotyp',
+    explanation: 'Epidemiologische Studien belegen ein gehäuftes Auftreten von Cholesterinsteinen bei Menschen mit hellhäutigem Phänotyp.'
   },
   {
     id: 'f_family',
     term: 'Family',
-    germanDescription: 'Genetische Veranlagung / Familie',
-    explanation: 'Eine positive Familienanamnese verdoppelt das Erkrankungsrisiko. Mutationen in Gallensalztransportern (z. B. ABCB4) werden vererbt.'
+    germanDescription: 'Genetische Disposition / Familie',
+    explanation: 'Eine familiäre Vorbelastung erhöht das Risiko signifikant. Mutationen in Gallensalztransportern und familiäre Stoffwechselmuster begünstigen Gallensteine.'
   }
 ];
 
@@ -77,42 +80,42 @@ export const hotspots: Hotspot[] = [
   {
     id: 'hs_ruq',
     title: 'Rechter Oberbauch',
-    bodyPart: 'Oberbauch (Epigastrium / RUQ)',
-    xPercent: 44,
-    yPercent: 44,
-    symptomName: 'Krampfartige Kolik-Schmerzen',
-    description: 'Hier sitzt die Gallenblase unmittelbar unterhalb der Leber. Wenn sich die Gallenblase gegen einen eingeklemmten Stein zusammenzieht, entsteht der typische kolikartige Wellenschmerz.',
-    clinicalNote: 'Die Schmerzen nehmen oft nach fettreichen Mahlzeiten binnen 1-2 Stunden dramatisch zu.'
+    bodyPart: 'Rechter Oberbauch (RUQ unter Rippenbogen)',
+    xPercent: 41,
+    yPercent: 40,
+    symptomName: 'Krampfartige Kolik-Schmerzen (15–60 Min.)',
+    description: 'Hier liegt die Gallenblase unterhalb der Leber. Wenn sich die Gallenblase krampfartig zusammenzieht, um Galle gegen einen verklemmten Stein zu pressen, entsteht der typische stechende Kolikschmerz.',
+    clinicalNote: 'Typischer Kolikverlauf: Schmerz schwillt wellenförmig an, dauert meist 15–60 Minuten und flaut dann wieder ab.'
   },
   {
     id: 'hs_shoulder',
     title: 'Rechte Schulter & Rücken',
-    bodyPart: 'Rechte Schulter (Head-Zonen)',
+    bodyPart: 'Rechte Schulter & Skapula (Head-Zonen)',
     xPercent: 32,
-    yPercent: 24,
-    symptomName: 'Ausstrahlungsschmerz',
-    description: 'Die Schmerzen der Gallenkolik können über den Nervus phrenicus (Segmente C3-C5) reflektorisch in die rechte Schulter und das rechte Schulterblatt ausstrahlen.',
-    clinicalNote: 'Patienten klagen oft über ziehende Schulterschmerzen, obwohl die Ursache im Abdomen liegt!'
+    yPercent: 26,
+    symptomName: 'Reflektorische Ausstrahlung (N. phrenicus)',
+    description: 'Über sensible Fasern des Nervus phrenicus (Segmente C3–C5) strahlt der Kolikschmerz reflektorisch in die rechte Schulter und das rechte Schulterblatt aus.',
+    clinicalNote: 'Viele Patientinnen vermuten fälschlich ein orthopädisches Leiden, obwohl die Ursache im Gallensystem liegt.'
   },
   {
     id: 'hs_eyes',
-    title: 'Augen (Skleren)',
-    bodyPart: 'Augen / Gesicht',
+    title: 'Augen (Skleren) & Gesicht',
+    bodyPart: 'Skleren (Augenweiß) & Haut',
     xPercent: 50,
     yPercent: 12,
-    symptomName: 'Gelbfärbung (Sklerenikterus)',
-    description: 'Ein blockierter Hauptgallengang führt dazu, dass der Gallenfarbstoff Bilirubin nicht in den Darm abfließen kann, ins Blut übergeht und das Augenweiß gelb färbt.',
-    clinicalNote: 'Warnsignal (Red Flag): Deutet auf einen akuten Verschluss des Ductus choledochus hin!'
+    symptomName: 'Gelbsucht (Sklerenikterus & Ikterus bei Gallengangsverstopfung)',
+    description: 'Verstopft ein Gallenstein den Hauptgallengang (Ductus choledochus), staut sich die Galle bis in die Leber zurück. Der Gallenfarbstoff Bilirubin kann nicht in den Darm abfließen, tritt ins Blut über und färbt das Augenweiß und die Haut gelb.',
+    clinicalNote: 'Leitsymptom des mechanischen Abflusshindernisses (Cholestase). Begleitend entsteht dunkelbierbrauner Urin und entfärbter Lehmstuhl!'
   },
   {
     id: 'hs_gi',
     title: 'Magen-Darm-Trakt',
-    bodyPart: 'Abdomen / Gastrointestinaltrakt',
-    xPercent: 52,
-    yPercent: 52,
-    symptomName: 'Übelkeit, Erbrechen & Völlegefühl',
-    description: 'Der Rückstau von Galle und die Entzündungsreizung führen zu vegetativen Begleitsymptomen wie starkem Brechreiz, Inappetenz und Blähungen.',
-    clinicalNote: 'Erbrechen bringt bei einer Gallenkolik im Gegensatz zur Gastroenteritis meist keine Schmerzerleichterung.'
+    bodyPart: 'Zentrales Abdomen (Vegetativum)',
+    xPercent: 50,
+    yPercent: 49,
+    symptomName: 'Übelkeit, Erbrechen & Meteorismus',
+    description: 'Der viszerale Dehnungsreiz im Gallengangssystem löst reflektorisch starke Übelkeit, Erbrechen, Völlegefühl und Blähungen aus.',
+    clinicalNote: 'Wichtiger Pflegehinweis: Erbrechen führt bei einer Gallenkolik im Unterschied zur Gastroenteritis zu keiner spürbaren Schmerzentlastung!'
   }
 ];
 
@@ -182,26 +185,32 @@ export const clozeAnatomy = {
 export const therapyMatching = [
   {
     id: 'th1',
-    step: 'Maßnahme bei akuter Kolik',
-    solution: 'Absolute Nulldiät (Nahrungskarenz)',
-    explanation: 'Verhindert weitere Reizung und Cholezystokinin-Ausschüttung.'
+    step: 'Stumme Gallensteine (Asymptomatische Steinträger)',
+    solution: 'Keine OP-Indikation / Abwartendes Verhalten (Watchful Waiting)',
+    explanation: 'Rund 75–80 % aller Steinträger bleiben dauerhaft beschwerdefrei; ein präventiver Eingriff ohne Symptome ist laut Leitlinie nicht indiziert.'
   },
   {
     id: 'th2',
-    step: 'Medikamentöse Schmerzlinderung',
-    solution: 'Analgetika (NSAR) & Spasmolytika (Krampflöser)',
-    explanation: 'Entspannt den Schließmuskel und dämpft den Schmerzreiz effektiv.'
+    step: 'Akute unkomplizierte Gallenkolik (Krampfschmerz im RUQ)',
+    solution: 'Nahrungskarenz (Nulldiät) + Spasmolytika & Analgetika',
+    explanation: 'Verhindert weitere Cholezystokinin-Ausschüttung; Krampflöser und Schmerzmittel (z. B. Butylscopolamin & Metamizol/NSAR) durchbrechen den Spasmus.'
   },
   {
     id: 'th3',
-    step: 'Operative Entfernung der Gallenblase',
-    solution: 'Laparoskopische Cholezystektomie',
-    explanation: 'Minimal-invasiver Goldstandard zur dauerhaften Beseitigung des Steinleidens.'
+    step: 'Symptomatische Cholezystolithiasis (rezidivierende Koliken)',
+    solution: 'Elektive laparoskopische Cholezystektomie (lap. CE)',
+    explanation: 'Minimal-invasiver Goldstandard zur dauerhaften Beseitigung des Steinleidens im beschwerdefreien Intervall innerhalb weniger Wochen.'
   },
   {
     id: 'th4',
-    step: 'Behandlung bei bakterieller Entzündung',
-    solution: 'Antibiotika',
-    explanation: 'Gezielte systemische Antibiose zur Verhinderung einer Keimvermehrung und Sepsis.'
+    step: 'Porzellangallenblase (Verkalkung der Gallenblasenwand)',
+    solution: 'Prophylaktische Cholezystektomie wegen Karzinomrisiko',
+    explanation: 'Wegen des signifikant erhöhten Entartungsrisikos zum Gallenblasenkarzinom ist auch bei Beschwerdefreiheit eine operative Entfernung indiziert.'
+  },
+  {
+    id: 'th5',
+    step: 'Bakterielle Cholezystitis / Cholangitis mit Fieber',
+    solution: 'Stationäre Aufnahme, i.v. Antibiose & zeitnahe Cholezystektomie',
+    explanation: 'Gezielte systemische Antibiose und zeitnahe chirurgische Sanierung zur Verhinderung von Gallenblasenperforation und Sepsis.'
   }
 ];

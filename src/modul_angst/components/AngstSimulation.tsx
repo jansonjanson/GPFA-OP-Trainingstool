@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   Heart, 
   Activity, 
@@ -43,6 +43,17 @@ export const AngstSimulation: React.FC<Props> = ({ onBackToOverview, onGoToModul
 
   const currentScene: SimScene = simScenes[currentSceneId] || simScenes['start'];
   const isFinished = currentScene.choices.length === 0;
+
+  // Randomize choices so the first option is never always the correct one
+  const shuffledChoices = useMemo(() => {
+    if (!currentScene?.choices) return [];
+    const list = [...currentScene.choices];
+    for (let i = list.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [list[i], list[j]] = [list[j], list[i]];
+    }
+    return list;
+  }, [currentSceneId]);
 
   const handleChoice = (choice: SimChoice) => {
     // Audio
@@ -345,11 +356,11 @@ export const AngstSimulation: React.FC<Props> = ({ onBackToOverview, onGoToModul
             <span className="text-xs uppercase font-bold tracking-wider text-slate-400 block">
               Ihre nächste pflegerische Entscheidung:
             </span>
-            {currentScene.choices.map((choice) => (
+            {shuffledChoices.map((choice) => (
               <button
                 key={choice.id}
                 onClick={() => handleChoice(choice)}
-                className="w-full text-left p-4 sm:p-5 rounded-2xl border border-slate-200 bg-white hover:border-blue-400 hover:bg-blue-50/40 transition-all text-xs sm:text-sm text-slate-800 leading-relaxed font-medium group flex items-start justify-between shadow-sm hover:shadow"
+                className="w-full text-left p-4 sm:p-5 rounded-2xl border border-slate-200 bg-white hover:border-blue-400 hover:bg-blue-50/40 transition-all text-xs sm:text-sm text-slate-800 leading-relaxed font-medium group flex items-start justify-between shadow-sm hover:shadow cursor-pointer"
               >
                 <span>{choice.text}</span>
                 <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-blue-600 flex-shrink-0 ml-3 mt-0.5 transform group-hover:translate-x-1 transition-transform" />

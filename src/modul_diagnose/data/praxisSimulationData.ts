@@ -89,23 +89,56 @@ export const anamneseSteps: AnamneseStep[] = [
     id: 'step_exam',
     stepNumber: 4,
     phaseTitle: 'Phase 4: PFA-Beobachtung & Vorbereitung der Ärztin',
-    situation: 'Sie haben Vitalzeichen gemessen: RR 145/90 mmHg, Puls 92 bpm, Temperatur 37,6 °C. Bei der Inspektion fällt Ihnen eine diskrete Gelbfärbung der Skleren (Augen) auf.',
+    situation: 'Sie haben Vitalzeichen gemessen: RR 145/90 mmHg, Puls 92 bpm, Temperatur 37,6 °C. Bei der Inspektion fällt Ihnen eine diskrete Gelbfärbung der Skleren (Augen) auf. Zudem klagt Frau Meinhardt über anhaltende Übelkeit.',
     instruction: 'Welche strukturierte Meldung geben Sie an die Hausärztin Dr. Weber weiter?',
     choices: [
-      {
-        id: 'q4_opt',
-        question: '„Frau Dr. Weber: Frau Meinhardt hat postprandiale krampfartige Schmerzen im RUQ mit Ausstrahlung in die rechte Schulter, dunklen Urin, entfärbten Stuhl und beginnenden Sklerenikterus. Schmerz aktuell 7/10. V. a. symptomatische Cholezystolithiasis mit Cholestase.“',
-        category: 'optimal',
-        patientAnswer: 'Dr. Weber: „Hervorragend beobachtet und präzise zusammengefasst! Ich führe sofort die Abdomen-Sonographie durch.“',
-        clinicalSignificance: 'Mustergültige strukturierte Übergabe nach fachlichen Kriterien. Schützt die Patientin vor Verzögerungen.',
-        diagnosticPoints: 25
-      },
       {
         id: 'q4_sub',
         question: '„Frau Doktor, die Patientin hat Bauchweh, bitte einmal drüberschauen.“',
         category: 'unnoetig',
-        patientAnswer: 'Dr. Weber: „Welche Vitalwerte? Wo tut es weh? Bitte erheben Sie das nächste Mal die Leitsymptome vorab.“',
+        patientAnswer: 'Dr. Weber: „Welche Vitalwerte? Wo tut es weh? Bitte erheben Sie das nächste Mal die Leitsymptome vorab strukturiert.“',
         clinicalSignificance: 'Unzureichende Informationsweitergabe; entspricht nicht den PFA-Kompetenzstandards.',
+        diagnosticPoints: 5
+      },
+      {
+        id: 'q4_opt',
+        question: '„Frau Dr. Weber: Frau Meinhardt (67 J.) hat postprandiale krampfartige Schmerzen im RUQ mit Ausstrahlung in rechte Schulter und Rücken, dunklen Urin, entfärbten Stuhl und beginnenden Sklerenikterus. Schmerz aktuell 7/10. V. a. symptomatische Cholezystolithiasis mit Gallengangsbeteiligung (Cholestase).“',
+        category: 'optimal',
+        patientAnswer: 'Dr. Weber: „Hervorragend beobachtet und präzise zusammengefasst! Ich führe sofort die Abdomen-Sonographie durch.“',
+        clinicalSignificance: 'Mustergültige strukturierte Übergabe nach fachlichen Kriterien. Schützt die Patientin vor Verzögerungen.',
+        diagnosticPoints: 25
+      }
+    ]
+  },
+  {
+    id: 'step_indication_counsel',
+    stepNumber: 5,
+    phaseTitle: 'Phase 5: Beratung & OP-Indikationsstellung durch die Hausärztin',
+    situation: 'Die Sonographie bestätigt mehrere Steine mit Schallschatten, eine verdickte Gallenblasenwand (3,2 mm) und einen aufgestauten Gallengang. Frau Meinhardt fragt ängstlich: „Muss man das denn wirklich operieren? Kann man die Steine nicht einfach mit Medikamenten auflösen oder abwarten?“',
+    instruction: 'Wie klären Sie gemeinsam mit der Hausärztin Dr. Weber die Patientin fachgerecht und evidenzbasiert über die OP-Notwendigkeit auf?',
+    choices: [
+      {
+        id: 'q5_opt',
+        question: '„Liebe Frau Meinhardt: Stumme Steine ohne Beschwerden muss man nicht operieren. Da Sie aber schwere Koliken und einen Gallestau haben, ist die Gallenblasenentfernung dringend geboten. Medikamente oder Zertrümmerung helfen hier nicht dauerhaft. Die laparoskopische Cholezystektomie schützt Sie vor gefährlichen Entzündungen der Gallenblase, der Bauchspeicheldrüse und vor einer Porzellangallenblase.“',
+        category: 'optimal',
+        patientAnswer: 'Frau Meinhardt: „Das leuchtet mir ein... Ich hatte gehofft, es geht ohne OP, aber vor noch schlimmeren Schmerzen oder einer Entzündung habe ich noch mehr Angst. Wie läuft die OP ab?“',
+        clinicalSignificance: 'Hervorragende pflegerisch-ärztliche Patientenaufklärung: Klare Differenzierung zwischen asymptomatischen Steinen und symptomatischer Kolik mit OP-Indikation gemäß S3-Leitlinie.',
+        diagnosticPoints: 25
+      },
+      {
+        id: 'q5_sub1',
+        question: '„Ach, wir warten einfach mal ab und trinken viel Kamillentee, vielleicht spülen sich die Steine von selbst aus.“',
+        category: 'unnoetig',
+        patientAnswer: 'Dr. Weber greift sofort ein: „Nein, Frau Meinhardt, bei einer Kolik mit Cholestasezeichen dürfen wir keinesfalls abwarten – es droht ein Verschluss der Gallengänge oder eine Sepsis!“',
+        clinicalSignificance: 'Gefährliche Fehlinformation: Kolikrezidive und lebensbedrohliche Komplikationen werden riskiert.',
+        diagnosticPoints: 0
+      },
+      {
+        id: 'q5_sub2',
+        question: '„Das müssen Sie ganz allein die Chirurgen im Krankenhaus fragen, dafür ist die Hausarztpraxis nicht zuständig.“',
+        category: 'unnoetig',
+        patientAnswer: 'Frau Meinhardt wirkt verunsichert und alleingelassen: „Ich dachte, Sie könnten mir hier die Angst nehmen...“',
+        clinicalSignificance: 'Fehlende Beratungskompetenz und empathische Begleitung im hausärztlichen Setting.',
         diagnosticPoints: 5
       }
     ]

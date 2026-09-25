@@ -61,9 +61,9 @@ export const quiz1BasketItems: BasketItem[] = [
   },
   {
     id: 'b4',
-    text: 'Sie bereiten Frau Meinhardt auf die Gallen-OP morgen vor. Sie sagt: „Ich habe so ein diffuses, ungutes Gefühl im Bauch, wenn ich an morgen denke.“',
+    text: 'Sie bereiten Frau Meinhardt auf die Gallen-OP morgen vor. Sie sagt mit zittriger Stimme: „Ich kann gar nicht genau benennen, wovor eigentlich... mir schnürt es einfach die Kehle zu und ich habe so ein beklemmendes Gefühl und Unruhe tief in mir, wenn ich an morgen denke.“',
     target: 'angst',
-    explanation: 'Richtig! Typisches Merkmal von Angst: Ein diffuses, unklares Gefühl bezüglich eines zukünftigen Ereignisses mit innerer Anspannung und Unruhe.'
+    explanation: 'Richtig! Typisches Merkmal von Angst: Ein unklares, zukunftsgerichtetes Bedrohungsgefühl ohne konkretes, akut physisches Objekt vor Ort.'
   }
 ];
 
@@ -123,35 +123,35 @@ export const quiz4CascadeSteps: CascadeStep[] = [
   {
     id: 's1',
     stepNumber: 1,
-    title: '1. Reiz',
+    title: 'Sinnesreiz (Sensorische Wahrnehmung)',
     description: 'Herr K. sieht den Verbandswagen und hört das Klappern der Instrumente.',
     details: 'Die Sinnesorgane (Augen, Ohren) nehmen die Reize der Umwelt auf und leiten sie über sensorische Nervenbahnen ins Gehirn weiter.'
   },
   {
     id: 's2',
     stepNumber: 2,
-    title: '2. Amygdala (Mandelkern)',
+    title: 'Amygdala (Mandelkern / Emotionale Bewertung)',
     description: 'Seh- und Höreindrücke laufen zusammen und werden emotional bewertet.',
     details: 'Hier wird der Reiz blitzschnell mit den Erinnerungen an die starken Schmerzen des letzten Verbandwechsels abgeglichen. Das Alarmsignal wird ausgelöst.'
   },
   {
     id: 's3',
     stepNumber: 3,
-    title: '3. Hypothalamus',
+    title: 'Hypothalamus (Vegetative Steuerzentrale)',
     description: 'Steuerungszentrum für hormonelle und vegetative Prozesse wird aktiviert.',
     details: 'Der Hypothalamus empfängt den Notruf der Amygdala und schaltet das vegetative Nervensystem (Sympathikus) sowie die hormonelle Stressachse scharf.'
   },
   {
     id: 's4',
     stepNumber: 4,
-    title: '4. Nebennieren',
+    title: 'Nebennieren (Ausschüttung von Stresshormonen)',
     description: 'Ausschüttung von Stresshormonen (Adrenalin & Noradrenalin) in die Blutbahn.',
     details: 'Über neuronale Impulse stimulieren die Nebennieren die Ausschüttung von Katecholaminen, die sich rasend schnell im gesamten Kreislaufsystem verteilen.'
   },
   {
     id: 's5',
     stepNumber: 5,
-    title: '5. Angstreaktion',
+    title: 'Vegetative Angstreaktion (Körperliche Alarmbereitschaft)',
     description: 'Körper in Alarmbereitschaft mit vegetativen und muskulären Symptomen.',
     details: 'Herz rast, Blutdruck steigt, Schweißausbrüche, flache Tachypnoe und hoher Muskeltonus – Herr K. gerät in sichtbare Panik.'
   }

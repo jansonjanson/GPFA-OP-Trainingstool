@@ -22,7 +22,10 @@ interface Props {
 export const DiagnoseModule: React.FC<Props> = ({ onGoToModulAngst, onBackToHub }) => {
   const [activeTab, setActiveTab] = useState<DiagnoseTab>('ds1_theorie');
   const [unlockedNuggets, setUnlockedNuggets] = useState<string[]>(() => {
-    return getLocal<string[]>(StorageKeys.MODUL1_NUGGETS, ['nugget_6f']);
+    return getLocal<string[]>(StorageKeys.MODUL1_NUGGETS, []);
+  });
+  const [completedQuizzes, setCompletedQuizzes] = useState<string[]>(() => {
+    return getLocal<string[]>(StorageKeys.MODUL1_QUIZZES, []);
   });
 
   const handleUnlockNugget = (nuggetId: string) => {
@@ -30,7 +33,18 @@ export const DiagnoseModule: React.FC<Props> = ({ onGoToModulAngst, onBackToHub 
       const next = [...unlockedNuggets, nuggetId];
       setUnlockedNuggets(next);
       setLocal(StorageKeys.MODUL1_NUGGETS, next);
-      if (next.length >= 7) {
+    }
+  };
+
+  const handleCompleteQuiz = (quizId: string) => {
+    if (!completedQuizzes.includes(quizId)) {
+      const next = [...completedQuizzes, quizId];
+      setCompletedQuizzes(next);
+      setLocal(StorageKeys.MODUL1_QUIZZES, next);
+
+      // Trigger achievement ONLY when all 7 quizzes in DS 1 are completed
+      const allSevenQuizzes = ['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7'];
+      if (allSevenQuizzes.every(id => next.includes(id))) {
         unlockAchievement('modul1_theorie');
       }
     }
@@ -91,8 +105,11 @@ export const DiagnoseModule: React.FC<Props> = ({ onGoToModulAngst, onBackToHub 
       {activeTab === 'ds1_theorie' && (
         <DS1DiagnoseView
           unlockedNuggets={unlockedNuggets}
+          completedQuizzes={completedQuizzes}
           onUnlockNugget={handleUnlockNugget}
+          onCompleteQuiz={handleCompleteQuiz}
           onGoToSimulation={() => setActiveTab('ds2_simulation')}
+          onViewNuggets={() => setActiveTab('nuggets')}
         />
       )}
 

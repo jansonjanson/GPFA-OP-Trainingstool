@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   Play, 
   ExternalLink, 
@@ -12,7 +12,10 @@ import {
   Layers,
   ChevronDown,
   Info,
-  Scale
+  Scale,
+  ArrowDown,
+  GripVertical,
+  BookOpen
 } from 'lucide-react';
 import { 
   ds1Videos, 
@@ -25,33 +28,73 @@ import {
 } from '../data/ds1Data';
 import { playSound } from '../utils/audio';
 
+function fisherYatesShuffle<T>(array: T[]): T[] {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
 interface Props {
   unlockedNuggets: string[];
+  completedQuizzes?: string[];
   onUnlockNugget: (quizId: string) => void;
+  onCompleteQuiz?: (quizId: string) => void;
   onGoToDS2: () => void;
 }
 
-export const DS1View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onGoToDS2 }) => {
+export const DS1View: React.FC<Props> = ({ 
+  unlockedNuggets, 
+  completedQuizzes = [],
+  onUnlockNugget, 
+  onCompleteQuiz,
+  onGoToDS2 
+}) => {
   // Video tab state
   const [activeVideoTab, setActiveVideoTab] = useState<'original' | 'shortened'>('shortened');
 
-  // Quiz 1: Two Baskets state
+  // Schritt 1 & 2 completion tracking (pulsing button confirmation)
+  const [step1Completed, setStep1Completed] = useState<boolean>(() => {
+    return unlockedNuggets.includes('ds1_step1_video');
+  });
+  const [step2Completed, setStep2Completed] = useState<boolean>(() => {
+    return unlockedNuggets.includes('ds1_step2_def');
+  });
+
+  // Quiz 1: Differenzierung Furcht vs. Angst
   const [q1ItemIndex, setQ1ItemIndex] = useState<number>(0);
   const [q1Answers, setQ1Answers] = useState<Record<string, 'furcht' | 'angst'>>({});
   const [q1Feedback, setQ1Feedback] = useState<{ isCorrect: boolean; text: string } | null>(null);
 
-  // Quiz 2: Matching Pairs state
+  // Quiz 2: Matching Pairs state with shuffled terms
+  const [q2Seed, setQ2Seed] = useState<number>(1);
+  const shuffledQ2Terms = useMemo(() => {
+    return fisherYatesShuffle(quiz2MatchingPairs.map(p => p.term));
+  }, [q2Seed]);
   const [q2SelectedScenario, setQ2SelectedScenario] = useState<string | null>(null);
   const [q2MatchedPairs, setQ2MatchedPairs] = useState<Record<string, string>>({}); // scenarioId -> term
   const [q2Feedback, setQ2Feedback] = useState<{ isCorrect: boolean; text: string } | null>(null);
 
-  // Quiz 3: Cloze text state
+  // Quiz 3: Cloze text state with shuffled dropdown options
+  const [q3Seed, setQ3Seed] = useState<number>(1);
+  const shuffledQ3Options = useMemo(() => {
+    const res: Record<string, string[]> = {};
+    quiz3ClozeText.parts.forEach(part => {
+      if (part.key && part.options) {
+        res[part.key] = fisherYatesShuffle([...part.options]);
+      }
+    });
+    return res;
+  }, [q3Seed]);
   const [q3Selections, setQ3Selections] = useState<Record<string, string>>({});
   const [q3Feedback, setQ3Feedback] = useState<{ isCorrect: boolean; text: string } | null>(null);
 
-  // Quiz 4: Cascade Ordering state
+  // Quiz 4: Cascade Ordering with Drag & Drop
   const [q4Order, setQ4Order] = useState<string[]>(['s3', 's1', 's5', 's2', 's4']);
   const [q4Feedback, setQ4Feedback] = useState<{ isCorrect: boolean; text: string } | null>(null);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
   // Quiz 5: Swipe Card state
   const [q5CardIndex, setQ5CardIndex] = useState<number>(0);
@@ -77,6 +120,7 @@ export const DS1View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onGo
 
     if (q1ItemIndex === quiz1BasketItems.length - 1 && isCorrect) {
       onUnlockNugget('ds1_quiz1');
+      onCompleteQuiz?.('ds1_quiz1');
       playSound('unlock');
     }
   };
@@ -104,6 +148,7 @@ export const DS1View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onGo
 
       if (Object.keys(updated).length === quiz2MatchingPairs.length) {
         onUnlockNugget('ds1_quiz2');
+        onCompleteQuiz?.('ds1_quiz2');
         playSound('unlock');
       }
     } else {
@@ -117,7 +162,6 @@ export const DS1View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onGo
 
   // Handle Quiz 3 Submit
   const handleQ3Submit = () => {
-    const expectedKeys = ['nervensystem', 'vitalwert', 'organe', 'haut', 'starre', 'gegenspieler', 'folge'];
     const clozeParts = quiz3ClozeText.parts.filter(p => p.key);
     
     let allCorrect = true;
@@ -135,6 +179,7 @@ export const DS1View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onGo
         text: 'Hervorragend! Alle physiologischen Begriffe und vegetativen Regulationskreise wurden fachlich exakt zugeordnet.'
       });
       onUnlockNugget('ds1_quiz3');
+      onCompleteQuiz?.('ds1_quiz3');
     } else {
       playSound('error');
       setQ3Feedback({
@@ -144,7 +189,37 @@ export const DS1View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onGo
     }
   };
 
-  // Handle Quiz 4 Move
+  // Handle Quiz 4 Drag & Drop
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    e.dataTransfer.setData('text/plain', String(index));
+    e.dataTransfer.effectAllowed = 'move';
+    setDraggedIndex(index);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault();
+    const sourceIndexStr = e.dataTransfer.getData('text/plain');
+    const sourceIndex = parseInt(sourceIndexStr, 10);
+    if (isNaN(sourceIndex) || sourceIndex === targetIndex) {
+      setDraggedIndex(null);
+      return;
+    }
+
+    const newOrder = [...q4Order];
+    const [movedItem] = newOrder.splice(sourceIndex, 1);
+    newOrder.splice(targetIndex, 0, movedItem);
+    setQ4Order(newOrder);
+    setQ4Feedback(null);
+    setDraggedIndex(null);
+    playSound('pop');
+  };
+
+  // Handle Quiz 4 Move (fallback button)
   const handleQ4Move = (index: number, direction: 'up' | 'down') => {
     const newOrder = [...q4Order];
     const targetIndex = direction === 'up' ? index - 1 : index + 1;
@@ -168,6 +243,7 @@ export const DS1View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onGo
         text: 'Perfekt! Sie haben die neurobiologische Signalkaskade vom Außenreiz über Amygdala und Hypothalamus bis zur Hormonausschüttung der Nebennieren fehlerfrei geordnet.'
       });
       onUnlockNugget('ds1_quiz4');
+      onCompleteQuiz?.('ds1_quiz4');
     } else {
       playSound('error');
       setQ4Feedback({
@@ -195,6 +271,8 @@ export const DS1View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onGo
 
     if (q5CardIndex === quiz5SwipeCards.length - 1 && isCorrect) {
       setQ5Completed(true);
+      onUnlockNugget('ds1_quiz5');
+      onCompleteQuiz?.('ds1_quiz5');
       playSound('unlock');
     }
   };
@@ -217,18 +295,21 @@ export const DS1View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onGo
     setQ2SelectedScenario(null);
     setQ2MatchedPairs({});
     setQ2Feedback(null);
+    setQ2Seed(prev => prev + 1);
     playSound('pop');
   };
 
   const handleResetQ3 = () => {
     setQ3Selections({});
     setQ3Feedback(null);
+    setQ3Seed(prev => prev + 1);
     playSound('pop');
   };
 
   const handleResetQ4 = () => {
     setQ4Order(['s3', 's1', 's5', 's2', 's4']);
     setQ4Feedback(null);
+    setDraggedIndex(null);
     playSound('pop');
   };
 
@@ -251,8 +332,8 @@ export const DS1View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onGo
             <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">
               Theoretische Grundlagen & Neurobiologie der OP-Angst
             </h2>
-            <p className="text-slate-600 text-sm mt-1 max-w-3xl">
-              <strong>Lernziel (PFA-Niveau):</strong> Ängste erkennen, vegetative Symptome (Tachykardie, Schwitzen, Mydriasis) verstehen und theoretisch sichern.
+            <p className="text-slate-600 text-xs sm:text-sm mt-1 max-w-3xl leading-relaxed">
+              Erarbeiten Sie die neurobiologischen Entstehungsformen und die physiologische Stresskaskade von Frau Meinhardt vor der Cholezystektomie.
             </p>
           </div>
           <div className="flex items-center space-x-2 bg-slate-50 border border-slate-200 p-3 rounded-2xl">
@@ -266,8 +347,17 @@ export const DS1View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onGo
           </div>
         </div>
 
-        {/* Video Section */}
+        {/* Video Section: Schritt 1 */}
         <div className="mt-8">
+          <div className="bg-blue-50/80 border border-blue-200 rounded-2xl p-4 mb-4">
+            <span className="text-[11px] font-extrabold uppercase tracking-wider text-blue-700 bg-blue-100 px-2 py-0.5 rounded-md">
+              Arbeitsauftrag 1: Video vollständig ansehen & Pathophysiologie erfassen
+            </span>
+            <p className="text-xs sm:text-sm text-slate-700 mt-1 leading-relaxed">
+              Sehen Sie sich das Lehrvideo zur Neurobiologie der Angst im Körper aufmerksam und vollständig an.
+            </p>
+          </div>
+
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-bold text-slate-900 flex items-center space-x-2">
               <Play className="w-5 h-5 text-blue-600" />
@@ -276,7 +366,7 @@ export const DS1View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onGo
             <div className="inline-flex p-1 bg-slate-100 rounded-xl">
               <button
                 onClick={() => setActiveVideoTab('shortened')}
-                className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   activeVideoTab === 'shortened'
                     ? 'bg-white text-blue-600 shadow-sm'
                     : 'text-slate-600 hover:text-slate-900'
@@ -286,7 +376,7 @@ export const DS1View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onGo
               </button>
               <button
                 onClick={() => setActiveVideoTab('original')}
-                className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   activeVideoTab === 'original'
                     ? 'bg-white text-blue-600 shadow-sm'
                     : 'text-slate-600 hover:text-slate-900'
@@ -336,7 +426,7 @@ export const DS1View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onGo
             href={ds1Videos[activeVideoTab].externalUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="block max-w-4xl mx-auto bg-gradient-to-r from-red-50 via-slate-50 to-blue-50 border-2 border-red-200 hover:border-red-400 rounded-2xl p-4 transition-all shadow-sm hover:shadow-md text-left cursor-pointer group"
+            className="block max-w-4xl mx-auto bg-gradient-to-r from-red-50 via-slate-50 to-blue-50 border-2 border-red-200 hover:border-red-400 rounded-2xl p-4 transition-all shadow-sm hover:shadow-md text-left cursor-pointer group mt-4"
           >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-start sm:items-center space-x-3.5">
@@ -368,10 +458,55 @@ export const DS1View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onGo
               </div>
             </div>
           </a>
+
+          {/* Schritt 1 Bestätigungs-Button mit Pulsieren */}
+          <div className="mt-4 p-4 rounded-2xl bg-white border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
+            <div className="text-xs text-slate-600">
+              <span className="font-bold text-slate-900 block">Pfad-Führung:</span>
+              Bestätigen Sie das vollständige Ansehen des Videos, um strukturiert zu Schritt 2 zu gelangen.
+            </div>
+            <button
+              onClick={() => {
+                setStep1Completed(true);
+                onUnlockNugget('ds1_step1_video');
+                playSound('success');
+              }}
+              className={`px-5 py-3 rounded-xl font-extrabold text-xs sm:text-sm shadow-md transition-all flex items-center space-x-2 cursor-pointer ${
+                step1Completed
+                  ? 'bg-emerald-600 text-white'
+                  : 'bg-amber-500 hover:bg-amber-600 text-slate-950 ring-4 ring-amber-300 animate-pulse'
+              }`}
+            >
+              {step1Completed ? <CheckCircle2 className="w-4 h-4 text-white" /> : <Play className="w-4 h-4 fill-current" />}
+              <span>{step1Completed ? 'Schritt 1 gesichert: Video angesehen' : 'Schritt 1 bestätigen: Video vollständig angesehen'}</span>
+            </button>
+          </div>
         </div>
 
-        {/* Definitions Section */}
-        <div className="mt-12 pt-8 border-t border-slate-200">
+        {/* Pfeil-Leitung zwischen Schritt 1 und Schritt 2 */}
+        <div className="flex flex-col items-center justify-center py-6">
+          <div className="h-6 w-0.5 bg-blue-300"></div>
+          <div className="px-3.5 py-1 rounded-full bg-blue-100 text-blue-800 text-[11px] font-bold border border-blue-200 shadow-xs flex items-center space-x-1.5 my-1">
+            <span>Nächster Schritt: Definitionen erarbeiten</span>
+            <ArrowDown className="w-3.5 h-3.5 text-blue-600" />
+          </div>
+          <div className="h-6 w-0.5 bg-blue-300"></div>
+        </div>
+
+        {/* Definitions Section: Schritt 2 */}
+        <div className="pt-2 border-t border-slate-200">
+          <div className="bg-indigo-50/80 border border-indigo-200 rounded-2xl p-4 mb-4">
+            <span className="text-[11px] font-extrabold uppercase tracking-wider text-indigo-700 bg-indigo-100 px-2 py-0.5 rounded-md">
+              Arbeitsauftrag 2: Definitionen lesen & theoretisch sichern
+            </span>
+            <p className="text-xs sm:text-sm text-slate-700 mt-1 leading-relaxed">
+              Lesen Sie die folgenden wissenschaftlichen Definitionen zu „Angst“ und „Furcht“ aufmerksam und vollständig durch.
+              <span className="block font-semibold text-indigo-900 mt-0.5">
+                Hinweis: Diese präzise theoretische Differenzierung kam im Video noch nicht vor und ist neu!
+              </span>
+            </p>
+          </div>
+
           <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center space-x-2">
             <Scale className="w-5 h-5 text-indigo-600" />
             <span>2. Definitionen: Angst vs. Furcht</span>
@@ -426,19 +561,52 @@ export const DS1View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onGo
               </div>
             </div>
           </div>
+
+          {/* Schritt 2 Bestätigungs-Button mit Pulsieren */}
+          <div className="mt-6 p-4 rounded-2xl bg-white border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
+            <div className="text-xs text-slate-600">
+              <span className="font-bold text-slate-900 block">Pfad-Führung:</span>
+              Bestätigen Sie das Durchlesen der Definitionen, um die interaktiven Quizzes zu bearbeiten.
+            </div>
+            <button
+              onClick={() => {
+                setStep2Completed(true);
+                onUnlockNugget('ds1_step2_def');
+                playSound('success');
+              }}
+              className={`px-5 py-3 rounded-xl font-extrabold text-xs sm:text-sm shadow-md transition-all flex items-center space-x-2 cursor-pointer ${
+                step2Completed
+                  ? 'bg-emerald-600 text-white'
+                  : 'bg-amber-500 hover:bg-amber-600 text-slate-950 ring-4 ring-amber-300 animate-pulse'
+              }`}
+            >
+              {step2Completed ? <CheckCircle2 className="w-4 h-4 text-white" /> : <BookOpen className="w-4 h-4" />}
+              <span>{step2Completed ? 'Schritt 2 gesichert: Definitionen verinnerlicht' : 'Schritt 2 bestätigen: Definitionen gelesen'}</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* QUIZ SECTION TITLE */}
-      <div className="text-center">
-        <span className="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-4 py-1.5 rounded-full border border-blue-200">
-          Theorie-Sicherung & Freischaltung der Learning Nuggets
+      {/* Pfeil-Leitung zwischen Schritt 2 und Schritt 3 */}
+      <div className="flex flex-col items-center justify-center py-4">
+        <div className="h-6 w-0.5 bg-blue-300"></div>
+        <div className="px-3.5 py-1 rounded-full bg-blue-100 text-blue-800 text-[11px] font-bold border border-blue-200 shadow-xs flex items-center space-x-1.5 my-1">
+          <span>Weiter zu Schritt 3: Quizzes bearbeiten</span>
+          <ArrowDown className="w-3.5 h-3.5 text-blue-600" />
+        </div>
+        <div className="h-6 w-0.5 bg-blue-300"></div>
+      </div>
+
+      {/* SCHRITT 3: QUIZZES BEARBEITEN */}
+      <div className="text-center space-y-2">
+        <span className="text-xs font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-4 py-1.5 rounded-full border border-blue-200">
+          Schritt 3: Praxis-Quizzes bearbeiten
         </span>
-        <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2">
+        <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
           5 Interaktive Praxis-Quizzes
         </h3>
-        <p className="text-slate-600 text-sm max-w-2xl mx-auto mt-1">
-          Lösen Sie die Aufgaben. Mit jeder richtigen Beantwortung sichern Sie sich wertvolles Wissen und schalten die Lehrfolien als Nachschlagewerk frei!
+        <p className="text-slate-600 text-sm max-w-2xl mx-auto">
+          Lösen Sie alle 5 Aufgaben, um das Modul 2 Theorie-Achievement und wertvolle Learning Nuggets freizuschalten!
         </p>
       </div>
 
@@ -450,7 +618,7 @@ export const DS1View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onGo
               1
             </span>
             <h4 className="text-lg font-bold text-slate-900">
-              Quiz 1: Die zwei Körbe – Angst vs. Furcht
+              Quiz 1: Fall-Zuordnung – Angst vs. Furcht
             </h4>
           </div>
           <div className="flex items-center space-x-3">
@@ -474,7 +642,7 @@ export const DS1View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onGo
         {q1ItemIndex < quiz1BasketItems.length && (
           <div className="bg-slate-50 border-2 border-slate-200 rounded-2xl p-6 text-center max-w-xl mx-auto">
             <span className="text-xs uppercase tracking-wider font-bold text-slate-400 block mb-2">
-              Pflege-Szenario zum Einsortieren
+              Pflege-Szenario zum Zuordnen
             </span>
             <p className="text-base sm:text-lg font-semibold text-slate-800 leading-snug">
               „{quiz1BasketItems[q1ItemIndex].text}“
@@ -482,39 +650,39 @@ export const DS1View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onGo
           </div>
         )}
 
-        {/* The Two Target Baskets */}
+        {/* The Two Target Categories: Furcht vs Angst */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-xl mx-auto">
-          {/* Basket 1: Furcht */}
+          {/* Category 1: Furcht */}
           <button
             onClick={() => handleQ1Sort('furcht')}
             disabled={!!q1Feedback}
-            className="group p-6 rounded-2xl border-2 border-teal-300 bg-teal-50/50 hover:bg-teal-500 hover:text-white transition-all text-center flex flex-col items-center justify-center focus:outline-none focus:ring-4 focus:ring-teal-200"
+            className="group p-6 rounded-2xl border-2 border-teal-300 bg-teal-50/50 hover:bg-teal-500 hover:text-white transition-all text-center flex flex-col items-center justify-center focus:outline-none focus:ring-4 focus:ring-teal-200 cursor-pointer"
           >
             <div className="w-12 h-12 rounded-2xl bg-teal-600 text-white flex items-center justify-center mb-3 group-hover:bg-white group-hover:text-teal-700 transition-colors shadow-md">
               <AlertCircle className="w-6 h-6" />
             </div>
             <h5 className="font-extrabold text-lg text-teal-950 group-hover:text-white">
-              Korb: Furcht
+              Furcht
             </h5>
             <span className="text-xs text-teal-700 group-hover:text-teal-100 mt-1">
               Akut, greifbar, präsente Gefahr
             </span>
           </button>
 
-          {/* Basket 2: Angst */}
+          {/* Category 2: Angst */}
           <button
             onClick={() => handleQ1Sort('angst')}
             disabled={!!q1Feedback}
-            className="group p-6 rounded-2xl border-2 border-cyan-300 bg-cyan-50/50 hover:bg-cyan-600 hover:text-white transition-all text-center flex flex-col items-center justify-center focus:outline-none focus:ring-4 focus:ring-cyan-200"
+            className="group p-6 rounded-2xl border-2 border-cyan-300 bg-cyan-50/50 hover:bg-cyan-600 hover:text-white transition-all text-center flex flex-col items-center justify-center focus:outline-none focus:ring-4 focus:ring-cyan-200 cursor-pointer"
           >
             <div className="w-12 h-12 rounded-2xl bg-cyan-600 text-white flex items-center justify-center mb-3 group-hover:bg-white group-hover:text-cyan-700 transition-colors shadow-md">
               <Scale className="w-6 h-6" />
             </div>
             <h5 className="font-extrabold text-lg text-cyan-950 group-hover:text-white">
-              Korb: Angst (State-Angst)
+              Angst
             </h5>
             <span className="text-xs text-cyan-700 group-hover:text-cyan-100 mt-1">
-              Diffus, zukunftsgerichtet, unklar
+              Zukunftsgerichtet, unbestimmt, unklar
             </span>
           </button>
         </div>
@@ -632,12 +800,7 @@ export const DS1View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onGo
             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
               Fachbegriffe (Die 4 Formen)
             </span>
-            {[
-              'Erlernte Angst / Konditionierung',
-              'Beobachtungslernen',
-              'Instruktionslernen',
-              'Veranlagung / Genetik'
-            ].map((term) => {
+            {shuffledQ2Terms.map((term) => {
               const isUsed = Object.values(q2MatchedPairs).includes(term);
 
               return (
@@ -729,7 +892,7 @@ export const DS1View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onGo
                   }`}
                 >
                   <option value="">[ Auswählen ]</option>
-                  {part.options!.map((opt) => (
+                  {(shuffledQ3Options[part.key] || part.options!).map((opt) => (
                     <option key={opt} value={opt}>
                       {opt}
                     </option>
@@ -794,12 +957,24 @@ export const DS1View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onGo
         <div className="space-y-2">
           {q4Order.map((stepId, index) => {
             const step = quiz4CascadeSteps.find(s => s.id === stepId)!;
+            const isDragging = draggedIndex === index;
             return (
               <div
                 key={step.id}
-                className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex items-center justify-between hover:bg-slate-100 transition-colors"
+                draggable
+                onDragStart={(e) => handleDragStart(e, index)}
+                onDragOver={handleDragOver}
+                onDrop={(e) => handleDrop(e, index)}
+                className={`border rounded-2xl p-4 flex items-center justify-between transition-all cursor-grab active:cursor-grabbing ${
+                  isDragging
+                    ? 'bg-blue-100/70 border-blue-400 shadow-md ring-2 ring-blue-300 opacity-60'
+                    : 'bg-slate-50 border-slate-200 hover:bg-slate-100/80 hover:border-slate-300 shadow-xs'
+                }`}
               >
                 <div className="flex items-center space-x-3">
+                  <div className="cursor-grab text-slate-400 hover:text-slate-600 p-0.5">
+                    <GripVertical className="w-4 h-4" />
+                  </div>
                   <span className="w-6 h-6 rounded-full bg-slate-800 text-white font-bold text-xs flex items-center justify-center flex-shrink-0">
                     {index + 1}
                   </span>
@@ -809,11 +984,11 @@ export const DS1View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onGo
                   </div>
                 </div>
 
-                <div className="flex items-center space-x-1">
+                <div className="flex items-center space-x-1 flex-shrink-0 ml-2">
                   <button
                     disabled={index === 0}
                     onClick={() => handleQ4Move(index, 'up')}
-                    className="p-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 disabled:opacity-30"
+                    className="p-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-100 disabled:opacity-30 cursor-pointer shadow-xs"
                     title="Nach oben verschieben"
                   >
                     ▲
@@ -821,7 +996,7 @@ export const DS1View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onGo
                   <button
                     disabled={index === q4Order.length - 1}
                     onClick={() => handleQ4Move(index, 'down')}
-                    className="p-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 disabled:opacity-30"
+                    className="p-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-100 disabled:opacity-30 cursor-pointer shadow-xs"
                     title="Nach unten verschieben"
                   >
                     ▼

@@ -94,54 +94,6 @@ export const CurriculumStartNavigatorModal: React.FC<CurriculumStartNavigatorMod
             </div>
           </div>
 
-          {/* Intro-Video Sektion (vormals IntroSection aus Modul 3) */}
-          <div className="pt-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
-              <div>
-                <h3 className="text-lg font-bold text-slate-900 flex items-center space-x-2">
-                  <Play className="w-5 h-5 text-red-600 fill-current" />
-                  <span>Einführung in die perioperative Phase</span>
-                </h3>
-                <p className="text-xs text-slate-500">
-                  Didaktischer Video-Überblick über die Abläufe vor, während und nach einer Operation
-                </p>
-              </div>
-              <button
-                onClick={() => setShowVideo(!showVideo)}
-                className="text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3.5 py-1.5 rounded-xl transition-colors self-start sm:self-auto"
-              >
-                {showVideo ? 'Video einklappen' : 'Video ansehen'}
-              </button>
-            </div>
-
-            {showVideo ? (
-              <div className="aspect-video w-full rounded-2xl overflow-hidden shadow-md bg-slate-900 mb-3 border border-slate-200">
-                <iframe
-                  className="w-full h-full"
-                  src="https://www.youtube.com/embed/DADwjbcMfXg?si=IU5PQBU43wEt0A7K&autoplay=1"
-                  title="Einführung in die perioperative Phase"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              </div>
-            ) : null}
-
-            <a
-              href="https://youtu.be/DADwjbcMfXg"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-between p-3.5 rounded-2xl bg-red-50/70 border border-red-200 hover:bg-red-100/70 transition-all text-xs text-red-900 font-medium group"
-            >
-              <div className="flex items-center space-x-2.5">
-                <div className="w-7 h-7 rounded-xl bg-red-600 text-white flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
-                  <Play className="w-3.5 h-3.5 fill-current ml-0.5" />
-                </div>
-                <span>Video direkt auf YouTube öffnen: <strong>Einführung in die perioperative Phase</strong></span>
-              </div>
-              <ExternalLink className="w-4 h-4 text-red-600 flex-shrink-0" />
-            </a>
-          </div>
-
           {/* Curriculum-Fahrplan über alle 8 Doppelstunden */}
           <div className="pt-6">
             <h3 className="text-lg font-bold text-slate-900 mb-1 flex items-center space-x-2">
