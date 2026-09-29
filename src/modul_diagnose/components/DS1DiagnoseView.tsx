@@ -68,8 +68,8 @@ const QUIZ2_QUESTIONS: Quiz2Question[] = [
     id: 'q2_ruq',
     question: 'Frau Meinhardt erleidet eine akute Gallenkolik: Die Gallenblasenwand kontrahiert krampfhaft gegen einen festsitzenden Stein. Wo lokalisiert sie das primäre Schmerzzentrum mit krampfartigen, stechenden Wellenschmerzen (Dauer meist 15–60 Minuten)?',
     targetHotspotId: 'hs_ruq',
-    hint: 'Achten Sie auf den rechten Oberbauch (RUQ) direkt unter dem rechten Rippenbogen unterhalb der Leber.',
-    explanation: 'Exakt lokalisiert! Im rechten oberen Quadranten (RUQ) unterhalb der Leber liegt die Gallenblase. Die glatte Muskulatur zieht sich krampfhaft zusammen, um die Galle gegen den verklemmten Stein in den Zwölffingerdarm zu pressen. Typischerweise hält der Kolikschmerz 15 bis 60 Minuten an.'
+    hint: 'Achten Sie auf den rechten Oberbauch (RUQ = Rechter oberer Quadrant) direkt unter dem rechten Rippenbogen unterhalb der Leber.',
+    explanation: 'Exakt lokalisiert! Im rechten oberen Quadranten (RUQ, engl. Right Upper Quadrant = rechter Oberbauch) unterhalb der Leber liegt die Gallenblase. Die glatte Muskulatur zieht sich krampfhaft zusammen, um die Galle gegen den verklemmten Stein in den Zwölffingerdarm zu pressen. Typischerweise hält der Kolikschmerz 15 bis 60 Minuten an.'
   },
   {
     id: 'q2_shoulder',
@@ -600,10 +600,10 @@ export const DS1DiagnoseView: React.FC<Props> = ({
           <div className="bg-indigo-50/90 border border-indigo-200 rounded-2xl p-4 text-xs sm:text-sm text-indigo-950">
             <div className="font-bold flex items-center space-x-2 text-indigo-900 mb-1">
               <FileText className="w-4 h-4 text-indigo-600" />
-              <span>Arbeitsauftrag 1: Video vollständig ansehen & Pathophysiologie erfassen</span>
+              <span>Arbeitsauftrag 1: Video ansehen & Kerninhalte sichern (Steinarten, Ursachen, Charcot-Trias & Therapie)</span>
             </div>
             <p className="leading-relaxed text-indigo-950/90">
-              Sehen Sie sich das Lehrvideo von Dr. Weigl aufmerksam und vollständig an (ca. 13:30 Minuten). Erstellen Sie freiwillig eine Zusammenfassung, der wichtigsten Inhalte.
+              Sehen Sie sich das Lehrvideo von Dr. Weigl aufmerksam an. Achten Sie besonders auf die <strong>Unterscheidung der Steinarten</strong> (Cholesterin- vs. Pigmentsteine), die <strong>Ursachen</strong> der Steinbildung, die lebenswichtigen <strong>Charcot-Symptome</strong> bei Gallengangsentzündung sowie die <strong>Behandlung</strong>.
             </p>
           </div>
 
@@ -645,7 +645,7 @@ export const DS1DiagnoseView: React.FC<Props> = ({
               </div>
 
               <button
-                onClick={() => handleCompleteStation('station1', 'nugget_station1_patho', 'Station 1: Pathophysiologie & Kolik')}
+                onClick={() => handleCompleteStation('station1', 'nugget_station1_patho', 'Station 1: Ursachen, Steinarten & Charcot-Symptome (Dr. Weigl)')}
                 className={`px-6 py-3.5 rounded-2xl font-black text-xs sm:text-sm transition-all cursor-pointer flex items-center justify-center space-x-2.5 shadow-md flex-shrink-0 ${
                   completedStations.station1
                     ? 'bg-emerald-600 hover:bg-emerald-700 text-white border-2 border-emerald-400 shadow-emerald-600/20'
@@ -1112,7 +1112,7 @@ export const DS1DiagnoseView: React.FC<Props> = ({
                 {q2Feedback.isCorrect && q2CurrentIndex < QUIZ2_QUESTIONS.length - 1 && (
                   <button
                     onClick={handleNextQ2Question}
-                    className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition-all shadow-xs flex items-center justify-center space-x-1.5 cursor-pointer"
+                    className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs sm:text-sm rounded-xl transition-all shadow-md ring-4 ring-amber-300 animate-pulse flex items-center justify-center space-x-2 cursor-pointer"
                   >
                     <span>Nächste Frage (#{q2CurrentIndex + 2})</span>
                     <ArrowRight className="w-4 h-4" />
@@ -1361,9 +1361,10 @@ export const DS1DiagnoseView: React.FC<Props> = ({
                 {q4Index < redFlagCards.length - 1 && (
                   <button
                     onClick={handleNextQ4}
-                    className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold cursor-pointer"
+                    className="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black rounded-xl text-xs shadow-md ring-4 ring-amber-300 animate-pulse cursor-pointer flex items-center space-x-1.5"
                   >
-                    Nächsten Fall bewerten
+                    <span>Nächsten Fall bewerten</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 )}
               </div>
@@ -1437,9 +1438,10 @@ export const DS1DiagnoseView: React.FC<Props> = ({
                 {q5Index < pfaActions.length - 1 && (
                   <button
                     onClick={handleNextQ5}
-                    className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold cursor-pointer"
+                    className="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black rounded-xl text-xs shadow-md ring-4 ring-amber-300 animate-pulse cursor-pointer flex items-center space-x-1.5"
                   >
-                    Nächste Handlung prüfen
+                    <span>Nächste Handlung prüfen</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 )}
               </div>

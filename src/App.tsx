@@ -19,7 +19,8 @@ import {
   HelpCircle,
   User,
   GraduationCap,
-  ArrowUp
+  ArrowUp,
+  BookOpen
 } from 'lucide-react';
 import { DiagnoseModule } from './modul_diagnose/DiagnoseModule';
 import { AngstModule } from './modul_angst/AngstModule';
@@ -33,6 +34,8 @@ import { ResetConfirmModal } from './components/ResetConfirmModal';
 import { GlobalFloatingAI } from './components/GlobalFloatingAI';
 import { AchievementsModal } from './components/AchievementsModal';
 import { GlobalAchievementToast } from './components/GlobalAchievementToast';
+import { GlobalNuggetToast } from './components/GlobalNuggetToast';
+import { FachhandbuchModal } from './components/FachhandbuchModal';
 import { 
   getLocal, 
   setLocal, 
@@ -57,6 +60,8 @@ export default function App() {
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const [isAchievementsOpen, setIsAchievementsOpen] = useState(false);
   const [isAiOpen, setIsAiOpen] = useState(false);
+  const [isFachhandbuchOpen, setIsFachhandbuchOpen] = useState(false);
+  const [resetKey, setResetKey] = useState(0);
 
   // Sync achievements counter & progression
   const [achievementsStats, setAchievementsStats] = useState(() => getUnlockedAchievementsCount());
@@ -88,6 +93,24 @@ export default function App() {
     };
   }, []);
 
+  // Listen to open fachhandbuch event from toasts or child modules
+  useEffect(() => {
+    const handleOpenFachhandbuch = () => {
+      setIsFachhandbuchOpen(true);
+    };
+    const handleSwitchModule = (e: any) => {
+      if (e?.detail) {
+        handleSelectModule(e.detail as ModuleType);
+      }
+    };
+    window.addEventListener('gpfa_open_fachhandbuch', handleOpenFachhandbuch);
+    window.addEventListener('gpfa_switch_module', handleSwitchModule);
+    return () => {
+      window.removeEventListener('gpfa_open_fachhandbuch', handleOpenFachhandbuch);
+      window.removeEventListener('gpfa_switch_module', handleSwitchModule);
+    };
+  }, []);
+
   // Per-module scroll positions tracking
   const scrollPositions = React.useRef<Record<string, number>>({});
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -101,19 +124,34 @@ export default function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Auto-scroll to top on every module change
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    const timer = setTimeout(() => {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }, 40);
+    return () => clearTimeout(timer);
+  }, [activeModule]);
+
   const handleSelectModule = (module: ModuleType) => {
-    // Save current scroll position for previous module
     scrollPositions.current[activeModule] = window.scrollY;
 
     setActiveModule(module);
     setLocal(StorageKeys.ACTIVE_MODULE, module);
     setMobileMenuOpen(false);
 
-    // If target module has a recorded position, restore it; otherwise start at the very top (0)
-    const targetPos = typeof scrollPositions.current[module] === 'number' ? scrollPositions.current[module] : 0;
-    window.scrollTo({ top: targetPos, behavior: 'auto' });
+    // Always scroll to the very top (0, 0) on module switch
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
     setTimeout(() => {
-      window.scrollTo({ top: targetPos, behavior: 'auto' });
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
     }, 40);
   };
 
@@ -162,10 +200,15 @@ export default function App() {
   const handleConfirmReset = () => {
     resetEntireTrainingProgress();
     setIsAdmin(false);
-    setAchievementsStats(getUnlockedAchievementsCount());
+    setAchievementsStats({ unlocked: 0, total: 10 });
     setActiveModule('hub');
+    setResetKey(prev => prev + 1);
     setLocal(StorageKeys.ACTIVE_MODULE, 'hub');
-    window.location.reload();
+    try {
+      window.location.reload();
+    } catch {
+      // fallback if reload prevented by sandbox
+    }
   };
 
   const m1Unlocked = isModuleUnlocked(1);
@@ -246,8 +289,8 @@ export default function App() {
             <p className="text-xs font-bold text-indigo-700 tracking-wide mt-0.5">
               J. Rosenow M. A.
             </p>
-            <p className="text-[11px] text-slate-500 mt-1 leading-snug">
-              Perioperative Pflegefachassistenz • DS 1–8
+            <p className="text-[11px] text-slate-600 font-medium mt-1 leading-snug">
+              Gallensteine/Gallenblasenentzündung – Angst vor OP – prä-OP – post OP
             </p>
           </button>
         </div>
@@ -457,7 +500,7 @@ export default function App() {
               id="hud-info-btn"
               onClick={handleOpenInfoModal}
               className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs font-semibold text-slate-700 hover:text-indigo-950 hover:bg-indigo-50/80 transition-all cursor-pointer group"
-              title="Curriculum-Infotafel & Video öffnen"
+              title="Curriculum-Infotafel & Roadmap öffnen"
             >
               <div className="flex items-center space-x-2.5">
                 <div className="w-7 h-7 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center group-hover:scale-105 transition-transform">
@@ -471,6 +514,29 @@ export default function App() {
                 </div>
               </div>
               <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
+            </button>
+
+            {/* Fachhandbuch Button (All Modules Knowledge Archive) */}
+            <button
+              id="hud-fachhandbuch-btn"
+              onClick={() => setIsFachhandbuchOpen(true)}
+              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs font-semibold text-slate-700 hover:text-teal-950 hover:bg-teal-50/80 transition-all cursor-pointer group"
+              title="Zentrales Fachhandbuch & Wissensarchiv aller Module öffnen"
+            >
+              <div className="flex items-center space-x-2.5">
+                <div className="w-7 h-7 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center group-hover:scale-105 transition-transform">
+                  <BookOpen className="w-4 h-4" />
+                </div>
+                <div className="text-left">
+                  <span className="font-bold block leading-tight text-slate-900">Fachhandbuch</span>
+                  <span className="text-[10px] text-slate-500 block">
+                    Wissensarchiv aller Module
+                  </span>
+                </div>
+              </div>
+              <span className="text-[10px] bg-teal-50 text-teal-800 border border-teal-200 px-2 py-0.5 rounded-md font-bold">
+                Archiv
+              </span>
             </button>
 
             {/* KI-Helfer Button (Exclusively in Sidebar) */}
@@ -580,7 +646,11 @@ export default function App() {
         </div>
 
         {/* Dynamic Module Rendering */}
-        <div className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+        <div key={resetKey} className={`flex-1 w-full mx-auto overflow-x-hidden ${
+          activeModule === 'prae_op' || activeModule === 'post_op'
+            ? 'p-0 max-w-full'
+            : 'p-4 sm:p-6 lg:p-8 max-w-7xl'
+        }`}>
           {activeModule === 'hub' && (
             <TrainingLandingPage
               onSelectModule={handleSelectModule}
@@ -591,27 +661,31 @@ export default function App() {
           )}
 
           {activeModule === 'diagnose' && (
-            <DiagnoseModule
-              onGoToModulAngst={() => handleSelectModule('angst')}
-              onBackToHub={() => handleSelectModule('hub')}
-            />
+            <div key={`mod-diagnose-${resetKey}`} className="relative">
+              <DiagnoseModule
+                onGoToModulAngst={() => handleSelectModule('angst')}
+                onBackToHub={() => handleSelectModule('hub')}
+              />
+            </div>
           )}
 
           {activeModule === 'angst' && (
-            <AngstModule
-              onBackToHub={() => handleSelectModule('hub')}
-              onGoToModulPraeOp={() => handleSelectModule('prae_op')}
-            />
+            <div key={`mod-angst-${resetKey}`} className="relative">
+              <AngstModule
+                onBackToHub={() => handleSelectModule('hub')}
+                onGoToModulPraeOp={() => handleSelectModule('prae_op')}
+              />
+            </div>
           )}
 
           {activeModule === 'prae_op' && (
-            <div className="relative">
-              <PraeOpModule />
+            <div key={`mod-prae_op-${resetKey}`} className="relative">
+              <PraeOpModule onGoToModulPostOp={() => handleSelectModule('post_op')} />
             </div>
           )}
 
           {activeModule === 'post_op' && (
-            <div className="relative">
+            <div key={`mod-post_op-${resetKey}`} className="relative">
               <PostOpModule />
             </div>
           )}
@@ -650,6 +724,12 @@ export default function App() {
         isOpen={isResetModalOpen}
         onClose={() => setIsResetModalOpen(false)}
         onConfirmReset={handleConfirmReset}
+      />
+
+      {/* Zentrales Fachhandbuch Modal (Alle Learning Nuggets) */}
+      <FachhandbuchModal
+        isOpen={isFachhandbuchOpen}
+        onClose={() => setIsFachhandbuchOpen(false)}
       />
 
       {/* Achievements Modal */}
@@ -693,6 +773,9 @@ export default function App() {
 
       {/* Toast notifications on achievement unlock */}
       <GlobalAchievementToast />
+
+      {/* Toast notifications on Learning Nugget unlock */}
+      <GlobalNuggetToast onOpenFachhandbuch={() => setIsFachhandbuchOpen(true)} />
     </div>
   );
 }

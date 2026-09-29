@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   BriefcaseMedical, 
   FileText, 
@@ -45,6 +45,13 @@ interface Props {
 }
 
 export const DS2View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onCompleteQuiz, onStartSimulation }) => {
+  // Auto-scroll to top on mount
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, []);
+
   // Step confirmation tracking
   const [step1Completed, setStep1Completed] = useState<boolean>(() => {
     return unlockedNuggets.includes('ds2_step1_text');
@@ -285,23 +292,16 @@ export const DS2View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onCo
               Erarbeiten Sie deeskalierende Kommunikation, thermische Entlastung, gezielte Ablenkung und evidenzbasierte Prämedikation vor der Cholezystektomie.
             </p>
           </div>
-          <button
-            onClick={onStartSimulation}
-            className="px-5 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center space-x-2 flex-shrink-0 cursor-pointer"
-          >
-            <Play className="w-5 h-5 fill-current" />
-            <span>Zur Frau Meinhardt Simulation</span>
-          </button>
         </div>
 
         {/* SCHRITT 1: CNE Fachtext Banner */}
         <div className="mt-6">
           <div className="bg-rose-50/80 border border-rose-200 rounded-2xl p-4 mb-4">
             <span className="text-[11px] font-extrabold uppercase tracking-wider text-rose-700 bg-rose-100 px-2 py-0.5 rounded-md">
-              Arbeitsauftrag 1: CNE-Fachtext vollständig durcharbeiten
+              Arbeitsauftrag 1: Fachartikel „Der ängstliche Patient“ lesen
             </span>
             <p className="text-xs sm:text-sm text-slate-700 mt-1 leading-relaxed">
-              Lesen Sie den CNE-Fachtext „Angst vor Operationen“ aufmerksam durch, um evidenzbasierte Deeskalationsmethoden und Risiken der medikamentösen Prämedikation zu verstehen.
+              Lesen Sie den Text „Der ängstliche Patient“ – Abschnitt Angst Therapien (S. 112) aufmerksam durch, um evidenzbasierte pflegerische Interventionen und Deeskalationsmethoden zu verstehen.
             </p>
           </div>
 
@@ -328,7 +328,7 @@ export const DS2View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onCo
               rel="noreferrer"
               className="inline-flex items-center space-x-2 px-4 py-2 bg-white border border-slate-300 hover:border-blue-500 hover:text-blue-600 text-slate-700 rounded-xl text-xs font-semibold transition-colors flex-shrink-0 shadow-sm cursor-pointer"
             >
-              <span>Fachtext öffnen</span>
+              <span>Text öffnen</span>
               <ExternalLink className="w-3.5 h-3.5" />
             </a>
           </div>
@@ -337,7 +337,7 @@ export const DS2View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onCo
           <div className="mt-4 p-4 rounded-2xl bg-white border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
             <div className="text-xs text-slate-600">
               <span className="font-bold text-slate-900 block">Pfad-Führung:</span>
-              Bestätigen Sie das Durcharbeiten des Fachtextes, um strukturiert zum Notfallkoffer zu gelangen.
+              Bestätigen Sie das Durcharbeiten des Textes, um strukturiert zum Notfallkoffer zu gelangen.
             </div>
             <button
               onClick={() => {
@@ -352,7 +352,7 @@ export const DS2View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onCo
               }`}
             >
               {step1Completed ? <CheckCircle2 className="w-4 h-4 text-white" /> : <BookOpen className="w-4 h-4" />}
-              <span>{step1Completed ? 'Schritt 1 gesichert: CNE-Fachtext durchgearbeitet' : 'Schritt 1 bestätigen: Fachtext gelesen'}</span>
+              <span>{step1Completed ? 'Schritt 1 gesichert: „Der ängstliche Patient“ (S. 112) gelesen' : 'Schritt 1 bestätigen: Text gelesen'}</span>
             </button>
           </div>
         </div>
@@ -372,10 +372,10 @@ export const DS2View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onCo
       <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4">
         <div className="bg-amber-50/80 border border-amber-200 rounded-2xl p-4">
           <span className="text-[11px] font-extrabold uppercase tracking-wider text-amber-800 bg-amber-100 px-2 py-0.5 rounded-md">
-            Arbeitsauftrag 2: Die 5 Evidenz-Schubladen verinnerlichen
+            Arbeitsauftrag 2: Textverständnis mit den 6 Interventions-Kacheln abgleichen
           </span>
           <p className="text-xs sm:text-sm text-slate-700 mt-1 leading-relaxed">
-            Öffnen und prüfen Sie alle 5 Evidenz-Schubladen des digitalen Notfallkoffers (Kommunikation, Wärmedecke, Ablenkung, Prämedikation, ISBAR-Übergabe).
+            Gleichen Sie nach dem Lesen des Textes ab, ob Sie den Inhalt richtig erfasst haben, indem Sie ihn mit den 6 Kacheln vergleichen. Diese Kacheln dienen Ihnen als Hilfestellung für die folgende Simulation.
           </p>
         </div>
 
@@ -385,7 +385,7 @@ export const DS2View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onCo
         <div className="mt-6 p-4 rounded-2xl bg-white border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
           <div className="text-xs text-slate-600">
             <span className="font-bold text-slate-900 block">Pfad-Führung:</span>
-            Bestätigen Sie das Verinnerlichen des Notfallkoffers, um strukturiert zu den Praxis-Quizzes zu gelangen.
+            Bestätigen Sie den Abgleich aller 6 Notfallkoffer-Kacheln, um zu den Quizzes und der Simulation zu gelangen.
           </div>
           <button
             onClick={() => {
@@ -399,8 +399,8 @@ export const DS2View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onCo
                 : 'bg-amber-500 hover:bg-amber-600 text-slate-950 ring-4 ring-amber-300 animate-pulse'
             }`}
           >
-            {step2Completed ? <CheckCircle2 className="w-4 h-4 text-white" /> : <BriefcaseMedical className="w-4 h-4" />}
-            <span>{step2Completed ? 'Schritt 2 gesichert: Notfallkoffer verinnerlicht' : 'Schritt 2 bestätigen: Notfallkoffer beherrscht'}</span>
+            {step2Completed ? <CheckCircle2 className="w-4 h-4 text-white" /> : <BookOpen className="w-4 h-4" />}
+            <span>{step2Completed ? 'Schritt 2 gesichert: Alle 6 Kacheln abgeglichen' : 'Schritt 2 bestätigen: Kacheln abgeglichen'}</span>
           </button>
         </div>
       </div>
@@ -515,9 +515,10 @@ export const DS2View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onCo
                 {q1Index < quiz1CommunicationItems.length - 1 && (
                   <button
                     onClick={handleNextQ1}
-                    className="px-4 py-1.5 bg-slate-900 text-white rounded-lg text-xs font-semibold hover:bg-slate-800"
+                    className="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black rounded-xl text-xs shadow-md ring-4 ring-amber-300 animate-pulse flex items-center space-x-1.5 cursor-pointer"
                   >
-                    Nächste Aussage beurteilen
+                    <span>Nächste Aussage beurteilen (#{q1Index + 2})</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 )}
               </div>
@@ -574,7 +575,9 @@ export const DS2View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onCo
                   }}
                   className={`px-3 py-1.5 text-xs sm:text-sm font-semibold rounded-xl border transition-all ${
                     q2Selections[part.key]
-                      ? 'bg-rose-50 border-rose-400 text-rose-900'
+                      ? q2Feedback?.isCorrect || q2Selections[part.key] === part.correct
+                        ? 'bg-emerald-50 border-emerald-500 text-emerald-900 font-bold'
+                        : 'bg-rose-50 border-rose-400 text-rose-900'
                       : 'bg-white border-slate-300 text-slate-500'
                   }`}
                 >
@@ -804,9 +807,10 @@ export const DS2View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onCo
                 {q4Index < quiz4MatrixItems.length - 1 && (
                   <button
                     onClick={handleNextQ4}
-                    className="px-4 py-1.5 bg-slate-900 text-white rounded-lg text-xs font-semibold hover:bg-slate-800"
+                    className="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black rounded-xl text-xs shadow-md ring-4 ring-amber-300 animate-pulse flex items-center space-x-1.5 cursor-pointer"
                   >
-                    Nächstes Kärtchen einordnen
+                    <span>Nächstes Kärtchen einordnen (#{q4Index + 2})</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 )}
               </div>
@@ -850,19 +854,26 @@ export const DS2View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onCo
         <div className="space-y-3">
           {quiz5ErrorRadarItems.map((item) => {
             const isSelected = q5SelectedErrors.includes(item.id);
+            const isSolvedCorrectly = q5Feedback?.isCorrect && isSelected;
 
             return (
               <button
                 key={item.id}
                 onClick={() => toggleQ5Select(item.id)}
                 className={`w-full text-left p-4 rounded-2xl border transition-all flex items-start space-x-3 ${
-                  isSelected
+                  isSolvedCorrectly
+                    ? 'bg-emerald-50/90 border-emerald-500 shadow-sm'
+                    : isSelected
                     ? 'bg-rose-50/70 border-rose-500 shadow-sm'
                     : 'bg-white border-slate-200 hover:border-slate-300'
                 }`}
               >
                 <div className={`w-5 h-5 rounded-md border flex items-center justify-center mt-0.5 flex-shrink-0 ${
-                  isSelected ? 'bg-rose-600 border-rose-600 text-white' : 'border-slate-300 bg-white'
+                  isSolvedCorrectly
+                    ? 'bg-emerald-600 border-emerald-600 text-white'
+                    : isSelected 
+                    ? 'bg-rose-600 border-rose-600 text-white' 
+                    : 'border-slate-300 bg-white'
                 }`}>
                   {isSelected && <span className="font-bold text-xs">✓</span>}
                 </div>
@@ -917,8 +928,13 @@ export const DS2View: React.FC<Props> = ({ unlockedNuggets, onUnlockNugget, onCo
           </p>
         </div>
         <button
-          onClick={onStartSimulation}
-          className="px-6 py-3.5 bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-extrabold rounded-2xl shadow-lg transition-all flex items-center space-x-2 flex-shrink-0 cursor-pointer"
+          onClick={() => {
+            window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+            onStartSimulation();
+          }}
+          className="px-8 py-4 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-2xl shadow-xl ring-4 ring-amber-300 animate-pulse transition-all flex items-center space-x-2 flex-shrink-0 cursor-pointer"
         >
           <Play className="w-5 h-5 fill-current" />
           <span>Simulation jetzt starten</span>

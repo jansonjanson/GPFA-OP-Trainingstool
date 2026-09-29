@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Heart, 
   Activity, 
@@ -54,6 +54,13 @@ export const AngstSimulation: React.FC<Props> = ({ onBackToOverview, onGoToModul
     }
     return list;
   }, [currentSceneId]);
+
+  // Auto-scroll to top on simulation mount
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, []);
 
   const handleChoice = (choice: SimChoice) => {
     // Audio
@@ -416,15 +423,22 @@ export const AngstSimulation: React.FC<Props> = ({ onBackToOverview, onGoToModul
               >
                 <span>Zurück zur Modulübersicht</span>
               </button>
-              {onGoToModulPraeOp && currentSceneId === 'end_success' && (
-                <button
-                  onClick={onGoToModulPraeOp}
-                  className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-2xl transition-all shadow-lg flex items-center space-x-2"
-                >
-                  <span>Weiter zu Modul 3: Prä-OP</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              )}
+              <button
+                onClick={() => {
+                  window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+                  document.documentElement.scrollTop = 0;
+                  document.body.scrollTop = 0;
+                  if (onGoToModulPraeOp) {
+                    onGoToModulPraeOp();
+                  } else {
+                    window.dispatchEvent(new CustomEvent('nav-module', { detail: 'prae_op' }));
+                  }
+                }}
+                className="px-8 py-4 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-sm rounded-2xl transition-all shadow-xl ring-4 ring-amber-300 animate-pulse flex items-center space-x-2.5 cursor-pointer"
+              >
+                <span>Weiter zu Modul 3: Prä-OP Vorbereitung</span>
+                <ArrowRight className="w-5 h-5" />
+              </button>
             </div>
           </div>
         )}

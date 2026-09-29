@@ -7,7 +7,7 @@ export const diagnoseMedia = {
     externalUrl: 'https://youtu.be/DD8ZivE-VAc?si=urime4Ot79TqSp4V',
     duration: 'ca. 13:30 Min.',
     speaker: 'Dr. Weigl',
-    description: 'Kompakte Veranschaulichung der Pathophysiologie: Wie Cholesterinkristalle entstehen, Gallengänge verlegen und krampfartige Koliken auslösen.'
+    description: 'Dr. Weigl erklärt leicht verständlich: Entstehung & Ursachen von Gallensteinen, Unterschied zwischen Cholesterin- und Pigmentsteinen, Charcot-Symptome bei Gallengangsentzündung sowie die Behandlungsschritte.'
   },
   sourceGesundBund: {
     title: 'Fachartikel der Bundesregierung (gesund.bund.de)',
@@ -80,22 +80,22 @@ export const hotspots: Hotspot[] = [
   {
     id: 'hs_ruq',
     title: 'Rechter Oberbauch',
-    bodyPart: 'Rechter Oberbauch (RUQ unter Rippenbogen)',
+    bodyPart: 'Rechter Oberbauch (RUQ = Rechter oberer Quadrant)',
     xPercent: 41,
     yPercent: 40,
     symptomName: 'Krampfartige Kolik-Schmerzen (15–60 Min.)',
-    description: 'Hier liegt die Gallenblase unterhalb der Leber. Wenn sich die Gallenblase krampfartig zusammenzieht, um Galle gegen einen verklemmten Stein zu pressen, entsteht der typische stechende Kolikschmerz.',
-    clinicalNote: 'Typischer Kolikverlauf: Schmerz schwillt wellenförmig an, dauert meist 15–60 Minuten und flaut dann wieder ab.'
+    description: 'Im rechten oberen Quadranten (RUQ, engl. Right Upper Quadrant = rechter Oberbauch unter dem Rippenbogen) liegt die Gallenblase unterhalb der Leber. Wenn sich die Gallenblase krampfartig zusammenzieht, um Galle gegen einen verklemmten Stein zu pressen, entsteht der typische stechende Kolikschmerz.',
+    clinicalNote: 'Typischer Kolikverlauf: Schmerz schwillt wellenförmig im rechten oberen Quadranten (RUQ) an, dauert meist 15–60 Minuten und flaut dann wieder ab.'
   },
   {
     id: 'hs_shoulder',
     title: 'Rechte Schulter & Rücken',
-    bodyPart: 'Rechte Schulter & Skapula (Head-Zonen)',
+    bodyPart: 'Rechte Schulter & Skapula (Head-Zonen / übertragener Schmerz)',
     xPercent: 32,
     yPercent: 26,
     symptomName: 'Reflektorische Ausstrahlung (N. phrenicus)',
-    description: 'Über sensible Fasern des Nervus phrenicus (Segmente C3–C5) strahlt der Kolikschmerz reflektorisch in die rechte Schulter und das rechte Schulterblatt aus.',
-    clinicalNote: 'Viele Patientinnen vermuten fälschlich ein orthopädisches Leiden, obwohl die Ursache im Gallensystem liegt.'
+    description: 'Über sensible Fasern des Nervus phrenicus (Rückenmarkssegmente C3–C5, sogenannte Head\'sche Zone der Gallenblase für übertragenen viszeralen Schmerz) strahlt der Kolikschmerz reflektorisch in die rechte Schulter und das rechte Schulterblatt aus.',
+    clinicalNote: 'Viele Patientinnen vermuten fälschlich ein orthopädisches Leiden, obwohl die Ursache im Gallensystem liegt (Head-Zone).'
   },
   {
     id: 'hs_eyes',

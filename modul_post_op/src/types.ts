@@ -34,6 +34,7 @@ export interface Choice {
   requiredFlags?: string[]; // Condition: Only show if these flags are active
   forbiddenFlags?: string[]; // Condition: Hide if any of these flags are active
   action?: 'openRecord' | 'measure'; // Action to perform when choice is selected
+  updateVitals?: Partial<Vitals>; // Dynamic vitals update on choice selection
 }
 
 export interface InventoryItemDef {

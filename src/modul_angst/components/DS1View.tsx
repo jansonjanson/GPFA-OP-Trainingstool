@@ -562,11 +562,117 @@ export const DS1View: React.FC<Props> = ({
             </div>
           </div>
 
+          {/* Learning-Nugget Tabelle: Angst vs. Furcht im klinischen Vergleich */}
+          <div className="mt-6 bg-slate-50 border-2 border-cyan-200 rounded-3xl p-5 sm:p-6 shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-cyan-100">
+              <div className="flex items-center space-x-2.5">
+                <span className="p-2 rounded-xl bg-cyan-600 text-white shadow-xs">
+                  <Scale className="w-5 h-5" />
+                </span>
+                <div>
+                  <div className="inline-flex items-center space-x-1.5 text-xs font-bold text-cyan-800 uppercase tracking-wider">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                    <span>Learning-Nugget • Klinischer Direkt-Vergleich</span>
+                  </div>
+                  <h4 className="text-base sm:text-lg font-extrabold text-slate-900">
+                    Angst vs. Furcht im klinischen Vergleich
+                  </h4>
+                </div>
+              </div>
+              <span className="text-[11px] font-bold bg-cyan-100 text-cyan-900 px-3 py-1 rounded-full self-start sm:self-center">
+                Wissenskarte direkt einsehbar
+              </span>
+            </div>
+
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              Studieren Sie die Gegenüberstellung von Furcht (akute, greifbare Bedrohung) und Angst (diffuse, zukunftsgerichtete Antizipation) vor den Übungsaufgaben:
+            </p>
+
+            <div className="overflow-x-auto rounded-2xl border border-slate-200 shadow-inner">
+              <table className="w-full text-left border-collapse min-w-[550px] bg-white text-xs sm:text-sm">
+                <thead>
+                  <tr className="border-b border-slate-200">
+                    <th className="py-3 px-4 bg-slate-900 text-white font-bold rounded-tl-xl">
+                      Merkmal
+                    </th>
+                    <th className="py-3 px-4 bg-teal-600 text-white font-bold">
+                      Furcht (Fear)
+                    </th>
+                    <th className="py-3 px-4 bg-cyan-700 text-white font-bold">
+                      Angst (State-Angst)
+                    </th>
+                    <th className="py-3 px-4 bg-slate-800 text-white font-bold rounded-tr-xl">
+                      Gemeinsamkeiten
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  <tr className="hover:bg-slate-50/80 transition-colors">
+                    <td className="py-3 px-4 font-bold text-slate-900 bg-slate-50/50">
+                      Auslöser / Bezug
+                    </td>
+                    <td className="py-3 px-4 text-slate-800">
+                      <strong className="text-teal-700">Konkretes</strong>, unmittelbar präsentes Objekt (z. B. Nadel, Sturz).
+                    </td>
+                    <td className="py-3 px-4 text-slate-800">
+                      <strong className="text-cyan-700">Diffus</strong>, unklar, zukunftsgerichtet (z. B. Warten auf Biopsie, OP-Angst).
+                    </td>
+                    <td className="py-3 px-4 text-slate-600 bg-slate-50/30">
+                      Subjektiv empfundene Bedrohung.
+                    </td>
+                  </tr>
+                  <tr className="hover:bg-slate-50/80 transition-colors">
+                    <td className="py-3 px-4 font-bold text-slate-900 bg-slate-50/50">
+                      Funktion
+                    </td>
+                    <td className="py-3 px-4 text-slate-800">
+                      Akutes Überleben: Kampf, Flucht oder Erstarrung (Fight / Flight / Freeze).
+                    </td>
+                    <td className="py-3 px-4 text-slate-800">
+                      Erhöhte Wachsamkeit (<strong className="text-cyan-700">Vigilanz</strong>) vor potenziellen künftigen Gefahren.
+                    </td>
+                    <td className="py-3 px-4 text-slate-600 bg-slate-50/30">
+                      Evolutionäre Schutzfunktion.
+                    </td>
+                  </tr>
+                  <tr className="hover:bg-slate-50/80 transition-colors">
+                    <td className="py-3 px-4 font-bold text-slate-900 bg-slate-50/50">
+                      Zeitlicher Aspekt
+                    </td>
+                    <td className="py-3 px-4 text-slate-800">
+                      <strong className="text-teal-700">Akut & präsent</strong>. Endet rasch nach Wegfall des Auslösers.
+                    </td>
+                    <td className="py-3 px-4 text-slate-800">
+                      <strong className="text-cyan-700">Zukunftsgerichtet</strong> (Antizipation). Kann quälend langanhaltend sein.
+                    </td>
+                    <td className="py-3 px-4 text-slate-600 bg-slate-50/30">
+                      Enorme psychische & körperliche Belastung.
+                    </td>
+                  </tr>
+                  <tr className="hover:bg-slate-50/80 transition-colors">
+                    <td className="py-3 px-4 font-bold text-slate-900 bg-slate-50/50">
+                      Vegetative Reaktion
+                    </td>
+                    <td className="py-3 px-4 text-slate-800">
+                      Adrenalinschub, reflexartiges Zurückweichen, Mydriasis.
+                    </td>
+                    <td className="py-3 px-4 text-slate-800">
+                      Innerer Druck, Muskelanspannung, Schlafstörungen, Tachykardie.
+                    </td>
+                    <td className="py-3 px-4 text-slate-600 bg-slate-50/30 font-medium">
+                      Aktivierung des Sympathikus / vegetativen Nervensystems.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
           {/* Schritt 2 Bestätigungs-Button mit Pulsieren */}
           <div className="mt-6 p-4 rounded-2xl bg-white border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
             <div className="text-xs text-slate-600">
               <span className="font-bold text-slate-900 block">Pfad-Führung:</span>
-              Bestätigen Sie das Durchlesen der Definitionen, um die interaktiven Quizzes zu bearbeiten.
+              Bestätigen Sie das Durchlesen der Definitionen und der Vergleichstabelle, um die Quizzes zu bearbeiten.
             </div>
             <button
               onClick={() => {
@@ -581,9 +687,18 @@ export const DS1View: React.FC<Props> = ({
               }`}
             >
               {step2Completed ? <CheckCircle2 className="w-4 h-4 text-white" /> : <BookOpen className="w-4 h-4" />}
-              <span>{step2Completed ? 'Schritt 2 gesichert: Definitionen verinnerlicht' : 'Schritt 2 bestätigen: Definitionen gelesen'}</span>
+              <span>{step2Completed ? 'Schritt 2 gesichert: Definitionen & Tabelle verinnerlicht' : 'Schritt 2 bestätigen: Definitionen & Tabelle gelesen'}</span>
             </button>
           </div>
+
+          {step2Completed && (
+            <div className="mt-3 p-3 rounded-xl bg-cyan-50 border border-cyan-200 text-xs text-cyan-900 flex items-center space-x-2">
+              <Sparkles className="w-4 h-4 text-cyan-600 flex-shrink-0" />
+              <span>
+                <strong>Learning-Nugget freigeschaltet:</strong> Die Vergleichstabelle „Angst vs. Furcht“ ist dauerhaft für Sie gesichert.
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -706,9 +821,10 @@ export const DS1View: React.FC<Props> = ({
                 {q1ItemIndex < quiz1BasketItems.length - 1 ? (
                   <button
                     onClick={handleNextQ1Item}
-                    className="px-4 py-1.5 bg-slate-900 text-white rounded-lg text-xs font-semibold hover:bg-slate-800 transition-colors"
+                    className="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black rounded-xl text-xs shadow-md ring-4 ring-amber-300 animate-pulse transition-all flex items-center space-x-1.5 cursor-pointer"
                   >
-                    Nächstes Kärtchen einordnen
+                    <span>Nächstes Kärtchen einordnen</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 ) : (
                   <div className="inline-flex items-center space-x-2 text-xs font-bold text-emerald-700 bg-emerald-100 px-3 py-1 rounded-md">
@@ -1092,9 +1208,10 @@ export const DS1View: React.FC<Props> = ({
             {q5CardIndex < quiz5SwipeCards.length - 1 && (
               <button
                 onClick={handleNextQ5Card}
-                className="mt-3 px-4 py-1.5 bg-slate-900 text-white rounded-lg text-xs font-semibold hover:bg-slate-800"
+                className="mt-3 px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black rounded-xl text-xs shadow-md ring-4 ring-amber-300 animate-pulse flex items-center space-x-1.5 cursor-pointer"
               >
-                Nächste Aussage prüfen
+                <span>Nächste Aussage prüfen (#{q5CardIndex + 2})</span>
+                <ArrowRight className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
@@ -1102,23 +1219,26 @@ export const DS1View: React.FC<Props> = ({
       </div>
 
       {/* Completion Banner for DS 1 */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-3xl p-8 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl">
+      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-slate-900 rounded-3xl p-8 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl">
         <div>
           <span className="text-xs uppercase font-bold tracking-wider text-blue-200 block mb-1">
-            Doppelstunde 1 gemeistert
+            Doppelstunde 3 gemeistert
           </span>
           <h3 className="text-xl sm:text-2xl font-bold">
-            Bereit für die Praxis? Wechseln Sie zu DS 2
+            Bereit für die Praxis? Wechseln Sie zu DS 4
           </h3>
           <p className="text-blue-100 text-sm mt-1 max-w-xl">
-            In Doppelstunde 2 lernen Sie den Digitalen Notfallkoffer kennen, üben deeskalierende Gesprächsführung und lösen die große OP-Simulation mit Frau Meinhardt.
+            In Doppelstunde 4 lernen Sie den Digitalen Notfallkoffer kennen, erarbeiten Deeskalationsmethoden und lösen die große OP-Simulation mit Frau Meinhardt.
           </p>
         </div>
         <button
-          onClick={onGoToDS2}
-          className="px-6 py-3.5 bg-white text-blue-700 hover:bg-blue-50 font-bold rounded-2xl shadow-lg transition-all flex items-center space-x-2 flex-shrink-0"
+          onClick={() => {
+            window.scrollTo({ top: 0, behavior: 'instant' });
+            onGoToDS2();
+          }}
+          className="px-8 py-4 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-2xl shadow-xl ring-4 ring-amber-300 animate-pulse transition-all flex items-center space-x-2 flex-shrink-0 cursor-pointer"
         >
-          <span>Weiter zu Doppelstunde 2</span>
+          <span>Weiter zu Doppelstunde 4 (Praxis & Notfallkoffer)</span>
           <ArrowRight className="w-5 h-5" />
         </button>
       </div>

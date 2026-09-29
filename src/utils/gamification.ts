@@ -194,9 +194,23 @@ export function resetEntireTrainingProgress(): void {
     Object.values(StorageKeys).forEach(k => {
       localStorage.removeItem(k);
     });
-    // Also remove any custom keys
-    localStorage.removeItem('gpfa_m4_completed_quizzes');
-    localStorage.removeItem('gpfa_m3_completed_quizzes');
+    // Remove all gpfa and simLab keys, or clear entirely
+    try {
+      localStorage.clear();
+      sessionStorage.clear();
+    } catch {
+      // fallback if restricted
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const key = localStorage.key(i);
+        if (key && (key.startsWith('gpfa_') || key.startsWith('simLab'))) {
+          localStorage.removeItem(key);
+        }
+      }
+    }
+
+    // Notify all active components immediately
+    window.dispatchEvent(new Event('storage'));
+    window.dispatchEvent(new CustomEvent('gpfa_global_reset'));
   } catch (e) {
     console.error('Error resetting progress:', e);
   }
@@ -228,7 +242,15 @@ export function unlockAchievement(achievementId: string): void {
     unlockedAt: new Date().toISOString()
   };
 
-  listeners.forEach(fn => fn(unlockedAch));
+  setTimeout(() => {
+    listeners.forEach(fn => {
+      try {
+        fn(unlockedAch);
+      } catch (e) {
+        console.error('Error in achievement listener:', e);
+      }
+    });
+  }, 0);
 }
 
 export function isAchievementUnlocked(achievementId: string): boolean {
@@ -243,3 +265,175 @@ export function getUnlockedAchievementsCount(): { unlocked: number; total: numbe
     total: ALL_ACHIEVEMENTS.length
   };
 }
+
+// ==========================================
+// Global Learning Nugget Unlock Dispatcher
+// ==========================================
+export interface NuggetUnlockNotification {
+  id: string;
+  title: string;
+  moduleNumber: 1 | 2 | 3 | 4;
+  moduleName: string;
+  category?: string;
+  unlockedAt?: string;
+}
+
+type NuggetListener = (notification: NuggetUnlockNotification) => void;
+const nuggetListeners: Set<NuggetListener> = new Set();
+
+export function onNuggetUnlocked(listener: NuggetListener): () => void {
+  nuggetListeners.add(listener);
+  return () => {
+    nuggetListeners.delete(listener);
+  };
+}
+
+const MODULE_NAMES: Record<number, string> = {
+  1: 'Modul 1: Diagnose & Beobachtung',
+  2: 'Modul 2: Angst vor der OP',
+  3: 'Modul 3: Präoperative Vorbereitung',
+  4: 'Modul 4: Postoperative Pflege & AWR'
+};
+
+const KNOWN_NUGGET_TITLES: Record<string, { title: string; category?: string }> = {
+  // Modul 1
+  m1_nugget_station1: { title: 'Station 1: Ursachen, Steinarten & Charcot-Symptome (Dr. Weigl)', category: 'Grundlagen & Notfallerkennung' },
+  nugget_station1_patho: { title: 'Station 1: Ursachen, Steinarten & Charcot-Symptome (Dr. Weigl)', category: 'Grundlagen & Notfallerkennung' },
+  m1_nugget_station2: { title: 'Station 2: Leitlinienwissen & Epidemiologie (gesund.bund.de)', category: 'Epidemiologie & Leitlinien' },
+  nugget_station2_article: { title: 'Station 2: Leitlinienwissen & Epidemiologie (gesund.bund.de)', category: 'Epidemiologie & Leitlinien' },
+  m1_nugget_station3: { title: 'Station 3: OP-Ablauf & Laparoskopische Cholezystektomie', category: 'Chirurgische Verfahren' },
+  nugget_station3_surgery: { title: 'Station 3: OP-Ablauf & Laparoskopische Cholezystektomie', category: 'Chirurgische Verfahren' },
+  nugget_6f: { title: 'Die 6-F-Regel der Gallensteinentstehung', category: 'Diagnostik' },
+  nugget_symptoms: { title: 'Symptom-Topographie & Schmerzausstrahlung (Head-Zonen)', category: 'Klinische Beobachtung' },
+  nugget_excretion: { title: 'Ausscheidungs-Befunde bei Gallenstau (Cholestase)', category: 'Ausscheidungsbeobachtung' },
+  nugget_redflags: { title: 'Red Flags: Wann wird die Kolik zum Notfall?', category: 'Notfallmanagement' },
+  nugget_anatomy: { title: 'Anatomie, Gallebildung & Cholesterin', category: 'Anatomie & Physiologie' },
+  nugget_therapy: { title: 'PFA-Handlungspfad & Cholezystektomie', category: 'Pflegepraxis & Erstmaßnahmen' },
+
+  // Modul 2
+  nugget_furcht_angst: { title: 'Angst vs. Furcht im klinischen Vergleich', category: 'Psychosoziale Pflege' },
+  m2_nugget_furcht_angst: { title: 'Angst vs. Furcht im klinischen Vergleich', category: 'Psychosoziale Pflege' },
+  nugget_entstehung: { title: 'Die 4 Entstehungsformen präoperativer Angst', category: 'Lern- & Neuropsychologie' },
+  m2_nugget_entstehung: { title: 'Die 4 Entstehungsformen präoperativer Angst', category: 'Lern- & Neuropsychologie' },
+  nugget_physiologie: { title: 'Physiologie des Autonomen Nervensystems (Sympathikus vs. Parasympathikus)', category: 'Neurovegetative Steuerung' },
+  m2_nugget_physiologie: { title: 'Physiologie des Autonomen Nervensystems (Sympathikus vs. Parasympathikus)', category: 'Neurovegetative Steuerung' },
+  nugget_kaskade: { title: 'Die Neurobiologische Angstkaskade & Stressachse', category: 'Neurobiologie' },
+  m2_nugget_kaskade: { title: 'Die Neurobiologische Angstkaskade & Stressachse', category: 'Neurobiologie' },
+  nugget_kommunikation: { title: 'Pflegerische Gesprächsführung & Validierung', category: 'Pflegerische Kommunikation' },
+  m2_nugget_kommunikation: { title: 'Pflegerische Gesprächsführung & Validierung', category: 'Pflegerische Kommunikation' },
+  nugget_notfallkoffer: { title: 'Der Digitale PFA-Notfallkoffer bei Panik & Akutangst', category: 'Pflegerische Akutinterventionen' },
+  m2_nugget_notfallkoffer: { title: 'Der Digitale PFA-Notfallkoffer bei Panik & Akutangst', category: 'Pflegerische Akutinterventionen' },
+
+  ds1_step1_video: { title: 'Facheinführung: Perioperative Angst & Neuropsychologie', category: 'Einführung & Video' },
+  ds1_step2_def: { title: 'Definition & Abgrenzung von Furcht und Angst', category: 'Theorie & Definition' },
+  ds1_quiz1: { title: 'Angst vs. Furcht & Relevanz für die Pflege', category: 'Theorie & Grundlagen' },
+  ds1_quiz2: { title: 'Die 4 Entstehungsformen der Angst (Matching)', category: 'Neuropsychologie' },
+  ds1_quiz3: { title: 'Physiologie: Sympathikus vs. Parasympathikus', category: 'Vegetatives Nervensystem' },
+  ds1_quiz4: { title: 'Die Neurobiologische Angstkaskade', category: 'Hirnforschung & Stressachse' },
+  ds1_quiz5: { title: 'Wahr oder Falsch – Symptom- & Praxis-Check', category: 'Klinische Beobachtung' },
+
+  ds2_step1_text: { title: 'Fachartikel: Evidenzbasierte Pflege bei Angstpatienten', category: 'Fachliteratur CNE' },
+  ds2_step2_koffer: { title: 'Interaktiver PFA-Notfallkoffer: Methoden & Materialien', category: 'Praxisinterventionen' },
+  ds2_quiz1: { title: 'Pflegerische Gesprächsführung & Deeskalation (Do vs. Don\'t)', category: 'Pflegerische Kommunikation' },
+  ds2_quiz2: { title: 'Wirkstoff-Tafel zur medikamentösen Prämedikation', category: 'Medikamentenmanagement' },
+  ds2_quiz3: { title: 'Ablenkungs- & Entspannungsmethoden (Matching)', category: 'Pflegepraxis' },
+  ds2_quiz4: { title: 'Die 3-Säulen-Matrix: Pflegerische Maßnahmen zuordnen', category: 'Praxistransfer' },
+  ds2_quiz5: { title: 'Fehler-Radar im Patientenzimmer (Hygiene & Troubleshooting)', category: 'Patientensicherheit' },
+
+  // Modul 4 Videos & Steps
+  video_narkose: { title: 'Narkoseausleitung & Überwachung im Aufwachraum', category: 'AWR-Monitoring' },
+  video_abholung: { title: 'Schnittstelle Aufwachraum / Station: Die sichere Übergabe', category: 'Patientensicherheit' },
+  video_massnahmen: { title: 'Postoperative Pflegemaßnahmen auf Normalstation', category: 'Stationsversorgung' },
+  ds7_step1_video: { title: 'Narkoseausleitung & Überwachung im Aufwachraum', category: 'AWR-Monitoring' },
+  ds7_step2_video: { title: 'Schnittstelle Aufwachraum / Station: Die sichere Übergabe', category: 'Patientensicherheit' },
+  ds7_step3_video: { title: 'Postoperative Pflegemaßnahmen auf Normalstation', category: 'Stationsversorgung' },
+
+  // Modul 3
+  '0': { title: 'Einteilung von Operationen nach Dringlichkeitsstufen', category: 'Organisatorische Grundlagen' },
+  '1': { title: 'Prähabilitation: Postoperative Fähigkeiten vorab üben', category: 'Patientenedukation' },
+  '2': { title: 'Nüchternheitsregeln & Aspirationsprophylaxe', category: 'Patientensicherheit' },
+  '3': { title: 'Präoperatives Abführen: Evidenz vs. Mythos', category: 'Pflegestandards' },
+  '4': { title: 'Hautantiseptik, Schmuck & Haarkürzung (Clipper)', category: 'Hygiene & Infektionsprävention' },
+  '5': { title: 'Prämedikation, Dauermedikation & Patientensicherheit', category: 'Pharmakotherapie & Sicherheit' },
+  '6': { title: 'Die Präoperative Sicherheits-Checkliste & OP-Schleusenübergabe', category: 'Patientensicherheit & Qualitätsmanagement' },
+
+  m3_nugget_einteilung: { title: 'Einteilung von Operationen nach Dringlichkeitsstufen', category: 'Organisatorische Grundlagen' },
+  m3_nugget_praehab: { title: 'Prähabilitation: Postoperative Fähigkeiten vorab üben', category: 'Patientenedukation' },
+  m3_nugget_nuechtern: { title: 'Nüchternheitsregeln & Aspirationsprophylaxe', category: 'Patientensicherheit' },
+  m3_nugget_abfuehren: { title: 'Präoperatives Abführen: Evidenz vs. Mythos', category: 'Pflegestandards' },
+  m3_nugget_hautpflege: { title: 'Hautantiseptik, Schmuck & Haarkürzung (Clipper)', category: 'Hygiene & Infektionsprävention' },
+  m3_nugget_praemed: { title: 'Prämedikation, Dauermedikation & Patientensicherheit', category: 'Pharmakotherapie & Sicherheit' },
+  m3_nugget_checklist: { title: 'Präoperative Checkliste & OP-Schleusenübergabe', category: 'Patientensicherheit' },
+
+  'station-1': { title: 'Einteilung von Operationen nach Dringlichkeitsstufen', category: 'Organisatorische Grundlagen' },
+  'station-2': { title: 'Prähabilitation (Atemtrainer, En-bloc-Aufstehen)', category: 'Patientenedukation' },
+  'station-3': { title: 'Nüchternheitsgrenzen (2h Flüssigkeit, 6h Nahrung)', category: 'Patientensicherheit' },
+  'station-4': { title: 'Darmvorbereitung & Abführen vor der OP', category: 'Pflegestandards' },
+  'station-5': { title: 'Hautvorbereitung & Haarkürzung (Clipper)', category: 'Infektionsprophylaxe' },
+  'station-6': { title: 'Prämedikation & Sedierung am OP-Morgen', category: 'Medikamentenmanagement' },
+  'station-7': { title: 'Präoperative Checkliste & OP-Schleusenübergabe', category: 'Patientensicherheit' },
+
+  // Modul 4 Stationen 1 bis 19
+  'nugget_1': { title: 'Komplikations-Monitoring im AWR', category: 'AWR-Monitoring' },
+  'nugget_2': { title: 'Vigilanz- und Bewusstseinsbeurteilung', category: 'Neurologische Überwachung' },
+  'nugget_3': { title: 'Atemwegs- und Lungenüberwachung', category: 'Respiratorische Überwachung' },
+  'nugget_4': { title: 'Kardiovaskuläres Monitoring', category: 'Hämodynamik' },
+  'nugget_5': { title: 'Körpertemperatur & Hypothermie-Prävention', category: 'Thermoregulation' },
+  'nugget_6': { title: 'Wundverband- und Nachblutungskontrolle', category: 'Wundmanagement' },
+  'nugget_7': { title: 'Drainagen-Management & Sekretbeobachtung', category: 'Drainagen' },
+  'nugget_8': { title: 'Postoperative Schmerzerfassung (NRS)', category: 'Schmerzmanagement' },
+  'nugget_9': { title: 'PONV: Prävention & Akutintervention', category: 'Symptomkontrolle' },
+  'nugget_10': { title: 'Infusionsmanagement & Bilanzierung', category: 'Flüssigkeitshaushalt' },
+  'nugget_11': { title: 'Ausscheidung & Miktionskontrolle', category: 'Urologische Überwachung' },
+  'nugget_12': { title: 'Strukturierte Übergabe nach ISBAR', category: 'Patientensicherheit' },
+  'nugget_13': { title: 'Typische postoperative Komplikationen', category: 'Komplikationsmanagement' },
+  'nugget_14': { title: 'Standardisierte Beobachtungskategorien (I Care)', category: 'Pflegestandards' },
+  'nugget_15': { title: 'DMS-Kontrolle (Durchblutung, Motorik, Sensibilität)', category: 'Neurologische Prüfung' },
+  'nugget_16': { title: 'Frühmobilisation & Sturzprophylaxe', category: 'Mobilisation' },
+  'nugget_17': { title: 'Patientenkontrollierte Analgesie (PCA)', category: 'Schmerztherapie' },
+  'nugget_18': { title: 'Zeitpunkt für orale Flüssigkeits- und Nahrungsaufnahme', category: 'Ernährungsmanagement' },
+  'nugget_19': { title: 'Stufenweiser Kostaufbau nach Bauchoperationen', category: 'Ernährungsmanagement' }
+};
+
+export function notifyNuggetUnlocked(params: {
+  id: string;
+  title?: string;
+  moduleNumber: 1 | 2 | 3 | 4;
+  moduleName?: string;
+  category?: string;
+}): void {
+  const known = KNOWN_NUGGET_TITLES[params.id];
+  // Sanitize title if it looks technical, has underscores, or is empty
+  let title = params.title;
+  if (!title || title.includes('_') || title.startsWith('ds') || title.startsWith('nugget_') || title.startsWith('station-') || title.startsWith('video_')) {
+    title = known?.title || (title ? title.replace(/^[a-z0-9]+_/i, '').replace(/_/g, ' ') : `Fachkarte ${params.id}`);
+  }
+  const category = params.category || known?.category || 'Fachwissen';
+  const moduleName = params.moduleName || MODULE_NAMES[params.moduleNumber] || `Modul ${params.moduleNumber}`;
+
+  const notification: NuggetUnlockNotification = {
+    id: params.id,
+    title,
+    moduleNumber: params.moduleNumber,
+    moduleName,
+    category,
+    unlockedAt: new Date().toISOString()
+  };
+
+  setTimeout(() => {
+    nuggetListeners.forEach(fn => {
+      try {
+        fn(notification);
+      } catch (e) {
+        console.error('Error in nugget listener:', e);
+      }
+    });
+
+    try {
+      window.dispatchEvent(new CustomEvent('gpfa_nugget_unlocked', { detail: notification }));
+    } catch {
+      // ignore
+    }
+  }, 0);
+}
+

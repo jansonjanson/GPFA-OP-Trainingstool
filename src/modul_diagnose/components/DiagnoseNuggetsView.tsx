@@ -84,13 +84,48 @@ export const DiagnoseNuggetsView: React.FC<Props> = ({ unlockedNuggets }) => {
               </div>
 
               <h4 className="font-extrabold text-sm text-slate-900 mb-2">
-                Pathophysiologie der Cholezystolithiasis
+                Gallensteine: Ursachen, Steinarten, Charcot-Symptome & Behandlung (Dr. Weigl)
               </h4>
 
               {isUnlocked('nugget_station1_patho') ? (
-                <div className="space-y-2 text-xs text-slate-700 leading-relaxed">
-                  <p><strong>Entstehung:</strong> Ungleichgewicht zwischen Cholesterin und Gallensäuren führt zu mikroskopischen Kristallen, die zu Konkrementen verklumpen.</p>
-                  <p><strong>Kolikauslöser:</strong> Ein Stein verlegt den Ausführungsgang (Ductus cysticus). Die Gallenblasenwand kontrahiert rhythmisch gegen den Widerstand (krampfartiger Wehenschmerz).</p>
+                <div className="space-y-2.5 text-xs text-slate-700 leading-relaxed">
+                  <div className="p-2.5 bg-indigo-50/80 rounded-xl border border-indigo-100">
+                    <strong className="text-indigo-900 block font-bold mb-0.5">1. Ursachen & Entstehung</strong>
+                    <span>Die Leber produziert täglich 0,5–1 Liter Gallenflüssigkeit zur Fettverdauung. In der Gallenblase wird sie gespeichert und eingedickt. Steine entstehen, wenn das Mischungsverhältnis kippt: Zu viel Cholesterin bei zu wenig Gallensalzen. Wie ungelöster Zucker im Tee fallen Mikrokristalle aus und verklumpen zu Konkrementen.</span>
+                  </div>
+
+                  <div className="p-2.5 bg-emerald-50/80 rounded-xl border border-emerald-100">
+                    <strong className="text-emerald-900 block font-bold mb-0.5">2. Unterscheidung der Steinarten</strong>
+                    <ul className="list-disc list-inside space-y-1">
+                      <li><strong className="text-emerald-950">Cholesterinsteine (ca. 80%):</strong> Gelblich bis grünlich, weicher; entstehen durch Cholesterinüberschuss (Ernährung, Adipositas, weibliche Hormone/Östrogene).</li>
+                      <li><strong className="text-emerald-950">Bilirubin- / Pigmentsteine (ca. 10–20%):</strong> Dunkelbraun bis tiefschwarz, härter; entstehen durch gesteigerten Blutzerfall (Hämolyse) oder bakterielle Gallenwegsinfektionen.</li>
+                      <li><strong className="text-emerald-950">Gemischte Steine:</strong> Häufige Kombination aus Cholesterin, Bilirubin und Kalk (Calcium).</li>
+                    </ul>
+                  </div>
+
+                  <div className="p-2.5 bg-rose-50/80 rounded-xl border border-rose-100">
+                    <strong className="text-rose-900 block font-bold mb-0.5">3. Symptome & Charcot-Trias (Pflege-Notfall!)</strong>
+                    <span><strong>Gallenkolik:</strong> Wehenartiger, wellenförmiger Krampfschmerz im rechten Oberbauch (oft nach fettigen Mahlzeiten) mit möglicher Ausstrahlung in Rücken und rechte Schulter.</span>
+                    <div className="mt-1.5 p-1.5 bg-rose-100/70 rounded-lg text-[11px] text-rose-950 font-medium">
+                      <strong>Charcot-Trias (bei akuter Gallengangsentzündung / Cholangitis):</strong>
+                      <ol className="list-decimal list-inside space-y-0.5 mt-0.5 font-semibold text-rose-900">
+                        <li>Rechtsseitiger Oberbauchschmerz</li>
+                        <li>Hohes Fieber mit Schüttelfrost</li>
+                        <li>Gelbsucht (Ikterus) durch Gallestau</li>
+                      </ol>
+                      <span className="block mt-1 font-bold text-rose-800">→ Alarmsignal für die PFA: Sofortige Notfall-Arztmeldung (Sepsisgefahr)!</span>
+                    </div>
+                  </div>
+
+                  <div className="p-2.5 bg-amber-50/80 rounded-xl border border-amber-100">
+                    <strong className="text-amber-900 block font-bold mb-0.5">4. Behandlung & therapeutische Stufen</strong>
+                    <ul className="list-disc list-inside space-y-1 text-slate-800">
+                      <li><strong>Stumme Steine (Zufallsbefund):</strong> Bleiben beschwerdefrei → keine OP oder Medikamente erforderlich („Wait and see“).</li>
+                      <li><strong>Akute Kolik:</strong> Sofortige <strong>strikte Nahrungskarenz</strong> (Nulldiät), Krampflöser (Spasmolytika wie Buscopan) und Analgetika (NSAR / Metamizol).</li>
+                      <li><strong>Stein im Gallengang:</strong> <strong>ERCP</strong> (endoskopische Papillotomie und Steinextraktion).</li>
+                      <li><strong>Dauerhafte Ursachenbehebung:</strong> <strong>Laparoskopische Cholezystektomie (lap. CE)</strong> – minimal-invasive Entfernung der Gallenblase mitsamt Steinen.</li>
+                    </ul>
+                  </div>
                 </div>
               ) : (
                 <p className="text-xs text-slate-400 italic py-3">
@@ -126,14 +161,23 @@ export const DiagnoseNuggetsView: React.FC<Props> = ({ unlockedNuggets }) => {
               </div>
 
               <h4 className="font-extrabold text-sm text-slate-900 mb-2">
-                Leitlinienwissen des Bundesgesundheitsportals
+                Leitlinienwissen & Epidemiologie (gesund.bund.de)
               </h4>
 
               {isUnlocked('nugget_station2_article') ? (
-                <div className="space-y-2 text-xs text-slate-700 leading-relaxed">
-                  <p><strong>Stumme Steine:</strong> ca. 75–80 % bleiben beschwerdefrei (keine OP nötig).</p>
-                  <p><strong>Symptomatische Steine:</strong> Wiederholte Koliken oder Entzündungen stellen eine eindeutige Indikation zur Cholezystektomie dar.</p>
-                  <p><strong>Risikoprofil:</strong> Bestätigung der 6-F-Regel als epidemiologische Leitschiene.</p>
+                <div className="space-y-2.5 text-xs text-slate-700 leading-relaxed">
+                  <div className="p-2.5 bg-teal-50/80 rounded-xl border border-teal-100">
+                    <strong className="text-teal-900 block font-bold mb-0.5">1. Stumme Steine vs. Symptome</strong>
+                    <span>Ca. 15–20% aller Erwachsenen in Deutschland tragen Gallensteine. Davon bleiben 75–80% lebenslang asymptomatisch („stumme Steine“). Asymptomatische Steine erfordern <em>keine</em> Operation oder medikamentöse Therapie.</span>
+                  </div>
+                  <div className="p-2.5 bg-sky-50/80 rounded-xl border border-sky-100">
+                    <strong className="text-sky-900 block font-bold mb-0.5">2. Klare OP-Indikation</strong>
+                    <span>Sobald Gallensteine symptomatisch werden (Koliken, Entzündung), liegt die Rezidivrate binnen 12 Monaten bei über 50%. Nach der ersten Kolik besteht daher die klare Indikation zur elektiven Cholezystektomie.</span>
+                  </div>
+                  <div className="p-2.5 bg-rose-50/80 rounded-xl border border-rose-100">
+                    <strong className="text-rose-900 block font-bold mb-0.5">3. 6-F-Risikoprofil & Komplikationen</strong>
+                    <span>Bestätigung der 6-F-Regel als empirischer Risikofaktor. Unbehandelt drohen schwere Komplikationen: Akute Cholezystitis, Choledocholithiasis (Gallengangstein mit Ikterus), biliäre Pankreatitis und Perforation.</span>
+                  </div>
                 </div>
               ) : (
                 <p className="text-xs text-slate-400 italic py-3">
@@ -169,14 +213,23 @@ export const DiagnoseNuggetsView: React.FC<Props> = ({ unlockedNuggets }) => {
               </div>
 
               <h4 className="font-extrabold text-sm text-slate-900 mb-2">
-                Minimal-invasive Laparoskopische Cholezystektomie
+                Minimal-invasive Laparoskopische Cholezystektomie (lap. CE)
               </h4>
 
               {isUnlocked('nugget_station3_surgery') ? (
-                <div className="space-y-2 text-xs text-slate-700 leading-relaxed">
-                  <p><strong>Zugang:</strong> Schlüsselloch-OP mit 4 Trokaren und CO2-Pneumoperitoneum.</p>
-                  <p><strong>Kritische Schritte:</strong> Freipräparation des Calot-Dreiecks, doppeltes Abclippen von Ductus cysticus und A. cystica.</p>
-                  <p><strong>Bergung:</strong> Gallenblase wird im Bergebeutel über den Nabelschnitt intakt geborgen.</p>
+                <div className="space-y-2.5 text-xs text-slate-700 leading-relaxed">
+                  <div className="p-2.5 bg-purple-50/80 rounded-xl border border-purple-100">
+                    <strong className="text-purple-900 block font-bold mb-0.5">1. Minimal-invasiver Zugang (4 Trokare)</strong>
+                    <span>Schlüsselloch-OP mit 4 Zugängen (Nabel für HD-Laparoskop, Subxiphoid und 2x rechter Unterbauch für Arbeitsinstrumente). Anlage eines CO2-Pneumoperitoneums (ca. 12 mmHg) für exzellente Übersicht.</span>
+                  </div>
+                  <div className="p-2.5 bg-indigo-50/80 rounded-xl border border-indigo-100">
+                    <strong className="text-indigo-900 block font-bold mb-0.5">2. Critical View of Safety (Calot-Dreieck)</strong>
+                    <span>Sorgfältige Freipräparation des Dreiecks zwischen Ductus cysticus, Arteria cystica und Leberunterseite. Sicheres doppeltes Abclippen (Titan-/Polymerclips) und Durchtrennen beider Leitungsbahnen.</span>
+                  </div>
+                  <div className="p-2.5 bg-emerald-50/80 rounded-xl border border-emerald-100">
+                    <strong className="text-emerald-900 block font-bold mb-0.5">3. Auslösen & Bergebeutel (Endobag)</strong>
+                    <span>Präparation der Gallenblase aus dem Leberbett mittels Hochfrequenz-Elektrokauter. Intakte Bergung in einem reißfesten Bergebeutel über den Nabelschnitt – schützt Bauchhöhle und Wundränder vor Galleaustritt und Kontamination.</span>
+                  </div>
                 </div>
               ) : (
                 <p className="text-xs text-slate-400 italic py-3">

@@ -31,7 +31,7 @@ export const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({ isOpen, onClose, i
                 <div className="bg-indigo-100 p-2 rounded-lg text-indigo-600">
                   <BookOpen className="w-5 h-5" />
                 </div>
-                <h3 className="font-bold text-lg text-slate-800">CNE / Thieme Spickzettel</h3>
+                <h3 className="font-bold text-lg text-slate-800">Klinischer Spickzettel (I Care Pflege)</h3>
               </div>
               <button 
                 onClick={onClose}

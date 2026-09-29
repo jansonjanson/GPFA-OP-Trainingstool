@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { HistoryItem, CategoryScores, GameStats } from '../types';
-import { RotateCcw, ListChecks, Target, Activity, FileWarning, BookOpen } from 'lucide-react';
+import { RotateCcw, ListChecks, Target, Activity, FileWarning, BookOpen, Trophy, Sparkles, Home } from 'lucide-react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 import { StoryMap } from './StoryMap';
+import { CurriculumEndcardModal } from './CurriculumEndcardModal';
 
 interface EndScreenProps {
   score: number;
@@ -16,6 +17,7 @@ interface EndScreenProps {
 
 export const EndScreen: React.FC<EndScreenProps> = ({ score, energy, categories, history, onRestart, gameStats, isCriticalFail }) => {
   const [activeTab, setActiveTab] = useState<'overview' | 'debriefing'>('overview');
+  const [showEndcard, setShowEndcard] = useState(!isCriticalFail);
 
   const getMessage = () => {
     if (isCriticalFail) {
@@ -225,16 +227,40 @@ export const EndScreen: React.FC<EndScreenProps> = ({ score, energy, categories,
             </div>
           )}
 
-          <div className="pt-8 mt-8 border-t border-slate-100 flex justify-center">
+          <div className="pt-8 mt-8 border-t border-slate-100 flex flex-wrap items-center justify-center gap-4">
+            <button 
+              onClick={() => setShowEndcard(true)}
+              className="bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 hover:from-amber-600 hover:to-yellow-500 text-slate-950 font-black py-4 px-8 rounded-2xl transition-all shadow-xl hover:shadow-2xl flex items-center gap-2.5 cursor-pointer ring-4 ring-amber-300/60"
+            >
+              <Trophy className="w-5 h-5 text-amber-900" />
+              <span>🏆 Gesamtabschluss & Endcard ansehen</span>
+            </button>
+
+            <button 
+              onClick={() => window.dispatchEvent(new CustomEvent('gpfa_switch_module', { detail: 'hub' }))}
+              className="bg-blue-600 text-white font-bold py-4 px-6 rounded-2xl hover:bg-blue-700 transition shadow-lg flex items-center gap-2.5 cursor-pointer"
+            >
+              <Home className="w-5 h-5" /> Zurück zum Hub
+            </button>
+
             <button 
               onClick={onRestart}
-              className="bg-slate-800 text-white font-bold py-4 px-10 rounded-2xl hover:bg-slate-900 transition shadow-lg flex items-center gap-3"
+              className="bg-slate-800 text-white font-bold py-4 px-6 rounded-2xl hover:bg-slate-900 transition shadow-lg flex items-center gap-3 cursor-pointer"
             >
-              <RotateCcw className="w-5 h-5" /> Zurück zum Dashboard
+              <RotateCcw className="w-5 h-5" /> Simulation wiederholen
             </button>
           </div>
         </div>
       </div>
+
+      <CurriculumEndcardModal 
+        isOpen={showEndcard}
+        onClose={() => setShowEndcard(false)}
+        score={score}
+        categories={categories}
+        gameStats={gameStats ?? null}
+        onRestart={onRestart}
+      />
     </div>
   );
 };

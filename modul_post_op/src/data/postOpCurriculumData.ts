@@ -49,6 +49,9 @@ export interface PostOpQuiz {
   reflectionKeywords?: string[];
   explanation: string;
   nuggetId: string;
+  imageUrl?: string;
+  imageAlt?: string;
+  imageSourceUrl?: string;
   specialMedia?: {
     type: 'video' | 'tip' | 'diagram';
     title: string;
@@ -121,20 +124,6 @@ export const postOpPdfResources: PostOpPdfResource[] = [
       'Kostaufbau & Flüssigkeitshaushalt'
     ],
     summary: 'Grundlagenwerk zur postoperativen Phase: Detaillierte Kriterien zur Übernahme auf Normalstation, Komplikationsfrüherkennung (Fieber, Nachblutung, Miktionssperre) und pflegerische Interventionen.'
-  },
-  {
-    id: 'pdf_praeop',
-    title: 'I Care Pflege: Präoperative Pflege (Kapitel 39.1 – 39.3)',
-    subtitle: 'Thieme Verlag • Ergänzendes Begleitkapitel',
-    downloadUrl: 'https://elearn.zfg-ms.de/pluginfile.php/287995/mod_folder/content/0/ICare%20Pflege%20pr%C3%A4%20OP%20Kapitel%20-%20Reduced.pdf?forcedownload=1',
-    source: 'Thieme I Care Pflege (Kapitel 39.1–39.3, S. 800–808)',
-    pages: 'S. 800 – 808',
-    keyTopics: [
-      'Nüchternheitszeiten (2h klare Flüssigkeit, 6h feste Nahrung)',
-      'Präoperative Hautreinigung & Haarentfernung',
-      'Prämedikation & Patientensicherheit'
-    ],
-    summary: 'Wichtiges Hintergrundwissen: Der postoperative Wasser- und Elektrolythaushalt hängt maßgeblich von der korrekten präoperativen Vorbereitung ab.'
   }
 ];
 
@@ -307,17 +296,17 @@ export const postOpQuizzes: PostOpQuiz[] = [
   {
     id: 'quiz_11',
     number: 11,
-    title: 'Postoperative Lagerung nach Eingriff',
+    title: 'Postoperative Positionierung nach Eingriff',
     type: 'multiple_choice',
-    question: 'Welche Aussagen zur operierten Patientin Frau Meinhardt (laparoskopische Cholezystektomie) und allgemeinen Lagerungsregeln sind fachlich korrekt? (2 Antworten)',
+    question: 'Welche Aussagen zur operierten Patientin Frau Meinhardt (laparoskopische Cholezystektomie) und allgemeinen Positionierungsregeln sind fachlich korrekt? (2 Antworten)',
     options: [
-      { id: 'opt_bauchlage', text: 'Frau Meinhardt sollte zur Schonung der Bauchdecke sofort flach auf den Bauch gelegt werden', isCorrect: false },
-      { id: 'opt_30grad', text: 'Oberkörper leicht erhöht (ca. 30°) und Knie leicht angewinkelt (Bauchdeckenentspannung & Aspirationsprophylaxe)', isCorrect: true },
+      { id: 'opt_bauchlage', text: 'Frau Meinhardt sollte zur Schonung der Bauchdecke sofort flach auf den Bauch positioniert werden', isCorrect: false },
+      { id: 'opt_30grad', text: 'Oberkörper leicht erhöht (ca. 30°) und Knie leicht angewinkelt (30°-Oberkörper-Hochpositionierung zur Bauchdeckenentspannung & Aspirationsprophylaxe)', isCorrect: true },
       { id: 'opt_steil', text: 'Steile Sitzposition 90° mit herabhängenden Beinen ab der ersten Minute', isCorrect: false },
-      { id: 'opt_schock', text: 'Trendelenburg-Lagerung (Kopftieflagerung) ist Standard für jede Bauch-OP', isCorrect: false },
-      { id: 'opt_extremitaet', text: 'Bei Extremitäten-Eingriffen (z. B. Frakturen) wird das operierte Glied weich hochgelagert zur Ödemprophylaxe', isCorrect: true }
+      { id: 'opt_schock', text: 'Trendelenburg-Positionierung (Kopftiefpositionierung) ist Standard für jede Bauch-OP', isCorrect: false },
+      { id: 'opt_extremitaet', text: 'Bei Extremitäten-Eingriffen (z. B. Frakturen) wird das operierte Glied weich hochpositioniert zur Ödemprophylaxe', isCorrect: true }
     ],
-    explanation: 'Richtig! Bei Abdominal-Eingriffen entspannt eine 30°-Oberkörperhochlagerung mit Knierolle die Bauchmuskulatur und senkt die Belastung auf die Trokar-Wunden.',
+    explanation: 'Richtig! Bei Abdominal-Eingriffen entspannt eine 30°-Oberkörper-Hochpositionierung mit Knierolle die Bauchmuskulatur und senkt die Belastung auf die Trokar-Wunden.',
     nuggetId: 'nugget_11'
   },
   {
@@ -366,6 +355,9 @@ export const postOpQuizzes: PostOpQuiz[] = [
     title: 'Kategorien der postoperativen Überwachung',
     type: 'multiple_choice',
     question: 'Nach dem Fachbuch I Care (Abb. 39.8) stützen sich Pflegefachkräfte auf standardisierte Beobachtungskategorien. Welche gehören dazu? (Wählen Sie die 4 korrekten Kategorien)',
+    imageUrl: '/ICare%20Abb%20Beobachtungskategorien.JPG',
+    imageAlt: 'I Care Abb. 39.8: Beobachtungskategorien in der postoperativen Phase',
+    imageSourceUrl: 'https://github.com/jansonjanson/GPFA-OP-Trainingstool/blob/main/ICare%20Abb%20Beobachtungskategorien.JPG?raw=true',
     options: [
       { id: 'opt_kat_postaggression', text: 'Postaggressionssyndrom (Stressstoffwechsel & Tachykardie)', isCorrect: true },
       { id: 'opt_kat_kreislauf', text: 'Kreislaufsituation & Atmung (Puls, RR, Hypoxie-Zeichen)', isCorrect: true },
@@ -510,7 +502,7 @@ export const learningNuggets: LearningNugget[] = [
       'Dokumentation über standardisierte Entlassungs-Scores (z. B. Aldrete-Score)'
     ],
     clinicalTip: 'Niemals einen Patienten überstürzt auf Station verlegen, nur um Bettenkapazität im AWR zu schaffen!',
-    reference: 'I Care Pflege S. 809 & CNE S. 2'
+    reference: 'I Care Pflege S. 809'
   },
   {
     id: 'nugget_4',
@@ -554,7 +546,7 @@ export const learningNuggets: LearningNugget[] = [
       'Sicherung von Infusionen, Drainagen und Kathetern gegen Zug'
     ],
     clinicalTip: 'Während des Transfers im Fahrstuhl kann es durch die Lageveränderung zu akuter orthostatischer Hypotonie oder Erbrechen kommen.',
-    reference: 'I Care Pflege S. 809 & CNE S. 2'
+    reference: 'I Care Pflege S. 809'
   },
   {
     id: 'nugget_7',
@@ -569,7 +561,7 @@ export const learningNuggets: LearningNugget[] = [
       'Katheter & Drainagen: Zu- und Ableitungen, Restmengen in Infusionen'
     ],
     clinicalTip: 'Lassen Sie sich bei Unklarheiten die Kurve und die ärztlichen Post-OP-Anordnungen zeigen und gegenzeichnen.',
-    reference: 'CNE S. 2 & I Care S. 809'
+    reference: 'I Care Pflege S. 809'
   },
   {
     id: 'nugget_8',
@@ -613,18 +605,18 @@ export const learningNuggets: LearningNugget[] = [
       'Klingel in Reichweite der dominanten Hand ablegen'
     ],
     clinicalTip: 'Informieren Sie die Patientin ruhig: "Sie sind jetzt sicher auf Ihrem Zimmer angekommen, die OP ist gut verlaufen."',
-    reference: 'CNE S. 3 "Erstversorgung auf der Station"'
+    reference: 'I Care Pflege S. 809'
   },
   {
     id: 'nugget_11',
     number: 11,
-    title: 'Postoperative Lagerung: Abdomen & Extremitäten',
-    category: 'Lagerungskonzepte',
-    summary: 'Nach Bauch-OPs (wie Frau Meinhardts Cholezystektomie) erfolgt eine 30°-Oberkörperhochlagerung mit Knierolle zur Bauchdeckenentspannung. Extremitäten werden weich hochgelagert.',
+    title: 'Postoperative Positionierung: Abdomen & Extremitäten',
+    category: 'Positionierungskonzepte',
+    summary: 'Nach Bauch-OPs (wie Frau Meinhardts Cholezystektomie) erfolgt eine 30°-Oberkörper-Hochpositionierung mit Knierolle zur Bauchdeckenentspannung. Extremitäten werden weich hochpositioniert.',
     corePoints: [
-      'Laparoskopische Cholezystektomie: Leichte Oberkörperhochlagerung (30°) entlastet Zwerchfell und Bauchmuskeln',
+      'Laparoskopische Cholezystektomie: Leichte Oberkörper-Hochpositionierung (30°) entlastet Zwerchfell und Bauchmuskeln',
       'Knierolle / Bettknick: Reduziert Zugspannung auf den Trokar-Einstichstellen',
-      'Extremitäten-Eingriffe: Hochlagerung auf Schiene fördert venösen Rückfluss und mindert Schwellungsschmerz'
+      'Extremitäten-Eingriffe: Hochpositionierung auf Schiene fördert venösen Rückfluss und mindert Schwellungsschmerz'
     ],
     clinicalTip: 'Keine steile 90°-Sitzposition in den ersten Stunden: Gefahr von Kreislaufkollaps und erhöhtem intraabdominellem Druck!',
     reference: 'I Care Pflege S. 809'
@@ -641,7 +633,7 @@ export const learningNuggets: LearningNugget[] = [
       'Schwerkraftinfusion: Tropfkammer zu 1/3 füllen, vollständig entlüften, Einlaufgeschwindigkeit überwachen'
     ],
     clinicalTip: 'Prüfen Sie vor dem Anschließen immer die 6-R-Regel (Richtiger Patient, Richtiges Medikament/Lösung, Richtige Dosierung, Richtige Applikationsart, Richtige Zeit, Richtige Dokumentation)!',
-    reference: 'CNE S. 4 & I Care S. 810'
+    reference: 'I Care Pflege S. 810'
   },
   {
     id: 'nugget_13',
@@ -656,7 +648,7 @@ export const learningNuggets: LearningNugget[] = [
       'Nachblutung: Blässe, Kaltschweißigkeit, Tachykardie, RR-Abfall, pralle Bauchdecke'
     ],
     clinicalTip: 'Ein plötzlicher Blutdruckabfall bei gleichzeitigem Pulsanstieg ist das Leitsymptom eines beginnenden hämorrhagischen Schocks!',
-    reference: 'I Care Pflege S. 810 & CNE S. 8'
+    reference: 'I Care Pflege S. 810'
   },
   {
     id: 'nugget_14',
@@ -702,7 +694,7 @@ export const learningNuggets: LearningNugget[] = [
       'Abbruchkriterien: Schwindel, Kaltschweißigkeit, Nausea, Zyanose'
     ],
     clinicalTip: 'Lassen Sie frisch operierte Patienten NIEMALS allein zur Toilette gehen – auch wenn sie beteuern: "Es geht mir schon super!"',
-    reference: 'I Care Pflege S. 811 & CNE S. 6'
+    reference: 'I Care Pflege S. 811'
   },
   {
     id: 'nugget_17',
@@ -746,6 +738,6 @@ export const learningNuggets: LearningNugget[] = [
       'Vermeidung: Sehr fettige, frittierte oder stark gewürzte Speisen in den ersten Wochen (Gallefluss muss sich adaptieren)'
     ],
     clinicalTip: 'Darmgeräusche mit dem Stethoskop in allen 4 Quadranten auskultieren – Gluckern und Gurren signalisieren erwachende Peristaltik!',
-    reference: 'I Care Pflege S. 812 & CNE S. 7'
+    reference: 'I Care Pflege S. 812'
   }
 ];

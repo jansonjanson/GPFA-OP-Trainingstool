@@ -1,14 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { HeartPulse, Lock, Unlock, X, Activity, ChevronUp, Clock, Users, Gamepad2, MessageCircle, Trophy } from 'lucide-react';
+import { HeartPulse, Lock, X, Activity, ChevronUp, Clock, Users, Gamepad2, MessageCircle, Trophy } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Section, sectionsOrder } from './types';
 import KnowledgeBaseSection from './components/KnowledgeBaseSection';
 import MediaSection from './components/MediaSection';
-import TaskSection from './components/TaskSection';
 import SimulatorSection from './components/SimulatorSection';
-import CheckInSection from './components/CheckInSection';
+import IntroVideosSection from './components/IntroVideosSection';
 import { playSound } from './utils/audio';
-import { unlockAchievement } from '../../src/utils/gamification';
+import { unlockAchievement, notifyNuggetUnlocked } from '../../src/utils/gamification';
 
 const slideVariants = {
   enter: (direction: number) => ({
@@ -27,8 +26,8 @@ const slideVariants = {
   })
 };
 
-export default function App() {
-  const [[activeSection, direction], setPage] = useState<[Section, number]>(['wissen', 0]);
+export default function App({ onGoToModulPostOp }: { onGoToModulPostOp?: () => void }) {
+  const [[activeSection, direction], setPage] = useState<[Section, number]>(['overview', 0]);
   const [completedNuggets, setCompletedNuggets] = useState<Record<number, boolean>>(() => {
     try {
       const raw = localStorage.getItem('gpfa_m3_unlocked_nuggets');
@@ -37,12 +36,26 @@ export default function App() {
       return {};
     }
   });
+
+  useEffect(() => {
+    const handleReset = () => {
+      try {
+        const raw = localStorage.getItem('gpfa_m3_unlocked_nuggets');
+        setCompletedNuggets(raw ? JSON.parse(raw) : {});
+      } catch {
+        setCompletedNuggets({});
+      }
+    };
+    window.addEventListener('storage', handleReset);
+    window.addEventListener('gpfa_global_reset', handleReset);
+    return () => {
+      window.removeEventListener('storage', handleReset);
+      window.removeEventListener('gpfa_global_reset', handleReset);
+    };
+  }, []);
   const [showAchievement, setShowAchievement] = useState<{title: string, desc: string} | null>(null);
   
   const [showScrollTop, setShowScrollTop] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [showAdminModal, setShowAdminModal] = useState(false);
-  const [adminPassword, setAdminPassword] = useState('');
   
   const isFreeNavGlobal = () => {
     try {
@@ -52,14 +65,12 @@ export default function App() {
     }
   };
 
-  const isWissenCompleted = Object.values(completedNuggets).filter(Boolean).length >= 7;
-  const canNavigateFreely = isWissenCompleted || isAdmin || isFreeNavGlobal();
+  const completedCount = Object.values(completedNuggets).filter(Boolean).length;
+  const isWissenCompleted = completedCount >= 7;
+  const canNavigateFreely = isWissenCompleted || isFreeNavGlobal();
 
-  // Calculate total progress percentage
-  const progressPercentage = Math.min(100, Math.max(0, 
-    (Object.values(completedNuggets).filter(Boolean).length * 10) +
-    (isWissenCompleted ? 30 : 0)
-  ));
+  // Calculate total progress percentage out of 12 nuggets
+  const progressPercentage = Math.min(100, Math.max(0, Math.round((completedCount / 12) * 100)));
 
   const navigateTo = (newSection: Section) => {
     // Locking logic
@@ -103,7 +114,6 @@ export default function App() {
       
       if (newlyCompleted && !previouslyCompleted) {
         shouldPlayUnlock = true;
-        unlockAchievement('modul3_nuggets');
       } else if (!prev[index]) {
         shouldPlayPop = true;
       }
@@ -113,6 +123,7 @@ export default function App() {
     // Run side effects outside the state updater
     setTimeout(() => {
       if (shouldPlayUnlock) {
+        unlockAchievement('modul3_nuggets');
         playSound('unlock');
         setShowAchievement({
           title: "Wissens-Meister!",
@@ -120,6 +131,10 @@ export default function App() {
         });
         setTimeout(() => setShowAchievement(null), 5000);
       } else if (shouldPlayPop) {
+        notifyNuggetUnlocked({
+          id: `station-${index + 1}`,
+          moduleNumber: 3
+        });
         playSound('pop');
         setShowAchievement({
           title: "Nugget gesammelt!",
@@ -128,18 +143,6 @@ export default function App() {
         setTimeout(() => setShowAchievement(null), 3000);
       }
     }, 0);
-  };
-  
-  const handleAdminSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (adminPassword === 'Janson') {
-      setIsAdmin(true);
-      setShowAdminModal(false);
-      setAdminPassword('');
-      playSound('unlock');
-    } else {
-      playSound('error');
-    }
   };
 
   useEffect(() => {
@@ -159,15 +162,14 @@ export default function App() {
   };
 
   const navItems: { id: Section; label: string; locked?: boolean }[] = [
-    { id: 'wissen', label: '1. Wissens-Base (Nuggets)' },
-    { id: 'videos', label: '2. OP-Schleuse & OP-Saal', locked: !canNavigateFreely },
-    { id: 'auftrag', label: '3. Arbeitsauftrag (Kittelkarte)', locked: !canNavigateFreely },
+    { id: 'overview', label: '1. Von der Vorbereitung zur OP' },
+    { id: 'wissen', label: '2. Wissens-Base (Nuggets)' },
+    { id: 'videos', label: '3. OP-Schleuse & OP-Saal', locked: !canNavigateFreely },
     { id: 'simulator', label: '4. OP-Simulator', locked: !canNavigateFreely },
-    { id: 'checkin', label: '5. Lernerfolg', locked: !canNavigateFreely },
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-50/50 via-slate-50 to-indigo-50/30 text-slate-900 font-sans selection:bg-blue-200">
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden flex flex-col bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-50/50 via-slate-50 to-indigo-50/30 text-slate-900 font-sans selection:bg-blue-200">
       
       {/* Global Progress Bar */}
       <div className="h-1.5 w-full bg-slate-200 fixed top-0 left-0 z-50">
@@ -191,7 +193,7 @@ export default function App() {
                 </span>
               </div>
             </div>
-            <div className="flex space-x-1 md:space-x-4 items-center overflow-x-auto pb-1 md:pb-0 scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
+            <div className="flex space-x-1 md:space-x-4 items-center overflow-x-auto pb-1 md:pb-0 scrollbar-hide">
               {navItems.map((item) => (
                 <button
                   key={item.id}
@@ -212,16 +214,6 @@ export default function App() {
                   )}
                 </button>
               ))}
-              
-              <div className="hidden md:block w-px h-6 bg-slate-200 mx-2"></div>
-              
-              <button
-                onClick={() => isAdmin ? setIsAdmin(false) : setShowAdminModal(true)}
-                title={isAdmin ? "Admin-Modus beenden" : "Admin-Modus"}
-                className={`p-2 rounded-full transition-colors flex-shrink-0 ${isAdmin ? 'bg-blue-100 text-blue-700' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'}`}
-              >
-                {isAdmin ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
-              </button>
             </div>
           </div>
         </div>
@@ -240,11 +232,10 @@ export default function App() {
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className="w-full flex-grow flex flex-col"
           >
+            {activeSection === 'overview' && <IntroVideosSection onNavigate={navigateTo} />}
             {activeSection === 'wissen' && <KnowledgeBaseSection onNavigate={navigateTo} onNuggetComplete={handleNuggetComplete} completedNuggets={completedNuggets} onAchievement={handleAchievement} />}
             {activeSection === 'videos' && <MediaSection onNavigate={navigateTo} />}
-            {activeSection === 'auftrag' && <TaskSection onNavigate={navigateTo} />}
-            {activeSection === 'simulator' && <SimulatorSection onNavigate={navigateTo} onAchievement={handleAchievement} />}
-            {activeSection === 'checkin' && <CheckInSection onNavigate={navigateTo} />}
+            {activeSection === 'simulator' && <SimulatorSection onNavigate={navigateTo} onAchievement={handleAchievement} onGoToModulPostOp={onGoToModulPostOp} />}
           </motion.div>
         </AnimatePresence>
       </main>
@@ -288,48 +279,6 @@ export default function App() {
           >
             <ChevronUp className="w-6 h-6" />
           </motion.button>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {showAdminModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden"
-            >
-              <div className="flex justify-between items-center p-4 border-b border-slate-100">
-                <h3 className="font-bold text-slate-800 flex items-center">
-                  <Lock className="w-4 h-4 mr-2 text-slate-500" />
-                  Admin-Modus
-                </h3>
-                <button onClick={() => setShowAdminModal(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-              <form onSubmit={handleAdminSubmit} className="p-5">
-                <p className="text-sm text-slate-600 mb-4">
-                  Bitte geben Sie das Passwort ein, um alle Module freizuschalten.
-                </p>
-                <input
-                  type="password"
-                  value={adminPassword}
-                  onChange={(e) => setAdminPassword(e.target.value)}
-                  placeholder="Passwort"
-                  className="w-full border border-slate-200 rounded-xl px-4 py-3 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  autoFocus
-                />
-                <button 
-                  type="submit"
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-xl transition-colors"
-                >
-                  Entsperren
-                </button>
-              </form>
-            </motion.div>
-          </div>
         )}
       </AnimatePresence>
 

@@ -36,7 +36,7 @@ export const scenes: Record<string, Scene> = {
         feedback: {
           title: "Vorbereitung",
           text: "Ein gut vorbereiteter Bettplatz unterstützt eine systematische Arbeitsweise.",
-          source: "CNE: Postoperativ pflegen, S. 2"
+          source: "I Care Pflege: Postoperative Pflege (Kapitel 39.4)"
         },
         next: 'prep_call'
       }
@@ -352,6 +352,7 @@ export const scenes: Record<string, Scene> = {
         type: 'success',
         scoreChange: 15,
         categoryImpact: { patientenzentrierung: 15, fachwissen: 10 },
+        updateVitals: { bp: '110/65', hr: 84, vig: 'Wach' },
         feedback: {
           title: "Sicherer Transport & PONV",
           text: "Durch das proaktive Entgegenwirken (Kopfteil hoch) und das Reichen der Nierenschale mindern Sie die Aspirationsgefahr bei postoperativer Übelkeit und Erbrechen (PONV) perfekt.",
@@ -365,6 +366,7 @@ export const scenes: Record<string, Scene> = {
         type: 'danger',
         scoreChange: -100,
         categoryImpact: { fachwissen: -25, patientenzentrierung: -10 },
+        updateVitals: { spo2: 78, hr: 140, bp: '85/50', vig: 'Somnolent' },
         feedback: {
           title: "Absolute Aspirationsgefahr!",
           text: "Bei postoperativer Übelkeit und Erbrechen (PONV) darf die Patientin niemals flach gelagert werden! Erbrochenes ist in die Luftröhre gelangt (Aspiration).",
@@ -379,6 +381,7 @@ export const scenes: Record<string, Scene> = {
         scoreChange: -15,
         energyChange: -20,
         categoryImpact: { voraussicht: -15, zeitmanagement: -15 },
+        updateVitals: { bp: '100/60', hr: 96 },
         feedback: {
           title: "Ignorierte Symptome",
           text: "Das Ignorieren von Übelkeit kann zu Erbrechen und Aspiration führen. Zum Glück passiert es diesmal nicht, aber die Patientin fühlt sich extrem unwohl.",
@@ -406,7 +409,7 @@ export const scenes: Record<string, Scene> = {
         feedback: {
           title: "Priorisierung & Vorbereitung",
           text: "Korrekt. Sie können die Infusion sofort am vorbereiteten Ständer befestigen und dann die Erstversorgung (Vigilanz, Schmerz, Wunde, Vitalwerte) durchführen.",
-          source: "CNE: Postoperativ pflegen, S. 3"
+          source: "I Care Pflege: Postoperative Pflege (Kapitel 39.4)"
         },
         next: 'ward_acute_care'
       },
@@ -434,7 +437,7 @@ export const scenes: Record<string, Scene> = {
         feedback: {
           title: "Falsche Priorität",
           text: "Die Patientendokumentation ist wichtig, aber der Patientenzustand (Vitalparameter, Wunde) hat nach der Übernahme absolute Priorität.",
-          source: "CNE: Postoperativ pflegen, S. 3"
+          source: "I Care Pflege: Postoperative Pflege (Kapitel 39.4)"
         },
         next: 'ward_acute_care'
       },
@@ -447,7 +450,7 @@ export const scenes: Record<string, Scene> = {
         feedback: {
           title: "Gefahr",
           text: "Bevor Sie mobilisieren, MÜSSEN Sie zwingend die Vitalwerte, das Bewusstsein und Schmerzen prüfen. Die Patientin weigert sich wegen starker Schmerzen.",
-          source: "CNE: Postoperativ pflegen, S. 6"
+          source: "I Care Pflege: Postoperative Pflege (Kapitel 39.4)"
         },
         next: 'ward_acute_care'
       }
@@ -468,6 +471,7 @@ export const scenes: Record<string, Scene> = {
         requiredFlags: ['ignored_hypotension'],
         setFlags: ['novalgin_fast'],
         categoryImpact: { fachwissen: -20, voraussicht: -15 },
+        updateVitals: { bp: '85/50', hr: 112, nrs: 4 },
         feedback: {
           title: "Kritischer Blutdruckabfall!",
           text: "Gefährliche Medikamentengabe! Sie haben den kritischen Blutdruck aus dem AWR ignoriert und nun wieder nicht nachgemessen. Metamizol senkt den Blutdruck weiter. Frau Meinhardt wird aschfahl und der Kreislauf kollabiert.",
@@ -483,6 +487,7 @@ export const scenes: Record<string, Scene> = {
         forbiddenFlags: ['ignored_hypotension'],
         setFlags: ['novalgin_fast'],
         categoryImpact: { fachwissen: -10, voraussicht: -10 },
+        updateVitals: { bp: '95/55', hr: 96, nrs: 3 },
         feedback: {
           title: "Fehlende Vitalwertekontrolle",
           text: "Sie sollten Metamizol (Novalgin) niemals i.v. verabreichen, ohne vorher den Blutdruck zu messen. Es wirkt blutdrucksenkend. Zum Glück ist ihr Kreislauf hier stabil genug, ihr wird aber sehr schwindelig.",
@@ -497,6 +502,7 @@ export const scenes: Record<string, Scene> = {
         scoreChange: 15,
         categoryImpact: { fachwissen: 15, voraussicht: 15 },
         action: 'measure',
+        updateVitals: { bp: '115/70', hr: 78, nrs: 2 },
         feedback: {
           title: "Gutes Critical Thinking",
           text: "Korrekt! Ein Mitdenken ist hier essenziell. Metamizol i.v. kann einen akuten Blutdruckabfall (Hypotension) verursachen. Sie messen den Blutdruck, der bei 100/60 mmHg liegt, und verabreichen die Infusion daraufhin stark verlangsamt und unter Beobachtung.",
@@ -736,7 +742,7 @@ export const scenes: Record<string, Scene> = {
         feedback: {
           title: "Sturzgefahr - Kritischer Fehler",
           text: "Sie haben die aktuellen Vitalwerte nicht gemessen! Die Patientin ist noch hypoton und kollabiert beim Aufstehen fast. Sie können sie gerade noch auffangen.",
-          source: "CNE: Postoperativ pflegen"
+          source: "I Care Pflege: Postoperative Pflege (Kapitel 39.4)"
         },
         next: 'shift_end'
       },
@@ -750,7 +756,7 @@ export const scenes: Record<string, Scene> = {
         feedback: {
           title: "Sturz durch Medikamentenfehler!",
           text: "Der erste Mobilisationsversuch muss zwingend in Begleitung einer Pflegekraft erfolgen! Durch die unkontrollierte Novalgin-Gabe ist ihr Blutdruck massiv im Keller. Sie stürzt auf dem Weg ins Bad.",
-          source: "CNE: Postoperativ pflegen / Pharmakologie"
+          source: "I Care Pflege: Postoperative Pflege (Kapitel 39.4)"
         },
         next: 'shift_end'
       },
@@ -764,7 +770,7 @@ export const scenes: Record<string, Scene> = {
         feedback: {
           title: "Sturzgefahr - Kritischer Fehler",
           text: "Der erste Mobilisationsversuch muss zwingend in Begleitung einer Pflegekraft erfolgen und die Vitalwerte müssen geprüft sein! Die Patientin stürzt beinahe.",
-          source: "CNE: Postoperativ pflegen, S. 6"
+          source: "I Care Pflege: Postoperative Pflege (Kapitel 39.4)"
         },
         next: 'shift_end'
       },
@@ -789,6 +795,7 @@ export const scenes: Record<string, Scene> = {
     time: '16:05',
     title: 'Frühmobilisation - Vorbereitung',
     sceneType: 'measurement',
+    updateVitals: { bp: '--/--', hr: '--', spo2: '--', nrs: '--' },
     text: `<p>Messen Sie nur die erforderlichen Werte, um zu prüfen, ob die Kreislaufsituation eine Mobilisation zulässt.</p>`,
     choices: [
       {

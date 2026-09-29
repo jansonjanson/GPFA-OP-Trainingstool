@@ -1,10 +1,10 @@
 import { CommunicationItem, MatchingPair, MatrixItem, ErrorRadarItem, NotfallkofferItem } from '../types';
 
 export const ds2Fachtext = {
-  title: 'CNE-Fachtext: Pflegerische Angstreduktion vor Operationen',
+  title: '„Der ängstliche Patient“ – Abschnitt Angst Therapien (S. 112)',
   url: 'https://elearn.zfg-ms.de/mod/resource/view.php?id=229043',
-  source: 'Zentrum für Gesundheitsberufe (ZfG) - E-Learning Plattform',
-  description: 'Fachartikel zu evidenzbasierten pflegerischen Interventionen, verbaler und nonverbaler Deeskalation sowie dem gezielten Einsatz von Entspannungsmethoden.'
+  source: 'Pflege-Fachliteratur • S. 112',
+  description: 'Fachartikel zu evidenzbasierten pflegerischen Angst-Therapien, verbaler und nonverbaler Deeskalation sowie dem gezielten Einsatz von Entspannungsmethoden.'
 };
 
 export const notfallkofferItems: NotfallkofferItem[] = [
@@ -187,7 +187,7 @@ export const quiz2PremedCloze = {
     { key: 'zeitpunkt', correct: '45 Minuten', options: ['5 Minuten', '45 Minuten', '4 Stunden'] },
     { text: ' vor dem Eingriff verabreicht werden. Besondere Vorsicht ist jedoch bei der Gabe an ältere Menschen und Kinder geboten, da hier die Gefahr eines ' },
     { key: 'risiko', correct: 'Delirs', options: ['Komas', 'Delirs', 'Schocks'] },
-    { text: ' (paradoxe Erregung) besteht.' }
+    { text: ' besteht.' }
   ]
 };
 

@@ -25,31 +25,37 @@ const TUTORIAL_STEPS: TutorialStep[] = [
     targetId: 'hud-header',
     title: 'LE 3.4 OP-Trainingstool (J. Rosenow M. A.)',
     description: 'Willkommen zum digitalen OP-Trainingstool für die generalistische Pflegeausbildung! Sie begleiten Frau Carola Meinhardt (67 J.) durch alle 8 Doppelstunden (DS 1–8) rund um ihre laparoskopische Cholezystektomie.',
-    badge: 'Schritt 1 von 5 • Einführung'
+    badge: 'Schritt 1 von 6 • Einführung'
   },
   {
     targetId: 'hud-nav-modules',
     title: 'Didaktische Modul-Navigation (DS 1 bis 8)',
     description: 'Hier steuern Sie durch die 4 Lernmodule: Modul 1 (Diagnose DS 1–2), Modul 2 (Angst vor OP DS 3–4), Modul 3 (Prä-OP DS 5–6) und Modul 4 (Post-OP DS 7–8). Neue Module schalten sich sequentiell frei, sobald Sie die vorangehenden Stationen und Praxissimulationen erfolgreich absolviert haben.',
-    badge: 'Schritt 2 von 5 • Modul-Progression'
+    badge: 'Schritt 2 von 6 • Modul-Progression'
   },
   {
     targetId: 'hud-info-btn',
     title: 'Info & Curriculum (DS 1–8)',
-    description: 'Über diesen Info-Button öffnen Sie jederzeit die interaktive Infotafel mit allen 8 Doppelstunden, didaktischen Lernzielen und dem Intro-Video. Auch dieses UI-Tutorial können Sie hier bei Bedarf jederzeit erneut aufrufen.',
-    badge: 'Schritt 3 von 5 • Orientierung'
+    description: 'Über diesen Info-Button öffnen Sie jederzeit die interaktive Infotafel mit allen 8 Doppelstunden, didaktischen Lernzielen und dem methodischen Fahrplan. Auch dieses UI-Tutorial können Sie hier bei Bedarf jederzeit erneut aufrufen.',
+    badge: 'Schritt 3 von 6 • Orientierung'
+  },
+  {
+    targetId: 'hud-fachhandbuch-btn',
+    title: 'Fachhandbuch & Wissensarchiv (Alle Module)',
+    description: 'Im zentralen Fachhandbuch finden Sie das gesammelte Fachwissen und ALLE freigeschalteten Learning Nuggets aus allen 4 Modulen an einem Ort. Nutzen Sie diesen Wissensspeicher jederzeit zum Wiederholen, Nachschlagen in Prüfungsphasen und als Spickzettel für die Praxissimulationen.',
+    badge: 'Schritt 4 von 6 • Wissensarchiv'
   },
   {
     targetId: 'hud-ai-helper',
     title: 'KI-Helfer (Virtuelle Praxisanleitung)',
-    description: 'Ihr KI-Lernbegleiter ist fest in der linken Navigationsleiste verankert. Er liefert Ihnen gezielte Praxishinweise zu jedem Modul, prüft Ihre Gedanken vor Quizzes und bietet direkten Zugriff auf das vollständige Fall- und Leitliniendossier in Google NotebookLM.',
-    badge: 'Schritt 4 von 5 • Assistenz'
+    description: 'Ihre virtuelle Praxisanleitung ist fest in der linken Navigationsleiste verankert. Sie unterstützt Sie bei 4 konkreten Aufgaben: Fragen stellen, eigene Antworten überprüfen, Fachwissen erarbeiten und Inhalte zur Wiederholung sichern.',
+    badge: 'Schritt 5 von 6 • Assistenz'
   },
   {
     targetId: 'hud-achievements-btn',
-    title: 'Erfolge & Wissensspeicher (Learning Nuggets)',
-    description: 'Mit jedem absolvierten Lehrvideo, Fachartikel und Quiz schalten Sie Erfolge sowie kompakte Learning Nuggets für Ihre Fachdatenbank frei. Diese dienen Ihnen als gesicherte Nachschlagewerke für spätere Prüfungssituationen und die Simulationen.',
-    badge: 'Schritt 5 von 5 • Wissenssicherung'
+    title: 'Erfolge & Gamification',
+    description: 'Mit jedem absolvierten Lehrvideo, Fachartikel und Quiz schalten Sie Erfolge und Auszeichnungen frei. Hier behalten Sie Ihren aktuellen Lernfortschritt stets transparent im Blick.',
+    badge: 'Schritt 6 von 6 • Erfolge'
   }
 ];
 

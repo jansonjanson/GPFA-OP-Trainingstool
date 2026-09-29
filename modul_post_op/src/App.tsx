@@ -71,6 +71,12 @@ export default function App() {
   const [inventory, setInventory] = useState<string[]>([]);
   const [unlockedAchievements, setUnlockedAchievements] = useState<string[]>([]);
   const [activeAchievement, setActiveAchievement] = useState<Achievement | null>(null);
+  const [selectedMeasurements, setSelectedMeasurements] = useState<{
+    bp: boolean;
+    hr: boolean;
+    spo2: boolean;
+    nrs: boolean;
+  }>({ bp: false, hr: false, spo2: false, nrs: false });
   
   const [feedbackChoice, setFeedbackChoice] = useState<Choice | null>(null);
   const [pendingNextScene, setPendingNextScene] = useState<string | null>(null);
@@ -161,6 +167,9 @@ export default function App() {
     if (appState === 'playing' && currentScene?.updateVitals) {
       setVitals(prev => ({ ...prev, ...currentScene.updateVitals! }));
     }
+    if (appState === 'playing' && currentScene?.sceneType === 'measurement') {
+      setSelectedMeasurements({ bp: false, hr: false, spo2: false, nrs: false });
+    }
     if (scrollRef.current) {
       scrollRef.current.scrollTop = 0;
     }
@@ -221,6 +230,10 @@ export default function App() {
     if (newScore > 100) newScore = 100;
     if (newScore < 0) newScore = 0;
     setScore(newScore);
+
+    if (choice.updateVitals) {
+      setVitals(prev => ({ ...prev, ...choice.updateVitals }));
+    }
 
     if (choice.energyChange) {
       let newEnergy = energy + choice.energyChange;
@@ -431,13 +444,6 @@ export default function App() {
               className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold rounded-xl transition-all text-xs cursor-pointer"
             >
               DS 8: Klinischer Simulator
-            </button>
-            <button
-              onClick={() => setShowPatientRecord(true)}
-              className="px-2.5 py-1.5 bg-sky-950 text-sky-300 hover:bg-sky-900 border border-sky-800/60 rounded-xl flex items-center gap-1.5 font-bold transition-all text-xs cursor-pointer"
-            >
-              <FileText className="w-3.5 h-3.5 text-sky-400" />
-              <span>Akte: C. Meinhardt (67 J.)</span>
             </button>
           </div>
         </div>
@@ -718,67 +724,178 @@ export default function App() {
                     </div>
                   ) : currentScene.sceneType === 'measurement' ? (
                     <div className="space-y-6">
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-slate-50 border border-slate-200 p-4 rounded-2xl">
+                        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                          <Activity className="w-4 h-4 text-emerald-600" />
+                          <span>Interaktive Vitalwerteerhebung</span>
+                        </div>
+                        <p className="text-xs text-slate-600">
+                          Wählen Sie eigenständig aus, welche Vitalparameter Sie vor dem ersten Aufstehen von Frau Meinhardt erheben möchten. Ihre Auswahl entscheidet über die Sicherheit der Mobilisation!
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {/* Blutdruck */}
                         <button 
+                          type="button"
                           onClick={() => {
-                            if (!inventory.includes('bp_cuff')) {
-                              setEnergy(e => Math.max(0, e - 15));
-                              setHistory(prev => [...prev, { sceneId: currentSceneId, scene: 'Vitalzeichen', text: 'Stethoskop/Manschette vergessen. Laufweg kostet Energie.', type: 'danger' }]);
+                            if (!selectedMeasurements.bp) {
+                              if (!inventory.includes('bp_cuff')) {
+                                setEnergy(e => Math.max(0, e - 15));
+                                setHistory(prev => [...prev, { sceneId: currentSceneId, scene: 'Vitalzeichen', text: 'Stethoskop/Manschette vergessen! Laufweg zum Stationszimmer kostet 15 Energie.', type: 'danger' }]);
+                              }
+                              setSelectedMeasurements(prev => ({ ...prev, bp: true }));
+                              setVitals(prev => ({ ...prev, bp: flags.includes('novalgin_fast') ? '90/55' : '120/80' }));
+                            } else {
+                              setSelectedMeasurements(prev => ({ ...prev, bp: false }));
+                              setVitals(prev => ({ ...prev, bp: '--/--' }));
                             }
-                            setVitals(prev => ({ ...prev, bp: flags.includes('novalgin_fast') ? '90/55' : '120/80' }));
                           }}
-                          disabled={vitals.bp !== '--/--'}
-                          className={`border-2 p-4 rounded-xl text-left transition-all ${vitals.bp !== '--/--' ? 'bg-indigo-50 border-indigo-500' : 'bg-white border-indigo-200 hover:bg-indigo-50'}`}
+                          className={`p-4 rounded-2xl text-left transition-all border-2 cursor-pointer shadow-xs ${
+                            selectedMeasurements.bp 
+                              ? (flags.includes('novalgin_fast') ? 'bg-rose-50 border-rose-500 shadow-md ring-2 ring-rose-200' : 'bg-emerald-50 border-emerald-500 shadow-md ring-2 ring-emerald-200')
+                              : 'bg-white border-slate-200 hover:border-indigo-300 hover:bg-slate-50'
+                          }`}
                         >
-                          <div className="font-bold text-indigo-800">Blutdruck (RR) messen</div>
-                          <div className="text-xs text-slate-500 mt-1">Manschette & Stethoskop</div>
-                          {vitals.bp !== '--/--' && <div className="text-lg font-black text-indigo-700 mt-2">{vitals.bp}</div>}
+                          <div className="flex items-center justify-between">
+                            <span className="font-extrabold text-sm text-slate-900">Blutdruck (RR) messen</span>
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${selectedMeasurements.bp ? 'bg-emerald-200 text-emerald-950' : 'bg-slate-100 text-slate-600'}`}>
+                              {selectedMeasurements.bp ? '✓ Erhoben' : '+ Nicht gemessen'}
+                            </span>
+                          </div>
+                          <div className="text-xs text-slate-500 mt-1">Manschette & Stethoskop erforderlich</div>
+                          {selectedMeasurements.bp ? (
+                            <div className="mt-2.5 pt-2 border-t border-slate-200/60">
+                              <span className="text-lg font-black text-slate-900">{vitals.bp} mmHg</span>
+                              {flags.includes('novalgin_fast') ? (
+                                <span className="block text-[11px] font-bold text-rose-700 mt-0.5">⚠️ Kritische Hypotonie!</span>
+                              ) : (
+                                <span className="block text-[11px] font-bold text-emerald-700 mt-0.5">✓ Normoton</span>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="text-xs text-slate-400 mt-2 italic">Klicken zum Erheben</div>
+                          )}
                         </button>
                         
+                        {/* Puls / Herzfrequenz */}
                         <button 
+                          type="button"
                           onClick={() => {
-                            setVitals(prev => ({ ...prev, hr: 85 }));
+                            if (!selectedMeasurements.hr) {
+                              setSelectedMeasurements(prev => ({ ...prev, hr: true }));
+                              setVitals(prev => ({ ...prev, hr: flags.includes('novalgin_fast') ? 105 : 85 }));
+                            } else {
+                              setSelectedMeasurements(prev => ({ ...prev, hr: false }));
+                              setVitals(prev => ({ ...prev, hr: '--' }));
+                            }
                           }}
-                          disabled={vitals.hr !== '--'}
-                          className={`border-2 p-4 rounded-xl text-left transition-all ${vitals.hr !== '--' ? 'bg-indigo-50 border-indigo-500' : 'bg-white border-indigo-200 hover:bg-indigo-50'}`}
+                          className={`p-4 rounded-2xl text-left transition-all border-2 cursor-pointer shadow-xs ${
+                            selectedMeasurements.hr 
+                              ? (flags.includes('novalgin_fast') ? 'bg-amber-50 border-amber-500 shadow-md ring-2 ring-amber-200' : 'bg-emerald-50 border-emerald-500 shadow-md ring-2 ring-emerald-200')
+                              : 'bg-white border-slate-200 hover:border-indigo-300 hover:bg-slate-50'
+                          }`}
                         >
-                          <div className="font-bold text-indigo-800">Puls (HF) messen</div>
-                          <div className="text-xs text-slate-500 mt-1">Palpation</div>
-                          {vitals.hr !== '--' && <div className="text-lg font-black text-indigo-700 mt-2">{vitals.hr} /min</div>}
+                          <div className="flex items-center justify-between">
+                            <span className="font-extrabold text-sm text-slate-900">Puls / HF tasten</span>
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${selectedMeasurements.hr ? 'bg-emerald-200 text-emerald-950' : 'bg-slate-100 text-slate-600'}`}>
+                              {selectedMeasurements.hr ? '✓ Erhoben' : '+ Nicht gemessen'}
+                            </span>
+                          </div>
+                          <div className="text-xs text-slate-500 mt-1">Palpation A. radialis (1 Min.)</div>
+                          {selectedMeasurements.hr ? (
+                            <div className="mt-2.5 pt-2 border-t border-slate-200/60">
+                              <span className="text-lg font-black text-slate-900">{vitals.hr} /min</span>
+                              {flags.includes('novalgin_fast') ? (
+                                <span className="block text-[11px] font-bold text-amber-700 mt-0.5">⚠️ Kompensatorische Tachykardie</span>
+                              ) : (
+                                <span className="block text-[11px] font-bold text-emerald-700 mt-0.5">✓ Regelmäßig & normokard</span>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="text-xs text-slate-400 mt-2 italic">Klicken zum Erheben</div>
+                          )}
                         </button>
 
+                        {/* Sauerstoffsättigung */}
                         <button 
+                          type="button"
                           onClick={() => {
-                            if (!inventory.includes('pulsoxy')) {
-                              setEnergy(e => Math.max(0, e - 10));
-                              setHistory(prev => [...prev, { sceneId: currentSceneId, scene: 'Vitalzeichen', text: 'Pulsoxymeter vergessen. Laufweg kostet Energie.', type: 'danger' }]);
+                            if (!selectedMeasurements.spo2) {
+                              if (!inventory.includes('pulsoxy')) {
+                                setEnergy(e => Math.max(0, e - 10));
+                                setHistory(prev => [...prev, { sceneId: currentSceneId, scene: 'Vitalzeichen', text: 'Mobiles Pulsoxymeter vergessen! Laufweg kostet 10 Energie.', type: 'danger' }]);
+                              }
+                              setSelectedMeasurements(prev => ({ ...prev, spo2: true }));
+                              setVitals(prev => ({ ...prev, spo2: 98 }));
+                            } else {
+                              setSelectedMeasurements(prev => ({ ...prev, spo2: false }));
+                              setVitals(prev => ({ ...prev, spo2: '--' }));
                             }
-                            setVitals(prev => ({ ...prev, spo2: 98 }));
                           }}
-                          disabled={vitals.spo2 !== '--'}
-                          className={`border-2 p-4 rounded-xl text-left transition-all ${vitals.spo2 !== '--' ? 'bg-indigo-50 border-indigo-500' : 'bg-white border-indigo-200 hover:bg-indigo-50'}`}
+                          className={`p-4 rounded-2xl text-left transition-all border-2 cursor-pointer shadow-xs ${
+                            selectedMeasurements.spo2 
+                              ? 'bg-emerald-50 border-emerald-500 shadow-md ring-2 ring-emerald-200' 
+                              : 'bg-white border-slate-200 hover:border-indigo-300 hover:bg-slate-50'
+                          }`}
                         >
-                          <div className="font-bold text-indigo-800">Sauerstoffsättigung (SpO₂)</div>
-                          <div className="text-xs text-slate-500 mt-1">Pulsoxymeter</div>
-                          {vitals.spo2 !== '--' && <div className="text-lg font-black text-indigo-700 mt-2">{vitals.spo2} %</div>}
+                          <div className="flex items-center justify-between">
+                            <span className="font-extrabold text-sm text-slate-900">Sauerstoffsättigung (SpO₂)</span>
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${selectedMeasurements.spo2 ? 'bg-emerald-200 text-emerald-950' : 'bg-slate-100 text-slate-600'}`}>
+                              {selectedMeasurements.spo2 ? '✓ Erhoben' : '+ Nicht gemessen'}
+                            </span>
+                          </div>
+                          <div className="text-xs text-slate-500 mt-1">Mobiles Pulsoxymeter</div>
+                          {selectedMeasurements.spo2 ? (
+                            <div className="mt-2.5 pt-2 border-t border-slate-200/60">
+                              <span className="text-lg font-black text-slate-900">{vitals.spo2} %</span>
+                              <span className="block text-[11px] font-bold text-emerald-700 mt-0.5">✓ Normoxämie unter Raumluft</span>
+                            </div>
+                          ) : (
+                            <div className="text-xs text-slate-400 mt-2 italic">Klicken zum Erheben</div>
+                          )}
                         </button>
                         
+                        {/* Schmerz */}
                         <button 
+                          type="button"
                           onClick={() => {
-                            setVitals(prev => ({ ...prev, nrs: 6 }));
+                            if (!selectedMeasurements.nrs) {
+                              setSelectedMeasurements(prev => ({ ...prev, nrs: true }));
+                              setVitals(prev => ({ ...prev, nrs: 2 }));
+                            } else {
+                              setSelectedMeasurements(prev => ({ ...prev, nrs: false }));
+                              setVitals(prev => ({ ...prev, nrs: '--' }));
+                            }
                           }}
-                          disabled={vitals.nrs !== '--'}
-                          className={`border-2 p-4 rounded-xl text-left transition-all ${vitals.nrs !== '--' ? 'bg-indigo-50 border-indigo-500' : 'bg-white border-indigo-200 hover:bg-indigo-50'}`}
+                          className={`p-4 rounded-2xl text-left transition-all border-2 cursor-pointer shadow-xs ${
+                            selectedMeasurements.nrs 
+                              ? 'bg-emerald-50 border-emerald-500 shadow-md ring-2 ring-emerald-200' 
+                              : 'bg-white border-slate-200 hover:border-indigo-300 hover:bg-slate-50'
+                          }`}
                         >
-                          <div className="font-bold text-indigo-800">Schmerz (NRS) erfragen</div>
-                          <div className="text-xs text-slate-500 mt-1">Kommunikation</div>
-                          {vitals.nrs !== '--' && <div className="text-lg font-black text-indigo-700 mt-2">{vitals.nrs} /10</div>}
+                          <div className="flex items-center justify-between">
+                            <span className="font-extrabold text-sm text-slate-900">Schmerzlevel (NRS) erfragen</span>
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${selectedMeasurements.nrs ? 'bg-emerald-200 text-emerald-950' : 'bg-slate-100 text-slate-600'}`}>
+                              {selectedMeasurements.nrs ? '✓ Erhoben' : '+ Nicht gemessen'}
+                            </span>
+                          </div>
+                          <div className="text-xs text-slate-500 mt-1">Verbale NRS-Skala (0–10)</div>
+                          {selectedMeasurements.nrs ? (
+                            <div className="mt-2.5 pt-2 border-t border-slate-200/60">
+                              <span className="text-lg font-black text-slate-900">NRS {vitals.nrs} / 10</span>
+                              <span className="block text-[11px] font-bold text-emerald-700 mt-0.5">✓ Schmerzen gut beherrscht</span>
+                            </div>
+                          ) : (
+                            <div className="text-xs text-slate-400 mt-2 italic">Klicken zum Erfragen</div>
+                          )}
                         </button>
                       </div>
                       
                       <button
+                        type="button"
                         onClick={() => {
-                          const missingKreislauf = vitals.bp === '--/--' || vitals.hr === '--';
+                          const missingKreislauf = !selectedMeasurements.bp || !selectedMeasurements.hr;
                           
                           let targetId = 'c_measure';
                           if (missingKreislauf) {
@@ -794,9 +911,10 @@ export default function App() {
                             handleChoice(currentScene.choices![0]);
                           }
                         }}
-                        className="w-full bg-slate-800 text-white font-bold py-4 rounded-xl hover:bg-slate-900 transition shadow-lg flex items-center justify-center gap-2 group"
+                        className="w-full bg-gradient-to-r from-emerald-600 via-teal-600 to-slate-900 hover:from-emerald-700 hover:to-slate-950 text-white font-extrabold py-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 group cursor-pointer"
                       >
-                        Werte dokumentieren & Weiter <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                        <span>Messauswahl bestätigen & Mobilisation starten</span>
+                        <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                       </button>
                     </div>
                   ) : currentScene.sceneType === 'isbar_puzzle' ? (

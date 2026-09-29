@@ -1,10 +1,11 @@
-export type Section = 'wissen' | 'videos' | 'auftrag' | 'simulator' | 'checkin' | 'intro';
-export const sectionsOrder: Section[] = ['wissen', 'videos', 'auftrag', 'simulator', 'checkin'];
+export type Section = 'overview' | 'wissen' | 'videos' | 'simulator';
+export const sectionsOrder: Section[] = ['overview', 'wissen', 'videos', 'simulator'];
 
 export interface GameState {
   consentMissing?: boolean;
   time?: number; // In minutes, starts at 0 (e.g. 06:30)
   nervousness?: number; // 0 to 100
+  [key: string]: any;
 }
 
 export interface Option {
@@ -16,6 +17,7 @@ export interface Option {
   stateEffects?: Partial<GameState>;
   timeCost?: number;
   nervousnessChange?: number;
+  isFatal?: boolean;
 }
 
 export interface Scenario {
@@ -26,6 +28,10 @@ export interface Scenario {
   hint: string;
   options: Option[];
   requiresState?: { key: keyof GameState; value: any };
+  type?: 'single' | 'multiple';
+  multiScoreChange?: number;
+  multiFeedbackTitle?: string;
+  multiFeedbackText?: string;
 }
 
 export interface Quiz {
@@ -35,3 +41,4 @@ export interface Quiz {
   feedbackCorrect: string;
   feedbackIncorrect: string;
 }
+

@@ -4,156 +4,177 @@ export const anamneseSteps: AnamneseStep[] = [
   {
     id: 'step_welcome',
     stepNumber: 1,
-    phaseTitle: 'Phase 1: Ersteinschätzung & Schmerzlokalisation',
-    situation: 'Frau Meinhardt (67 J.) sitzt im Behandlungszimmer der Hausarztpraxis. Sie hält sich mit beiden Händen die rechte Bauchseite, atmet vorsichtig flach und wirkt sichtlich erschöpft.',
-    instruction: 'Welche Frage stellen Sie als PFA als Erstes, um den Schmerzcharakter und die Lokalisation pflegerisch präzise zu erfassen?',
+    phaseTitle: 'Phase 1: Anamnese aktueller Beschwerden (Dringlich)',
+    situation: 'Frau Carola Meinhardt (67 J.) betritt die Hausarztpraxis von Frau Dr. med. Elisabeth Weber. Sie wirkt unruhig und berichtet über quälende Beschwerden nach den Mahlzeiten. Die Situation ist noch nicht perakut, aber dringlich abklärungsbedürftig.',
+    instruction: 'Welche gezielte Frage stellen Sie als Erstes, um die Art, Lokalisation und den zeitlichen Zusammenhang der Beschwerden präzise zu erfassen?',
     choices: [
       {
-        id: 'q1_opt',
-        question: '„Guten Tag Frau Meinhardt. Wo genau tut es Ihnen weh, wie fühlt sich der Schmerz an (ziehend, krampfartig) und strahlt er irgendwohin aus?“',
-        category: 'optimal',
-        patientAnswer: '„Es fing gestern Abend plötzlich an... Es ist so ein fürchterlicher krampfartiger Schmerz hier oben rechts unter den Rippen. Zwischendurch zieht es mir bis hoch in die rechte Schulter und in den Rücken!“',
-        clinicalSignificance: 'Klassisches Zeichen: Krampfartiger Kolikschmerz im rechten Oberbauch mit Ausstrahlung in die rechten Head-Zonen (Schulter/Dermatome C3-C5).',
-        diagnosticPoints: 25
-      },
-      {
         id: 'q1_sub',
-        question: '„Haben Sie vielleicht nur eine Magen-Darm-Grippe oder etwas Falsches gegessen?“',
+        question: '„Haben Sie vielleicht nur eine Magenverstimmung oder etwas Verdorbenes gegessen?“',
         category: 'unnoetig',
-        patientAnswer: '„Ich weiß nicht... Aber so einen Schmerz hatte ich noch nie. Mir ist zwar schlecht, aber das hier ist viel schlimmer als jeder Magen-Darm-Infekt.“',
-        clinicalSignificance: 'Zu voreilig und suggestiv. Frau Meinhardt fühlt sich verunsichert, liefert aber den Hinweis auf atypischen Schmerz.',
+        patientAnswer: '„Nein, das glaube ich kaum... Das kenne ich ganz anders. Es kommt seit Tagen immer wieder, besonders wenn das Essen etwas fettiger war.“',
+        clinicalSignificance: 'Zu voreilig und suggestiv. Versäumt die gezielte Schmerzlokalisation im rechten Oberbauch.',
         diagnosticPoints: 10
       },
       {
+        id: 'q1_opt',
+        question: '„Guten Tag Frau Meinhardt. Wo genau spüren Sie diese drückenden Beschwerden und treten sie verstärkt nach bestimmten Mahlzeiten oder fettigem Essen auf?“',
+        category: 'optimal',
+        patientAnswer: '„Es drückt und zwickt vor allem hier oben rechts unter dem Rippenbogen! Besonders nach fettigen Mahlzeiten fühle ich mich elend voll und mir wird übel. Bisher war es noch erträglich, aber heute Morgen wurde es deutlich unangenehmer.“',
+        clinicalSignificance: 'Typische Frühsymptome einer Cholezystolithiasis: Postprandiales Druck- und Völlegefühl im rechten oberen Quadranten (RUQ) nach Fettzufuhr.',
+        diagnosticPoints: 25
+      },
+      {
         id: 'q1_irr',
-        question: '„Wann waren Sie denn das letzte Mal beim Zahnarzt?“',
+        question: '„Wann waren Sie denn das letzte Mal beim Augenarzt?“',
         category: 'irrelevant',
-        patientAnswer: '„Beim Zahnarzt? Vor zwei Monaten, aber was hat das denn mit meinem Bauch zu tun?“',
-        clinicalSignificance: 'Völlig irrelevante Frage in der akuten Abdominalsituation.',
+        patientAnswer: '„Beim Augenarzt? Vor einem halben Jahr, aber was hat das denn mit meinem Magen zu tun?“',
+        clinicalSignificance: 'Völlig irrelevante Frage bei abdominellen Beschwerden.',
         diagnosticPoints: 0
       }
     ]
   },
   {
-    id: 'step_trigger',
+    id: 'step_anamnese_6f',
     stepNumber: 2,
-    phaseTitle: 'Phase 2: Auslöser & Ernährungsanamnese',
-    situation: 'Frau Meinhardts Schmerz deutet auf ein Geschehen im rechten Oberbauch hin. Nun geht es um den zeitlichen Zusammenhang mit der Nahrungsaufnahme.',
-    instruction: 'Was erfragen Sie bezüglich möglicher Auslöser vor Beginn der Schmerzen?',
+    phaseTitle: 'Phase 2: Diagnosesicherung durch die 6-F-Regel (Aktive Akten-Checkliste)',
+    situation: 'Hausärztin Dr. Weber kommt hinzu: „Sehr gut erfasst! Bevor wir weiter untersuchen, prüfen Sie bitte selbstständig Frau Meinhardts Patientenakte oben links. Wählen Sie in der Checkliste alle Kriterien der klassischen 6-F-Regel aus, die Sie in ihren Aktenangaben wiederfinden, um unseren Verdacht auf Gallensteine zu festigen.“',
+    instruction: 'Schlagen Sie die Daten in der Patientenakte nach und markieren Sie alle 6 zutreffenden Kriterien der 6-F-Regel in der Checkliste!',
     choices: [
       {
         id: 'q2_opt',
-        question: '„Hatten Sie vor Schmerzbeginn etwas gegessen – insbesondere etwas Fettiges, Gebratenes oder Schweres?“',
+        question: 'Checkliste vollständig ausgefüllt: Alle 6 Kriterien (Female, Forty, Fat, Fertile, Fair, Family) in der Akte identifiziert.',
         category: 'optimal',
-        patientAnswer: '„Ja! Gestern gab es Familienbraten mit fetter Kruste, Knödeln und reichlich Sauce. Etwa eine Stunde später ging das Stechen und Krampfen los...“',
-        clinicalSignificance: 'Volltreffer: Fettiges Essen stimuliert die Cholezystokinin-Ausschüttung, woraufhin die Gallenblase kräftig kontrahiert und Steine einklemmt.',
+        patientAnswer: 'Dr. Weber nickt anerkennend: „Mustergültig ausgewertet! Frau Meinhardt erfüllt alle 6 Faktoren der 6-F-Regel lückenlos. Das untermauert unseren Verdacht auf eine Cholezystolithiasis massiv.“',
+        clinicalSignificance: 'Perfekte Anamnese-Auswertung: Frau Meinhardt vereint alle 6 klassischen Kriterien der 6-F-Regel (Female, Fair, Fat, Forty, Fertile, Family).',
         diagnosticPoints: 25
-      },
-      {
-        id: 'q2_sub',
-        question: '„Haben Sie gestern viel Sport getrieben oder schwere Kisten gehoben?“',
-        category: 'unnoetig',
-        patientAnswer: '„Nein, überhaupt nicht. Wir saßen nur gemütlich beim Sonntagsessen.“',
-        clinicalSignificance: 'Schließt Muskelkater oder Hebetrauma aus, bringt aber wenig differentialdiagnostischen Gewinn.',
-        diagnosticPoints: 10
       }
     ]
   },
   {
-    id: 'step_excretion',
+    id: 'step_excretion_course',
     stepNumber: 3,
-    phaseTitle: 'Phase 3: Ausscheidung & Begleitsymptome (Red Flags)',
-    situation: 'Die PFA muss gezielt nach Veränderungen bei Stuhl und Urin fragen, um einen Gallenstau (Cholestase) nicht zu übersehen.',
-    instruction: 'Welche gezielte Frage zur Ausscheidung und zu vegetativen Begleitsymptomen stellen Sie?',
+    phaseTitle: 'Phase 3: Anamnese der Begleitsymptome (Ikterus & Ausscheidung)',
+    situation: 'Sie beobachten Frau Meinhardt genauer. Bei der Inspektion fällt Ihnen eine diskrete Gelbfärbung der Augen (Sklerenikterus) auf. Sie müssen sofort prüfen, ob ein Gallenstau (Cholestase) im Gallengangssystem vorliegt.',
+    instruction: 'Welche gezielte Frage zur Ausscheidung und zu Warnsignalen stellen Sie an Frau Meinhardt?',
     choices: [
       {
+        id: 'q3_sub',
+        question: '„Müssen Sie heute häufiger Wasser lassen als sonst?“',
+        category: 'unnoetig',
+        patientAnswer: '„Ganz normal oft, denke ich. Aber das Wasserlassen war nicht das Problem.“',
+        clinicalSignificance: 'Erfasst nur die Frequenz, übersieht aber die entscheidenden pathologischen Farbveränderungen von Stuhl und Urin.',
+        diagnosticPoints: 10
+      },
+      {
         id: 'q3_opt',
-        question: '„Frau Meinhardt, ist Ihnen bei den Toilettengängen eine Veränderung aufgefallen – war der Urin auffallend dunkel oder der Stuhl ungewöhnlich hell?“',
+        question: '„Frau Meinhardt, ist Ihnen bei den Toilettengängen etwas Ungewöhnliches aufgefallen – war der Urin auffallend dunkelbraun oder der Stuhl ungewöhnlich hell und lehmfarben?“',
         category: 'optimal',
-        patientAnswer: '„Jetzt wo Sie es sagen! Heute Morgen sah der Urin ganz dunkelbraun aus, fast wie Malzbier. Und der Stuhlgang war ganz blass, lehmfarben. Zudem war mir speiübel.“',
-        clinicalSignificance: 'Kardinalsymptom der Cholestase: Bilirubin staut sich rückwärts über die Leber ins Blut und färbt Urin dunkel; im Darm fehlt die Galle, daher ist der Stuhl hell/entfärbt.',
+        patientAnswer: '„Ja, genau! Heute früh sah der Urin ganz dunkelbraun aus, fast wie Malzbier oder Cola. Und der Stuhlgang war ganz blass, fast weißlich-lehmfarben! Zudem ist mir kotzübel.“',
+        clinicalSignificance: 'Kardinalsymptom der Cholestase: Bilirubinstau führt zu dunkelbraunem Urin (Bilirubinurie) und entfärbtem acholischem Stuhl (fehlendes Sterkobilin im Darm).',
         diagnosticPoints: 25,
         revealsRedFlag: true
       },
       {
-        id: 'q3_sub',
-        question: '„Mussten Sie heute schon viel Wasser lassen?“',
-        category: 'unnoetig',
-        patientAnswer: '„Ganz normal oft, denke ich. Aber die Farbe hat mir Angst gemacht.“',
-        clinicalSignificance: 'Erfasst die Quantität, verpasst jedoch die pathologische Qualität der Urinfarbe.',
-        diagnosticPoints: 10
+        id: 'q3_irr',
+        question: '„Trinken Sie regelmäßig Kamillentee zur Magenberuhigung?“',
+        category: 'irrelevant',
+        patientAnswer: '„Manchmal, aber das hilft gegen dieses Druckgefühl überhaupt nicht.“',
+        clinicalSignificance: 'Keine Relevanz für die Erfassung eines akuten Verschlussikterus.',
+        diagnosticPoints: 0
       }
     ]
   },
   {
-    id: 'step_exam',
+    id: 'step_trigger_cause',
     stepNumber: 4,
-    phaseTitle: 'Phase 4: PFA-Beobachtung & Vorbereitung der Ärztin',
-    situation: 'Sie haben Vitalzeichen gemessen: RR 145/90 mmHg, Puls 92 bpm, Temperatur 37,6 °C. Bei der Inspektion fällt Ihnen eine diskrete Gelbfärbung der Skleren (Augen) auf. Zudem klagt Frau Meinhardt über anhaltende Übelkeit.',
-    instruction: 'Welche strukturierte Meldung geben Sie an die Hausärztin Dr. Weber weiter?',
+    phaseTitle: 'Phase 4: Akute Gallenkolik tritt auf (Kolik-Kriterien vs. Dauerschmerz)',
+    situation: 'Plötzlich verkrampft sich Frau Meinhardt, stöhnt laut auf und krümmt sich vor Schmerz! Sie presst beide Hände krampfartig unter den rechten Rippenbogen, wird aschfahl und kaltschweißig. Die Situation wird akut!',
+    instruction: 'Welche Kriterien kennzeichnen die akute Kolik im Unterschied zu den bisherigen dumpfen Gallenstein-Symptomen?',
     choices: [
-      {
-        id: 'q4_sub',
-        question: '„Frau Doktor, die Patientin hat Bauchweh, bitte einmal drüberschauen.“',
-        category: 'unnoetig',
-        patientAnswer: 'Dr. Weber: „Welche Vitalwerte? Wo tut es weh? Bitte erheben Sie das nächste Mal die Leitsymptome vorab strukturiert.“',
-        clinicalSignificance: 'Unzureichende Informationsweitergabe; entspricht nicht den PFA-Kompetenzstandards.',
-        diagnosticPoints: 5
-      },
       {
         id: 'q4_opt',
-        question: '„Frau Dr. Weber: Frau Meinhardt (67 J.) hat postprandiale krampfartige Schmerzen im RUQ mit Ausstrahlung in rechte Schulter und Rücken, dunklen Urin, entfärbten Stuhl und beginnenden Sklerenikterus. Schmerz aktuell 7/10. V. a. symptomatische Cholezystolithiasis mit Gallengangsbeteiligung (Cholestase).“',
+        question: '„Krampfartiger, wellenförmig an- und abschwellender Wehenschmerz mit extremen Schmerzspitzen im rechten Oberbauch und Ausstrahlung in die rechte Schulter (Head-Zonen), ausgelöst durch rhythmische Wandkontraktion gegen das Konkrement.“',
         category: 'optimal',
-        patientAnswer: 'Dr. Weber: „Hervorragend beobachtet und präzise zusammengefasst! Ich führe sofort die Abdomen-Sonographie durch.“',
-        clinicalSignificance: 'Mustergültige strukturierte Übergabe nach fachlichen Kriterien. Schützt die Patientin vor Verzögerungen.',
+        patientAnswer: 'Frau Meinhardt atmet schwer: „Ja... genau so fühlt es sich an! Es kommt in brutalen Wellen und zieht mir krampfartig bis hoch in die Schulter und zwischen die Schulterblätter... unerträglich!“',
+        clinicalSignificance: 'Klassische Kriterien der Gallenkolik: Wellenförmiger Wehenschmerz (Hyperperistaltik), Schmerzmaximum im RUQ, Ausstrahlung über N. phrenicus (C3–C5) in die rechte Schulter.',
         diagnosticPoints: 25
+      },
+      {
+        id: 'q4_sub',
+        question: '„Ein gleichbleibender, brennender Dauerschmerz im gesamten Unterbauch ohne Schwankungen.“',
+        category: 'unnoetig',
+        patientAnswer: 'Frau Meinhardt schüttelt mühsam den Kopf: „Nein, es ist nicht im Unterbauch und es brennt nicht – es krampft in heftigen Schüben hier oben rechts!“',
+        clinicalSignificance: 'Falscher Schmerzcharakter. Koliken sind rhythmisch und wellenförmig, keine diffusen Dauerschmerzen im Unterbauch.',
+        diagnosticPoints: 10
+      },
+      {
+        id: 'q4_irr',
+        question: '„Ein stechender Schmerz, der ausschließlich beim Husten in den linken Brustkorb zieht.“',
+        category: 'irrelevant',
+        patientAnswer: '„Nein, überhaupt nicht! Es ist rechts unter den Rippen.“',
+        clinicalSignificance: 'Beschreibt pleuritische oder thorakale Schmerzen, keine biliäre Kolik.',
+        diagnosticPoints: 0
       }
     ]
   },
   {
-    id: 'step_indication_counsel',
+    id: 'step_therapy_hospital',
     stepNumber: 5,
-    phaseTitle: 'Phase 5: Beratung & OP-Indikationsstellung durch die Hausärztin',
-    situation: 'Die Sonographie bestätigt mehrere Steine mit Schallschatten, eine verdickte Gallenblasenwand (3,2 mm) und einen aufgestauten Gallengang. Frau Meinhardt fragt ängstlich: „Muss man das denn wirklich operieren? Kann man die Steine nicht einfach mit Medikamenten auflösen oder abwarten?“',
-    instruction: 'Wie klären Sie gemeinsam mit der Hausärztin Dr. Weber die Patientin fachgerecht und evidenzbasiert über die OP-Notwendigkeit auf?',
+    phaseTitle: 'Phase 5: PFA-Handlungskompetenz bei akutem Abdomen & Einweisung',
+    situation: 'Hausärztin Dr. Weber untersucht das Abdomen (positives Murphy-Zeichen) und stellt die Einweisung ins Krankenhaus zur frühzeitigen laparoskopischen Cholezystektomie aus. Frau Meinhardt hat Schmerzen und ist besorgt.',
+    instruction: 'Welche pflegerischen Sofortmaßnahmen führen Sie als PFA bei Frau Meinhardt jetzt leitliniengerecht und patientenzentriert durch?',
     choices: [
       {
-        id: 'q5_opt',
-        question: '„Liebe Frau Meinhardt: Stumme Steine ohne Beschwerden muss man nicht operieren. Da Sie aber schwere Koliken und einen Gallestau haben, ist die Gallenblasenentfernung dringend geboten. Medikamente oder Zertrümmerung helfen hier nicht dauerhaft. Die laparoskopische Cholezystektomie schützt Sie vor gefährlichen Entzündungen der Gallenblase, der Bauchspeicheldrüse und vor einer Porzellangallenblase.“',
-        category: 'optimal',
-        patientAnswer: 'Frau Meinhardt: „Das leuchtet mir ein... Ich hatte gehofft, es geht ohne OP, aber vor noch schlimmeren Schmerzen oder einer Entzündung habe ich noch mehr Angst. Wie läuft die OP ab?“',
-        clinicalSignificance: 'Hervorragende pflegerisch-ärztliche Patientenaufklärung: Klare Differenzierung zwischen asymptomatischen Steinen und symptomatischer Kolik mit OP-Indikation gemäß S3-Leitlinie.',
-        diagnosticPoints: 25
-      },
-      {
-        id: 'q5_sub1',
-        question: '„Ach, wir warten einfach mal ab und trinken viel Kamillentee, vielleicht spülen sich die Steine von selbst aus.“',
+        id: 'q5_wrong1',
+        question: '„Frau Meinhardt ein großes Glas eiskaltes Wasser und eine heiße Wärmflasche auf den Bauch geben, damit sie sich entspannt.“',
         category: 'unnoetig',
-        patientAnswer: 'Dr. Weber greift sofort ein: „Nein, Frau Meinhardt, bei einer Kolik mit Cholestasezeichen dürfen wir keinesfalls abwarten – es droht ein Verschluss der Gallengänge oder eine Sepsis!“',
-        clinicalSignificance: 'Gefährliche Fehlinformation: Kolikrezidive und lebensbedrohliche Komplikationen werden riskiert.',
+        patientAnswer: 'Dr. Weber greift sofort ein: „Stopp! Bei akutem Abdomen niemals Flüssigkeit geben – die Patientin muss für eine zeitnahe OP strikt nüchtern bleiben. Und starke Hitze kann akute Entzündungen verschlimmern!“',
+        clinicalSignificance: 'Gefährlicher Pflegefehler: Gefährdet die Nüchternheit vor Narkose und begünstigt Aspiration bei Notfalleingriffen.',
         diagnosticPoints: 0
       },
       {
-        id: 'q5_sub2',
-        question: '„Das müssen Sie ganz allein die Chirurgen im Krankenhaus fragen, dafür ist die Hausarztpraxis nicht zuständig.“',
-        category: 'unnoetig',
-        patientAnswer: 'Frau Meinhardt wirkt verunsichert und alleingelassen: „Ich dachte, Sie könnten mir hier die Angst nehmen...“',
-        clinicalSignificance: 'Fehlende Beratungskompetenz und empathische Begleitung im hausärztlichen Setting.',
-        diagnosticPoints: 5
+        id: 'q5_opt',
+        question: '„1. Vitalzeichen engmaschig überwachen (RR, Puls, Temperatur, Schmerzskala NRS). 2. Knierolle unterlegen zur Bauchdeckenentspannung. 3. Beruhigen und strikte Nahrungskarenz (Frau Meinhardt muss nüchtern bleiben für Ultraschall/OP). 4. Unterlagen und Einweisung mit Dr. Weber für die Klinikübergabe vorbereiten.“',
+        category: 'optimal',
+        patientAnswer: 'Frau Meinhardt atmet etwas ruhiger: „Vielen Dank... mit den leicht angewinkelten Beinen lässt sich der Druck im Bauch tatsächlich etwas besser aushalten. Gut, dass Sie mir erklären, warum ich jetzt nüchtern bleiben muss.“',
+        clinicalSignificance: 'Lehrbuchmäßige PFA-Erstversorgung: Schmerzlindernde Entlastungslagerung (Knierolle), Vitalparameterkontrolle, Gewährleistung der Nüchternheit für OP und strukturierte Vorbereitung der Klinikeinweisung.',
+        diagnosticPoints: 25
+      },
+      {
+        id: 'q5_wrong2',
+        question: '„Frau Meinhardt bitten, auf dem Flur zügig Treppen zu steigen, damit sich der Stein durch die Erschütterung von selbst löst.“',
+        category: 'irrelevant',
+        patientAnswer: 'Frau Meinhardt stöhnt erschöpft: „Ich kann mich vor Schmerzen kaum auf den Beinen halten!“',
+        clinicalSignificance: 'Kontraindiziert bei akuter Kolik und vegetativer Kreislaufbelastung.',
+        diagnosticPoints: 0
       }
     ]
   }
 ];
 
+export const sixFChecklistItems = [
+  { id: 'f_female', key: 'Female', label: 'Female (Weibliches Geschlecht)', fileFact: 'Geschlecht: weiblich', isCorrect: true },
+  { id: 'f_forty', key: 'Forty', label: 'Forty (Alter ≥ 40 Jahre)', fileFact: 'Alter: 67 Jahre', isCorrect: true },
+  { id: 'f_fat', key: 'Fat', label: 'Fat (Übergewicht / BMI > 30 kg/m²)', fileFact: '165 cm, 84 kg (BMI 30,9 kg/m²)', isCorrect: true },
+  { id: 'f_fertile', key: 'Fertile', label: 'Fertile (Mehrere Schwangerschaften / Kinder)', fileFact: 'Gynäkologie: 2 erwachsene Kinder', isCorrect: true },
+  { id: 'f_fair', key: 'Fair', label: 'Fair (Heller Phänotyp / Hauttyp)', fileFact: 'Phänotyp: Heller Teint, blond, blauäugig', isCorrect: true },
+  { id: 'f_family', key: 'Family', label: 'Family (Gallensteine in Familie 1. Grades)', fileFact: 'Mutter mit Cholezystektomie bei Steinen', isCorrect: true },
+  { id: 'f_fast', key: 'Fast', label: 'Fast (Extremer Ausdauersport)', fileFact: 'Nicht in der Akte dokumentiert', isCorrect: false },
+  { id: 'f_foreign', key: 'Foreign', label: 'Foreign (Tropen- oder Fernreiseaufenthalt)', fileFact: 'Nicht in der Akte dokumentiert', isCorrect: false }
+];
+
 export const sonographieResult = {
-  doctorName: 'Dr. med. Elisabeth Weber (Fachärztin für Allgemeinmedizin)',
+  doctorName: 'Dr. med. Elisabeth Weber (Hausärztin / Fachärztin für Allgemeinmedizin)',
   date: 'Aktueller Untersuchungstag, 09:15 Uhr',
   findings: [
-    'Sonographie Abdomen: Leber homogen, nicht vergrößert.',
-    'Gallenblase: Gefüllt, Wanddicke 3,2 mm (gering ödematös verdickt). Im Lumen Nachweis von mehreren Konkrementen bis maximal 14 mm Durchmesser mit deutlichem dorsalen Schallschatten.',
-    'Ductus choledochus: Mit 8 mm dilatiert (Gallengangsaufstau). Kein freies abdominelles Exsudat.',
-    'Klinisch: Positives Murphy-Zeichen (inspiratorischer Schmerzstopp bei Palpation des rechten Rippenbogens).'
+    'Sonographie Abdomen: Leber homogen, nicht vergrößert. Gallenblase prall gefüllt.',
+    'Gallenblasenwand: Auf 4,2 mm verdickt mit deutlicher ödematöser Dreischichtung (Wandödem).',
+    'Konkremente: Mehrere Konkremente bis max. 14 mm Durchmesser im Infundibulum/Halsbereich mit dorsaler Schallauslöschung.',
+    'Gallengänge: Ductus cysticus stenosiert, Ductus choledochus mit 8 mm erweitert (Cholestase).',
+    'Klinisch: Positives sonographisches und palpatorisches Murphy-Zeichen (inspiratorischer Schmerzstopp).',
+    'Labor-Schnelltest: CRP 82 mg/l (stark erhöht), Leukozyten 13.800/µl (Leukozytose).'
   ],
-  conclusion: 'Symptomatische Cholezystolithiasis mit rezidivierenden Koliken und vorübergehendem Gallengangsaufstau.',
-  recommendation: 'Dringliche Indikation zur elektiven laparoskopischen Cholezystektomie (Gallenblasenentfernung). Akut: Spasmolytika/Analgetika, strikte Nahrungskarenz, Einweisung in die chirurgische Klinik.'
+  conclusion: 'Akute kalkulöse Cholezystitis mit rezidivierenden Gallenkoliken und beginnender Cholestase.',
+  recommendation: 'Dringliche Indikation zur stationären Aufnahme und frühzeitigen laparoskopischen Cholezystektomie (lap. CE innerhalb von 24–72 Stunden). Sofortige Maßnahmen: Strikte Nahrungskarenz, i.v.-Zugang, Spasmolyse (Butylscopolamin) & Analgesie (Metamizol), Krankenhauseinweisung mit Patiententransport.'
 };
